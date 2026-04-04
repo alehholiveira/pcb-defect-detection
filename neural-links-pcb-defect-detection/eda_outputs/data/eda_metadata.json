@@ -1,0 +1,7 @@
+{
+  "analysis_mode": "subset",
+  "total_images_analyzed": 5000,
+  "total_classes": 6,
+  "images_without_annotations": 1227,
+  "dataset_path": "/Users/alehholiveira/Desktop/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/pcb-defect-dataset"
+}
