@@ -1,0 +1,8 @@
+{
+  "map50": 0.9835956374927465,
+  "map50_95": 0.5228906156717027,
+  "precision": 0.9706161002789452,
+  "recall": 0.9713376942076746,
+  "f1_max": 0.9883672571751051,
+  "run_dir": "/Users/alehholiveira/Desktop/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/yolo11/20260405_1422_yolo11n_img640_e50_bs16_seed42_baseline"
+}
