@@ -1,11 +1,11 @@
 {
-  "run_name": "20260424_0753_fasterrcnn_mobilenet_v3_fpn_e50_bs4_seed42_baseline",
+  "run_name": "20260424_2257_fasterrcnn_mobilenet_v3_fpn_e50_bs4_seed42_baseline",
   "run_tag": "baseline",
   "seed": 42,
   "epochs": 50,
   "batch_size": 4,
   "num_workers": 0,
-  "learning_rate": 0.001,
+  "learning_rate": 0.005,
   "momentum": 0.9,
   "weight_decay": 0.0005,
   "lr_step_size": 15,

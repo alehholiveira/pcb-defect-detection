@@ -1,0 +1,13 @@
+{
+  "run_name": "20260424_2257_fasterrcnn_mobilenet_v3_fpn_e50_bs4_seed42_baseline",
+  "run_dir": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/fasterrcnn_mobilenet_v3_fpn/20260424_2257_fasterrcnn_mobilenet_v3_fpn_e50_bs4_seed42_baseline",
+  "checkpoint": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/fasterrcnn_mobilenet_v3_fpn/20260424_2257_fasterrcnn_mobilenet_v3_fpn_e50_bs4_seed42_baseline/best_model.pth",
+  "map50": 0.9338545799255371,
+  "map50_95": 0.4516972601413727,
+  "precision_macro": 0.9504065965569869,
+  "recall_macro": 0.9442337314222469,
+  "f1_macro": 0.9472452300849271,
+  "f1_max": 0.9903536977491961,
+  "score_threshold": 0.25,
+  "match_iou_threshold": 0.5
+}
