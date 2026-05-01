@@ -1,0 +1,18 @@
+{
+  "label_to_name": {
+    "1": "missing_hole",
+    "2": "mouse_bite",
+    "3": "open_circuit",
+    "4": "short",
+    "5": "spur",
+    "6": "spurious_copper"
+  },
+  "label_to_cat_id": {
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6
+  }
+}

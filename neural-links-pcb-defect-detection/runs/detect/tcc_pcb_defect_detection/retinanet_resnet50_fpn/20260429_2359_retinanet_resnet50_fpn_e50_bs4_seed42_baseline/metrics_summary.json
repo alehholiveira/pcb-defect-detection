@@ -1,0 +1,13 @@
+{
+  "run_name": "20260429_2359_retinanet_resnet50_fpn_e50_bs4_seed42_baseline",
+  "run_dir": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/retinanet_resnet50_fpn/20260429_2359_retinanet_resnet50_fpn_e50_bs4_seed42_baseline",
+  "checkpoint": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/retinanet_resnet50_fpn/20260429_2359_retinanet_resnet50_fpn_e50_bs4_seed42_baseline/best_model.pth",
+  "map50": 0.0,
+  "map50_95": 0.0,
+  "precision_macro": 0.0,
+  "recall_macro": 0.0,
+  "f1_macro": 0.0,
+  "f1_max": 0.0,
+  "score_threshold": 0.25,
+  "match_iou_threshold": 0.5
+}
