@@ -1,0 +1,94 @@
+services:
+  # =============================================================================
+  # Frontend — React + Vite
+  # =============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pcb-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - pcb-network
+
+  # =============================================================================
+  # Backend — Node.js + Fastify + TypeScript
+  # =============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pcb-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pcb-network
+
+  # =============================================================================
+  # ML Service — Python + FastAPI
+  # =============================================================================
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: pcb-ml-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml-service:/app
+    env_file:
+      - .env
+    networks:
+      - pcb-network
+
+  # =============================================================================
+  # Database — MySQL 8.0
+  # =============================================================================
+  db:
+    image: mysql:8.0
+    container_name: pcb-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-pcb_defect_db}
+      MYSQL_USER: ${DB_USER:-pcb_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-pcb_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - pcb-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  mysql_data:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  pcb-network:
+    driver: bridge

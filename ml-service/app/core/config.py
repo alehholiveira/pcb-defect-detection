@@ -1,0 +1,34 @@
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+
+    # App
+    APP_NAME: str = "PCB Defect ML Service"
+    APP_VERSION: str = "1.0.0"
+    DEBUG: bool = True
+
+    # Server
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+
+    # Models directory (where trained weights are stored)
+    MODELS_DIR: str = "./weights"
+
+    # Max upload file size (bytes) — 10MB
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024
+
+    # Confidence threshold for detections
+    CONFIDENCE_THRESHOLD: float = 0.5
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Cached settings instance — avoids re-reading .env on every request."""
+    return Settings()
