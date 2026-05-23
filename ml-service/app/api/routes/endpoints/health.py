@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from app.core.config import get_settings
 from app.schemas.health import HealthResponse
@@ -12,15 +12,16 @@ router = APIRouter()
     summary="Health Check",
     description="Returns the current health status of the ML service and loaded models.",
 )
-async def health_check() -> HealthResponse:
+async def health_check(request: Request) -> HealthResponse:
     settings = get_settings()
 
-    # TODO: Check which models are actually loaded in app.state
-    available_models = ["yolo11", "faster_rcnn", "retinanet", "rt_detr"]
+    # Report actually loaded models from app.state
+    models = getattr(request.app.state, "models", {})
+    models_loaded = [name.value for name in models.keys()]
 
     return HealthResponse(
-        status="healthy",
+        status="healthy" if models_loaded else "degraded",
         service=settings.APP_NAME,
         version=settings.APP_VERSION,
-        models_loaded=available_models,
+        models_loaded=models_loaded,
     )

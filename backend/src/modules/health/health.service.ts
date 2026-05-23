@@ -37,7 +37,7 @@ export async function getHealthStatus(): Promise<HealthStatus> {
   // Check ML service reachability
   let mlStatus: 'reachable' | 'unreachable' = 'unreachable';
   try {
-    const response = await fetch(`${env.ML_SERVICE_URL}/api/v1/health`, {
+    const response = await fetch(`${env.ML_SERVICE_URL}/ml-service/health`, {
       signal: AbortSignal.timeout(3000),
     });
     if (response.ok) {

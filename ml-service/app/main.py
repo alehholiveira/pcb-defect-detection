@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
 from app.core.lifespan import lifespan
-from app.api.v1.router import api_v1_router
+from app.api.routes.router import api_router_ml_service
 
 
 def create_app() -> FastAPI:
@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
     )
 
     # Register API routes
-    app.include_router(api_v1_router, prefix="/api/v1")
+    app.include_router(api_router_ml_service, prefix="/ml-service")
 
     return app
 

@@ -11,21 +11,22 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Server
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    HOST: str
+    PORT: int
 
     # Models directory (where trained weights are stored)
-    MODELS_DIR: str = "./weights"
+    MODELS_DIR: str
 
     # Max upload file size (bytes) — 10MB
-    MAX_FILE_SIZE: int = 10 * 1024 * 1024
+    MAX_FILE_SIZE: int
 
     # Confidence threshold for detections
-    CONFIDENCE_THRESHOLD: float = 0.5
+    CONFIDENCE_THRESHOLD: float
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 @lru_cache()
