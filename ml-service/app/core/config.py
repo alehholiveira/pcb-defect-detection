@@ -17,8 +17,11 @@ class Settings(BaseSettings):
     # Models directory (where trained weights are stored)
     MODELS_DIR: str
 
-    # Max upload file size (bytes) — 10MB
+    # Max upload file size (bytes)
     MAX_FILE_SIZE: int
+
+    # Output directory for annotated images
+    OUTPUTS_DIR: str
 
     # Confidence threshold for detections
     CONFIDENCE_THRESHOLD: float

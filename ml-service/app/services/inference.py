@@ -9,24 +9,61 @@ Logic follows the inference notebooks:
 - PyTorch: pcb_utils.draw_predictions() style (FasterRCNN_inferencia, RetinaNet_inferencia)
 """
 
-import base64
-import io
 import time
+from datetime import datetime
+from pathlib import Path
 
 import torch
 from PIL import Image, ImageDraw
 from torchvision.transforms import functional as TF
 
 from app.models.loader import LoadedModel
-from app.schemas.prediction import Detection, PredictionResponse
+from app.schemas.prediction import Detection, ImageResult, PredictionResponse
 
 
-def _image_to_base64(image: Image.Image) -> str:
-    """Convert a PIL Image to base64-encoded PNG string."""
-    buffer = io.BytesIO()
-    image.save(buffer, format="PNG")
-    buffer.seek(0)
-    return base64.b64encode(buffer.read()).decode("utf-8")
+# ──────────────────────────────────────────────────────────────────────
+# Image saving
+# ──────────────────────────────────────────────────────────────────────
+
+
+def _save_annotated_image(
+    image: Image.Image,
+    output_dir: Path,
+    filename: str,
+) -> str:
+    """
+    Save an annotated image to disk and return its local path.
+
+    Directory structure:
+      outputs/<date>/<time>/filename.png
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / filename
+    image.save(output_path, format="PNG")
+    return str(output_path)
+
+
+def _create_output_dir(base_dir: str) -> Path:
+    """
+    Create output directory following the pattern:
+      <base_dir>/<YYYY-MM-DD>/<HH-MM-SS>/
+
+    Parameters
+    ----------
+    base_dir : str
+        Base output directory (e.g. './outputs').
+
+    Returns
+    -------
+    Path
+        Full path to the timestamped directory.
+    """
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H-%M-%S")
+    output_dir = Path(base_dir) / date_str / time_str
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -41,10 +78,10 @@ def _image_to_base64(image: Image.Image) -> str:
 def _annotate_image_pytorch(
     image: Image.Image,
     detections: list[Detection],
-) -> str:
+) -> Image.Image:
     """
     Draw bounding boxes on the image following pcb_utils.draw_predictions().
-    Returns base64-encoded PNG.
+    Returns the annotated PIL Image.
     """
     annotated = image.copy()
     draw = ImageDraw.Draw(annotated)
@@ -57,7 +94,7 @@ def _annotate_image_pytorch(
         text_y = y1 - 12 if y1 > 12 else y1 + 2
         draw.text((x1 + 2, text_y), caption, fill="yellow")
 
-    return _image_to_base64(annotated)
+    return annotated
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -80,10 +117,10 @@ def _infer_ultralytics(
     loaded: LoadedModel,
     image: Image.Image,
     confidence_threshold: float,
-) -> tuple[list[Detection], str]:
+) -> tuple[list[Detection], Image.Image]:
     """
     Run inference using an Ultralytics model (YOLO11 or RT-DETR).
-    Returns detections and base64-encoded annotated image.
+    Returns detections and annotated PIL Image.
     """
     results = loaded.model.predict(
         source=image,
@@ -93,13 +130,12 @@ def _infer_ultralytics(
     )
 
     detections: list[Detection] = []
-    annotated_b64 = ""
+    annotated_pil = image.copy()
 
     for result in results:
         # Annotated image — follows notebook: result.plot() → BGR → RGB
         im_array = result.plot()
         annotated_pil = Image.fromarray(im_array[..., ::-1])
-        annotated_b64 = _image_to_base64(annotated_pil)
 
         # Extract detections — follows notebook extraction loop
         for box in result.boxes:
@@ -115,7 +151,7 @@ def _infer_ultralytics(
                 )
             )
 
-    return detections, annotated_b64
+    return detections, annotated_pil
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -178,20 +214,19 @@ def _infer_pytorch(
 
 
 # ──────────────────────────────────────────────────────────────────────
-# Unified inference entry point
+# Single-image inference (used internally per image)
 # ──────────────────────────────────────────────────────────────────────
 
 
-def run_inference(
+def _run_single_inference(
     loaded: LoadedModel,
     image: Image.Image,
-    confidence_threshold: float | None = None,
-) -> PredictionResponse:
+    confidence_threshold: float,
+    output_dir: Path,
+    image_filename: str,
+) -> ImageResult:
     """
-    Run inference on an image using the specified model.
-
-    Dispatches to the appropriate inference function based on the model's
-    framework (Ultralytics vs PyTorch).
+    Run inference on a single image: detect, annotate, save, and return result.
 
     Parameters
     ----------
@@ -199,34 +234,91 @@ def run_inference(
         Model wrapper with loaded weights.
     image : PIL.Image
         Input image (RGB).
-    confidence_threshold : float | None
-        Minimum confidence for detections. Uses model default if None.
+    confidence_threshold : float
+        Minimum confidence for detections.
+    output_dir : Path
+        Directory where annotated image will be saved.
+    image_filename : str
+        Original filename (used for naming the output file).
 
     Returns
     -------
-    PredictionResponse
-        Structured prediction result with detections and annotated image.
+    ImageResult
+        Detections + path to annotated image for this single image.
     """
-    if confidence_threshold is None:
-        confidence_threshold = loaded.score_threshold
-
-    start = time.perf_counter()
-
     if loaded.framework == "ultralytics":
-        detections, annotated_b64 = _infer_ultralytics(
+        detections, annotated_pil = _infer_ultralytics(
             loaded, image, confidence_threshold
         )
     else:
         detections = _infer_pytorch(loaded, image, confidence_threshold)
         # Annotation follows pcb_utils.draw_predictions()
-        annotated_b64 = _annotate_image_pytorch(image, detections)
+        annotated_pil = _annotate_image_pytorch(image, detections)
+
+    # Save annotated image to disk
+    stem = Path(image_filename).stem
+    output_filename = f"{stem}_pred.png"
+    image_url = _save_annotated_image(annotated_pil, output_dir, output_filename)
+
+    return ImageResult(
+        image_name=image_filename,
+        total_detections=len(detections),
+        detections=detections,
+        image_url=image_url,
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Batch inference entry point
+# ──────────────────────────────────────────────────────────────────────
+
+
+def run_batch_inference(
+    loaded: LoadedModel,
+    images: list[tuple[str, Image.Image]],
+    confidence_threshold: float | None = None,
+    output_base_dir: str = "./outputs",
+) -> PredictionResponse:
+    """
+    Run inference on multiple images using the specified model.
+
+    Parameters
+    ----------
+    loaded : LoadedModel
+        Model wrapper with loaded weights.
+    images : list[tuple[str, PIL.Image]]
+        List of (filename, PIL Image) tuples.
+    confidence_threshold : float | None
+        Minimum confidence for detections. Uses model default if None.
+    output_base_dir : str
+        Base directory for saving annotated images.
+
+    Returns
+    -------
+    PredictionResponse
+        Aggregated result with per-image detections and total count.
+    """
+    if confidence_threshold is None:
+        confidence_threshold = loaded.score_threshold
+
+    output_dir = _create_output_dir(output_base_dir)
+
+    start = time.perf_counter()
+
+    image_results: list[ImageResult] = []
+    for filename, image in images:
+        result = _run_single_inference(
+            loaded, image, confidence_threshold, output_dir, filename
+        )
+        image_results.append(result)
 
     elapsed_ms = (time.perf_counter() - start) * 1000
+
+    total_detections = sum(r.total_detections for r in image_results)
 
     return PredictionResponse(
         model_name=loaded.name.value,
         inference_time_ms=round(elapsed_ms, 2),
-        total_detections=len(detections),
-        detections=detections,
-        annotated_image_base64=annotated_b64,
+        total_detections=total_detections,
+        images=image_results,
     )

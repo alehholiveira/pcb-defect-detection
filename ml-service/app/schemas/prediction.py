@@ -14,17 +14,29 @@ class Detection(BaseModel):
     y2: float = Field(..., description="Bounding box bottom-right Y coordinate")
 
 
+class ImageResult(BaseModel):
+    """Inference result for a single image."""
+
+    image_name: str = Field(..., description="Original filename of the uploaded image")
+    total_detections: int = Field(..., description="Number of defects found in this image")
+    detections: list[Detection] = Field(
+        default_factory=list, description="List of detected defects"
+    )
+    image_url: str = Field(
+        ..., description="Local path to the annotated image with bounding boxes"
+    )
+
+
 class PredictionResponse(BaseModel):
     """Response schema for a prediction request."""
 
     model_name: str = Field(..., description="Name of the model used for inference")
     inference_time_ms: float = Field(
-        ..., description="Inference time in milliseconds"
+        ..., description="Total inference time in milliseconds"
     )
-    total_detections: int = Field(..., description="Total number of detections")
-    detections: list[Detection] = Field(
-        default_factory=list, description="List of detected defects"
+    total_detections: int = Field(
+        ..., description="Total number of defects found across all images"
     )
-    annotated_image_base64: str | None = Field(
-        None, description="Base64-encoded annotated image with bounding boxes (PNG)"
+    images: list[ImageResult] = Field(
+        default_factory=list, description="Inference results per image"
     )

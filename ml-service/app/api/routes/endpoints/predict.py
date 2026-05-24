@@ -1,39 +1,49 @@
 """POST /predict endpoint — runs PCB defect detection on uploaded images."""
 
+from io import BytesIO
+
 from fastapi import APIRouter, File, Query, Request, UploadFile, HTTPException
 from PIL import Image
 
+from app.core.config import get_settings
 from app.models.loader import ModelName
 from app.schemas.prediction import PredictionResponse
-from app.services.inference import run_inference
+from app.services.inference import run_batch_inference
 
 router = APIRouter()
+
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/bmp"}
 
 
 @router.post(
     "/predict",
     response_model=PredictionResponse,
-    summary="Run defect detection on an image",
+    summary="Run defect detection on one or more images",
     description=(
-        "Upload a PCB image and specify which model to use for inference. "
-        "Returns detected defects with bounding boxes and an annotated image."
+        "Upload one or more PCB images and specify which model to use for inference. "
+        "Returns detected defects with bounding boxes per image, "
+        "total detection count, and local paths to annotated images."
     ),
 )
 async def predict(
     request: Request,
-    file: UploadFile = File(..., description="PCB image file (JPEG, PNG)"),
+    files: list[UploadFile] = File(
+        ..., description="PCB image files (JPEG, PNG, BMP). Multiple files allowed."
+    ),
     model_name: ModelName = Query(
         ...,
         description="Model to use for inference",
         examples=["yolo11", "faster_rcnn", "retinanet", "rt_detr"],
     ),
-    confidence: float = Query(
+    confidence: float | None = Query(
         default=None,
         ge=0.0,
         le=1.0,
         description="Confidence threshold (uses model default if not specified)",
     ),
 ) -> PredictionResponse:
+    settings = get_settings()
+
     # Validate that models are loaded
     models = getattr(request.app.state, "models", None)
     if not models:
@@ -50,27 +60,57 @@ async def predict(
             detail=f"Model '{model_name.value}' is not loaded. Available models: {available}",
         )
 
-    # Validate file type
-    if file.content_type not in ("image/jpeg", "image/png"):
+    # Validate and read all images
+    images: list[tuple[str, Image.Image]] = []
+    total_size = 0
+
+    for file in files:
+        # Validate file type
+        if file.content_type not in ALLOWED_CONTENT_TYPES:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Invalid file type '{file.content_type}' for file '{file.filename}'. "
+                    f"Accepted: JPEG, PNG, BMP."
+                ),
+            )
+
+        # Read file contents
+        try:
+            contents = await file.read()
+            total_size += len(contents)
+
+            # Validate total upload size
+            if total_size > settings.MAX_FILE_SIZE:
+                max_mb = settings.MAX_FILE_SIZE / (1024 * 1024)
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Total upload size exceeds the limit of {max_mb:.0f}MB.",
+                )
+
+            image = Image.open(BytesIO(contents)).convert("RGB")
+            images.append((file.filename or "unknown.jpg", image))
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Could not process file '{file.filename}': {str(e)}",
+            )
+
+    if not images:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid file type '{file.content_type}'. Accepted: JPEG, PNG",
+            detail="No valid images were provided.",
         )
 
-    # Read and convert image
-    try:
-        contents = await file.read()
-        from io import BytesIO
-
-        image = Image.open(BytesIO(contents)).convert("RGB")
-    except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Could not process the uploaded image: {str(e)}",
-        )
-
-    # Run inference
+    # Run batch inference
     loaded_model = models[model_name]
-    result = run_inference(loaded_model, image, confidence)
+    result = run_batch_inference(
+        loaded=loaded_model,
+        images=images,
+        confidence_threshold=confidence,
+        output_base_dir=settings.OUTPUTS_DIR,
+    )
 
     return result
