@@ -8,11 +8,9 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "PCB Defect ML Service"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
 
-    # Server
-    HOST: str
-    PORT: int
+    # CORS
+    CORS_ORIGIN: str
 
     # Models directory (where trained weights are stored)
     MODELS_DIR: str
@@ -23,7 +21,7 @@ class Settings(BaseSettings):
     # Output directory for annotated images
     OUTPUTS_DIR: str
 
-    # Confidence threshold for detections
+    # Default confidence threshold for detections
     CONFIDENCE_THRESHOLD: float
 
     class Config:

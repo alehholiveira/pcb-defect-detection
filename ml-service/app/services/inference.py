@@ -276,8 +276,8 @@ def _run_single_inference(
 def run_batch_inference(
     loaded: LoadedModel,
     images: list[tuple[str, Image.Image]],
+    output_base_dir: str,
     confidence_threshold: float | None = None,
-    output_base_dir: str = "./outputs",
 ) -> PredictionResponse:
     """
     Run inference on multiple images using the specified model.

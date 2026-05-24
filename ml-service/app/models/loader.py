@@ -102,6 +102,7 @@ def _load_ultralytics_model(
     model_name: ModelName,
     model_class: type,
     device: torch.device,
+    confidence_threshold: float,
 ) -> LoadedModel:
     """Load an Ultralytics-based model (YOLO11 or RT-DETR)."""
     model = model_class(str(model_path))
@@ -112,7 +113,7 @@ def _load_ultralytics_model(
         model=model,
         framework="ultralytics",
         label_to_name=label_to_name,
-        score_threshold=0.25,  # notebooks: conf=0.25
+        score_threshold=confidence_threshold,
         device=device,
     )
 
@@ -134,6 +135,7 @@ def _load_ultralytics_model(
 def _load_faster_rcnn(
     model_path: Path,
     device: torch.device,
+    confidence_threshold: float,
 ) -> LoadedModel:
     """Load Faster R-CNN following FasterRCNN_inferencia.ipynb."""
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
@@ -155,17 +157,12 @@ def _load_faster_rcnn(
     model.to(device)
     model.eval()
 
-    # Notebook: checkpoint.get("config", {}).get("score_threshold", 0.30)
-    score_threshold = float(
-        checkpoint.get("config", {}).get("score_threshold", 0.30)
-    )
-
     return LoadedModel(
         name=ModelName.FASTER_RCNN,
         model=model,
         framework="pytorch",
         label_to_name=label_to_name,
-        score_threshold=score_threshold,
+        score_threshold=confidence_threshold,
         device=device,
     )
 
@@ -185,6 +182,7 @@ def _load_faster_rcnn(
 def _load_retinanet(
     model_path: Path,
     device: torch.device,
+    confidence_threshold: float,
 ) -> LoadedModel:
     """Load RetinaNet following RetinaNet_inferencia.ipynb."""
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
@@ -203,17 +201,12 @@ def _load_retinanet(
     model.to(device)
     model.eval()
 
-    # Notebook: checkpoint.get("config", {}).get("score_threshold", 0.30)
-    score_threshold = float(
-        checkpoint.get("config", {}).get("score_threshold", 0.30)
-    )
-
     return LoadedModel(
         name=ModelName.RETINANET,
         model=model,
         framework="pytorch",
         label_to_name=label_to_name,
-        score_threshold=score_threshold,
+        score_threshold=confidence_threshold,
         device=device,
     )
 
@@ -230,7 +223,10 @@ MODEL_FILES = {
 }
 
 
-def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
+def load_all_models(
+    models_dir: str,
+    confidence_threshold: float,
+) -> dict[ModelName, LoadedModel]:
     """
     Load all 4 trained models from the specified directory.
 
@@ -238,6 +234,8 @@ def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
     ----------
     models_dir : str
         Path to the directory containing model weight files.
+    confidence_threshold : float
+        Default confidence threshold for all models (from CONFIDENCE_THRESHOLD env var).
 
     Returns
     -------
@@ -249,6 +247,7 @@ def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
     loaded: dict[ModelName, LoadedModel] = {}
 
     print(f"🔧 Device for inference: {device}")
+    print(f"🎯 Default confidence threshold: {confidence_threshold}")
 
     # --- Ultralytics models ---
     ultralytics_configs = [
@@ -261,7 +260,7 @@ def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
         if filepath.exists():
             print(f"📦 Loading {model_name.value}...")
             loaded[model_name] = _load_ultralytics_model(
-                filepath, model_name, model_class, device
+                filepath, model_name, model_class, device, confidence_threshold
             )
             print(f"  ✅ {model_name.value} loaded successfully")
         else:
@@ -271,7 +270,9 @@ def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
     frcnn_path = models_path / MODEL_FILES[ModelName.FASTER_RCNN]
     if frcnn_path.exists():
         print(f"📦 Loading {ModelName.FASTER_RCNN.value}...")
-        loaded[ModelName.FASTER_RCNN] = _load_faster_rcnn(frcnn_path, device)
+        loaded[ModelName.FASTER_RCNN] = _load_faster_rcnn(
+            frcnn_path, device, confidence_threshold
+        )
         print(f"  ✅ {ModelName.FASTER_RCNN.value} loaded successfully")
     else:
         print(f"  ⚠️ {ModelName.FASTER_RCNN.value} weights not found at {frcnn_path}")
@@ -280,7 +281,9 @@ def load_all_models(models_dir: str) -> dict[ModelName, LoadedModel]:
     retinanet_path = models_path / MODEL_FILES[ModelName.RETINANET]
     if retinanet_path.exists():
         print(f"📦 Loading {ModelName.RETINANET.value}...")
-        loaded[ModelName.RETINANET] = _load_retinanet(retinanet_path, device)
+        loaded[ModelName.RETINANET] = _load_retinanet(
+            retinanet_path, device, confidence_threshold
+        )
         print(f"  ✅ {ModelName.RETINANET.value} loaded successfully")
     else:
         print(f"  ⚠️ {ModelName.RETINANET.value} weights not found at {retinanet_path}")

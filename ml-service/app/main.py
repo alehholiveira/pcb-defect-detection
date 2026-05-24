@@ -22,10 +22,10 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS — allow requests from frontend and backend
+    # CORS — restrict to allowed origins from config
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[settings.CORS_ORIGIN],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

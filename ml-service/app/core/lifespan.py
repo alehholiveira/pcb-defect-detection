@@ -17,12 +17,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # --- Startup ---
     print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    print(f"🔧 Debug mode: {settings.DEBUG}")
     print(f"📂 Models directory: {settings.MODELS_DIR}")
 
     # Load all ML models into memory
     try:
-        app.state.models = load_all_models(settings.MODELS_DIR)
+        app.state.models = load_all_models(
+            settings.MODELS_DIR,
+            settings.CONFIDENCE_THRESHOLD,
+        )
         print(f"✅ {len(app.state.models)} model(s) loaded and ready for inference")
     except Exception as e:
         print(f"⚠️ Failed to load models: {e}")
