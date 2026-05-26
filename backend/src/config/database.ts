@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { env } from './index.js';
+import { up as createInferenceTables } from '../migrations/01-create-inference-tables.js';
 
 export const sequelize = new Sequelize({
   dialect: 'mysql',
@@ -26,13 +27,25 @@ export async function connectDatabase(): Promise<void> {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
 
-    // Sync models in development (creates tables if they don't exist)
-    if (env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: false });
-      console.log('✅ Database models synchronized.');
-    }
+    // Run programmatic migrations
+    await runMigrations();
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
     throw error;
+  }
+}
+
+async function runMigrations(): Promise<void> {
+  const queryInterface = sequelize.getQueryInterface();
+
+  // Check if tables already exist before running migration
+  const tables = await queryInterface.showAllTables();
+
+  if (!tables.includes('inferences')) {
+    console.log('🔄 Running migration: 01-create-inference-tables...');
+    await createInferenceTables(queryInterface);
+    console.log('✅ Migration completed: inference tables created.');
+  } else {
+    console.log('✅ Database tables already exist, skipping migrations.');
   }
 }
