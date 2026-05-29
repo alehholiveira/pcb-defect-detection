@@ -2,10 +2,12 @@
 
 from io import BytesIO
 
-from fastapi import APIRouter, File, Query, Request, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, HTTPException
 from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
+from app.core.database import get_db_session
 from app.models.loader import ModelName
 from app.schemas.prediction import PredictionResponse
 from app.services.inference import run_batch_inference
@@ -41,6 +43,7 @@ async def predict(
         le=1.0,
         description="Confidence threshold (uses model default if not specified)",
     ),
+    session: AsyncSession = Depends(get_db_session),
 ) -> PredictionResponse:
     settings = get_settings()
 
@@ -104,13 +107,11 @@ async def predict(
             detail="No valid images were provided.",
         )
 
-    # Run batch inference
-    loaded_model = models[model_name]
-    result = run_batch_inference(
-        loaded=loaded_model,
+    # Run batch inference and persist to database
+    return await run_batch_inference(
+        loaded=models[model_name],
         images=images,
-        confidence_threshold=confidence,
         output_base_dir=settings.OUTPUTS_DIR,
+        session=session,
+        confidence_threshold=confidence,
     )
-
-    return result

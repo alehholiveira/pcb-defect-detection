@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 
 from app.core.config import get_settings
+from app.core.database import init_db, close_db
 from app.models.loader import load_all_models
 
 
@@ -18,6 +19,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # --- Startup ---
     print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     print(f"📂 Models directory: {settings.MODELS_DIR}")
+
+    # Connect to database — mandatory, aborts startup on failure
+    db_ok = await init_db()
+    if not db_ok:
+        raise RuntimeError(
+            "❌ Failed to connect to the database. "
+            "Verify DB_HOST, DB_PORT, DB_USER, DB_PASSWORD and DB_NAME in .env."
+        )
 
     # Load all ML models into memory
     try:
@@ -36,3 +45,5 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print(f"👋 Shutting down {settings.APP_NAME}")
     # Free model references
     app.state.models = {}
+    # Close database connection pool
+    await close_db()

@@ -15,8 +15,12 @@ from pathlib import Path
 
 import torch
 from PIL import Image, ImageDraw
+from sqlalchemy.ext.asyncio import AsyncSession
 from torchvision.transforms import functional as TF
 
+from app.db.models import Detection as DetectionORM
+from app.db.models import Inference as InferenceORM
+from app.db.models import InferenceImage as InferenceImageORM
 from app.models.loader import LoadedModel
 from app.schemas.prediction import Detection, ImageResult, PredictionResponse
 
@@ -273,14 +277,16 @@ def _run_single_inference(
 # ──────────────────────────────────────────────────────────────────────
 
 
-def run_batch_inference(
+async def run_batch_inference(
     loaded: LoadedModel,
     images: list[tuple[str, Image.Image]],
     output_base_dir: str,
+    session: AsyncSession,
     confidence_threshold: float | None = None,
 ) -> PredictionResponse:
     """
-    Run inference on multiple images using the specified model.
+    Run inference on multiple images, persist the result to the database,
+    and return the aggregated PredictionResponse.
 
     Parameters
     ----------
@@ -288,10 +294,12 @@ def run_batch_inference(
         Model wrapper with loaded weights.
     images : list[tuple[str, PIL.Image]]
         List of (filename, PIL Image) tuples.
-    confidence_threshold : float | None
-        Minimum confidence for detections. Uses model default if None.
     output_base_dir : str
         Base directory for saving annotated images.
+    session : AsyncSession
+        Active SQLAlchemy async session for persisting the inference result.
+    confidence_threshold : float | None
+        Minimum confidence for detections. Uses model default if None.
 
     Returns
     -------
@@ -313,12 +321,42 @@ def run_batch_inference(
         image_results.append(result)
 
     elapsed_ms = (time.perf_counter() - start) * 1000
-
     total_detections = sum(r.total_detections for r in image_results)
 
-    return PredictionResponse(
+    response = PredictionResponse(
         model_name=loaded.name.value,
         inference_time_ms=round(elapsed_ms, 2),
         total_detections=total_detections,
         images=image_results,
     )
+
+    # Persist to database
+    inference_orm = InferenceORM(
+        model_name=response.model_name,
+        inference_time_ms=response.inference_time_ms,
+        total_detections=response.total_detections,
+    )
+
+    for image_result in response.images:
+        inference_image_orm = InferenceImageORM(
+            image_name=image_result.image_name,
+            total_detections=image_result.total_detections,
+            image_url=image_result.image_url,
+            detections=[
+                DetectionORM(
+                    class_name=det.class_name,
+                    confidence=det.confidence,
+                    x1=det.x1,
+                    y1=det.y1,
+                    x2=det.x2,
+                    y2=det.y2,
+                )
+                for det in image_result.detections
+            ],
+        )
+        inference_orm.images.append(inference_image_orm)
+
+    session.add(inference_orm)
+    await session.commit()
+
+    return response

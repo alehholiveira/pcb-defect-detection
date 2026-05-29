@@ -16,3 +16,8 @@ torchvision==0.20.1
 
 # ML - Ultralytics (YOLO11, RT-DETR)
 ultralytics==8.4.48
+
+# Database (ORM + async MySQL driver)
+sqlalchemy[asyncio]==2.0.50
+aiomysql==0.3.2
+cryptography>=41.0.0

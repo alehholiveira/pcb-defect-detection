@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     # Default confidence threshold for detections
     CONFIDENCE_THRESHOLD: float
 
+    # Database (MySQL — same instance as the backend)
+    DB_HOST: str
+    DB_PORT: int
+    DB_NAME: str
+    DB_USER: str
+    DB_PASSWORD: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
