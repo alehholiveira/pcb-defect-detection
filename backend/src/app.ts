@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { registerSwagger } from './plugins/swagger.js';
-import { healthRoutes } from './modules/health/health.routes.js';
+import { appRoutes } from './routes.js';
 import { env } from './config/index.js';
 
 export async function buildApp() {
@@ -38,13 +38,7 @@ export async function buildApp() {
   await registerSwagger(app);
 
   // --- Routes ---
-  await app.register(healthRoutes);
-
-  // API prefix for future routes
-  // await app.register(async (apiApp) => {
-  //   await apiApp.register(analysisRoutes);
-  //   await apiApp.register(reportRoutes);
-  // }, { prefix: '/api/v1' });
+  await app.register(appRoutes);
 
   return app;
 }

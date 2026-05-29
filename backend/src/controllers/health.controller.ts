@@ -1,8 +1,8 @@
-import type { FastifyInstance } from 'fastify';
-import { healthCheck } from './health.controller.js';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getHealthStatus } from '../services/health.service.js';
 
-export async function healthRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/health', {
+export async function healthController(app: FastifyInstance): Promise<void> {
+  app.get('/', {
     schema: {
       tags: ['Health'],
       summary: 'Health check',
@@ -52,4 +52,14 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: healthCheck,
   });
+}
+
+async function healthCheck(
+  _request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  const health = await getHealthStatus();
+
+  const statusCode = health.status === 'healthy' ? 200 : 503;
+  reply.status(statusCode).send(health);
 }

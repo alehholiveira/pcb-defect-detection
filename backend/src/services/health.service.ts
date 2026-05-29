@@ -1,5 +1,5 @@
-import { sequelize } from '../../config/database.js';
-import { env } from '../../config/index.js';
+import { sequelize } from '../config/database.js';
+import { env } from '../config/index.js';
 
 interface HealthStatus {
   status: 'healthy' | 'unhealthy';
