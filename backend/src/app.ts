@@ -2,8 +2,10 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { registerSwagger } from './plugins/swagger.js';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import { appRoutes } from './routes.js';
 import { env } from './config/index.js';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export async function buildApp() {
   const app = Fastify({
@@ -21,7 +23,11 @@ export async function buildApp() {
             }
           : undefined,
     },
-  });
+  }).withTypeProvider<ZodTypeProvider>();
+
+  // --- Zod Setup ---
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
 
   // --- Plugins ---
   await app.register(cors, {

@@ -1,5 +1,6 @@
 import { sequelize } from '../config/database.js';
 import { env } from '../config/index.js';
+import type { FastifyBaseLogger } from 'fastify';
 
 interface HealthStatus {
   status: 'healthy' | 'unhealthy';
@@ -18,7 +19,8 @@ interface HealthStatus {
   };
 }
 
-export async function getHealthStatus(): Promise<HealthStatus> {
+export async function getHealthStatus(logger: FastifyBaseLogger): Promise<HealthStatus> {
+  logger.info('[health.service.ts] getHealthStatus - Init');
   const timestamp = new Date().toISOString();
   const uptime = process.uptime();
 
@@ -30,7 +32,8 @@ export async function getHealthStatus(): Promise<HealthStatus> {
     await sequelize.authenticate();
     dbLatency = Date.now() - start;
     dbStatus = 'connected';
-  } catch {
+  } catch (error) {
+    logger.error({ error }, '[health.service.ts] getHealthStatus - DB Connection failed');
     dbStatus = 'disconnected';
   }
 
@@ -42,14 +45,17 @@ export async function getHealthStatus(): Promise<HealthStatus> {
     });
     if (response.ok) {
       mlStatus = 'reachable';
+    } else {
+      logger.warn(`[health.service.ts] getHealthStatus - ML Service returned status ${response.status}`);
     }
-  } catch {
+  } catch (error) {
+    logger.error({ error }, '[health.service.ts] getHealthStatus - ML Service fetch failed');
     mlStatus = 'unreachable';
   }
 
   const isHealthy = dbStatus === 'connected';
-
-  return {
+  
+  const result: HealthStatus = {
     status: isHealthy ? 'healthy' : 'unhealthy',
     timestamp,
     uptime,
@@ -65,4 +71,12 @@ export async function getHealthStatus(): Promise<HealthStatus> {
       },
     },
   };
+
+  if (isHealthy) {
+    logger.info('[health.service.ts] getHealthStatus - Success (Healthy)');
+  } else {
+    logger.warn('[health.service.ts] getHealthStatus - Completed with Unhealthy status');
+  }
+
+  return result;
 }

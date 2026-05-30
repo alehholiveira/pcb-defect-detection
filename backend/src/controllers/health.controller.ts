@@ -1,53 +1,35 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
 import { getHealthStatus } from '../services/health.service.js';
+import type { FastifyTypedInstance } from '../schemas/common.js';
+import { API_ERRORS } from '../utils/errors.js';
 
-export async function healthController(app: FastifyInstance): Promise<void> {
+const HealthResponseSchema = z.object({
+  status: z.enum(['healthy', 'unhealthy']),
+  timestamp: z.string().datetime(),
+  uptime: z.number(),
+  environment: z.string(),
+  services: z.object({
+    database: z.object({
+      status: z.enum(['connected', 'disconnected']),
+      latency: z.number().optional(),
+    }),
+    mlService: z.object({
+      status: z.enum(['reachable', 'unreachable']),
+      url: z.string(),
+    }),
+  }),
+});
+
+export async function healthController(app: FastifyTypedInstance): Promise<void> {
   app.get('/', {
     schema: {
       tags: ['Health'],
       summary: 'Health check',
       description: 'Returns the current health status of the API and its dependencies',
       response: {
-        200: {
-          type: 'object',
-          description: 'Service is healthy',
-          properties: {
-            status: { type: 'string', enum: ['healthy'] },
-            timestamp: { type: 'string', format: 'date-time' },
-            uptime: { type: 'number' },
-            environment: { type: 'string' },
-            services: {
-              type: 'object',
-              properties: {
-                database: {
-                  type: 'object',
-                  properties: {
-                    status: { type: 'string', enum: ['connected', 'disconnected'] },
-                    latency: { type: 'number' },
-                  },
-                },
-                mlService: {
-                  type: 'object',
-                  properties: {
-                    status: { type: 'string', enum: ['reachable', 'unreachable'] },
-                    url: { type: 'string' },
-                  },
-                },
-              },
-            },
-          },
-        },
-        503: {
-          type: 'object',
-          description: 'Service is unhealthy',
-          properties: {
-            status: { type: 'string', enum: ['unhealthy'] },
-            timestamp: { type: 'string', format: 'date-time' },
-            uptime: { type: 'number' },
-            environment: { type: 'string' },
-            services: { type: 'object' },
-          },
-        },
+        200: HealthResponseSchema.describe('Service is healthy'),
+        503: HealthResponseSchema.describe('Service is unhealthy'),
       },
     },
     handler: healthCheck,
@@ -55,11 +37,23 @@ export async function healthController(app: FastifyInstance): Promise<void> {
 }
 
 async function healthCheck(
-  _request: FastifyRequest,
+  request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
-  const health = await getHealthStatus();
+  request.log.info('[health.controller.ts] healthCheck - Init');
+  try {
+    const health = await getHealthStatus(request.log);
 
-  const statusCode = health.status === 'healthy' ? 200 : 503;
-  reply.status(statusCode).send(health);
+    if (health.status === 'healthy') {
+      request.log.info('[health.controller.ts] healthCheck - Success');
+      reply.status(200).send(health);
+    } else {
+      request.log.warn('[health.controller.ts] healthCheck - Unhealthy dependencies');
+      // Even if unhealthy, we usually return the health payload for diagnosis
+      reply.status(API_ERRORS.HEALTH_CHECK_FAILED.statusCode).send(health);
+    }
+  } catch (error) {
+    request.log.error({ error }, '[health.controller.ts] healthCheck - Error');
+    reply.status(API_ERRORS.INTERNAL_SERVER_ERROR.statusCode).send(API_ERRORS.INTERNAL_SERVER_ERROR);
+  }
 }

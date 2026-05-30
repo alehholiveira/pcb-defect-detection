@@ -1,17 +1,11 @@
 import { Op } from 'sequelize';
 import { Inference, InferenceImage, Detection } from '../models/index.js';
+import type { GetInferencesFilters } from '../controllers/inferences.controller.js';
+import type { FastifyBaseLogger } from 'fastify';
 
-export interface GetInferencesFilters {
-  startDate?: string;
-  endDate?: string;
-  modelName?: string;
-  defectType?: string;
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
+export async function getInferencesService(filters: GetInferencesFilters, logger: FastifyBaseLogger) {
+  logger.info({ filters }, '[inferences.service.ts] getInferencesService - Init');
 
-export async function getInferencesService(filters: GetInferencesFilters) {
   const {
     startDate,
     endDate,
@@ -31,7 +25,6 @@ export async function getInferencesService(filters: GetInferencesFilters) {
       inferenceWhere.created_at[Op.gte] = new Date(startDate);
     }
     if (endDate) {
-      // To include the entire end date, it's often good to add time or let the user pass ISO strings
       inferenceWhere.created_at[Op.lte] = new Date(endDate);
     }
   }
@@ -68,13 +61,19 @@ export async function getInferencesService(filters: GetInferencesFilters) {
     offset,
   });
 
+  const totalPages = Math.ceil(count / limit);
+  logger.info(
+    { count, page, totalPages },
+    '[inferences.service.ts] getInferencesService - Success'
+  );
+
   return {
     data: rows,
     meta: {
       total: count,
       page,
       limit,
-      totalPages: Math.ceil(count / limit),
+      totalPages,
     },
   };
 }
