@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 import torch
-from PIL import Image, ImageDraw
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 from torchvision.transforms import functional as TF
 
@@ -30,20 +30,23 @@ from app.schemas.prediction import Detection, ImageResult, PredictionResponse
 # ──────────────────────────────────────────────────────────────────────
 
 
-def _save_annotated_image(
+def _save_image(
     image: Image.Image,
     output_dir: Path,
     filename: str,
 ) -> str:
     """
-    Save an annotated image to disk and return its local path.
+    Save the original image to disk and return its local path.
 
     Directory structure:
-      outputs/<date>/<time>/filename.png
+      outputs/<date>/<time>/filename
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / filename
-    image.save(output_path, format="PNG")
+    # Determine format from extension or fallback to PNG
+    ext = output_path.suffix.lower()
+    save_format = "JPEG" if ext in [".jpg", ".jpeg"] else "PNG"
+    image.save(output_path, format=save_format)
     return str(output_path)
 
 
@@ -70,35 +73,7 @@ def _create_output_dir(base_dir: str) -> Path:
     return output_dir
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Annotation: PyTorch models (Faster R-CNN, RetinaNet)
-# Reference: pcb_utils.draw_predictions()
-#
-#   draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-#   draw.text((x1 + 2, text_y), caption, fill="yellow")
-# ──────────────────────────────────────────────────────────────────────
 
-
-def _annotate_image_pytorch(
-    image: Image.Image,
-    detections: list[Detection],
-) -> Image.Image:
-    """
-    Draw bounding boxes on the image following pcb_utils.draw_predictions().
-    Returns the annotated PIL Image.
-    """
-    annotated = image.copy()
-    draw = ImageDraw.Draw(annotated)
-
-    for det in detections:
-        x1, y1, x2, y2 = det.x1, det.y1, det.x2, det.y2
-        caption = f"{det.class_name}: {det.confidence:.2f}"
-
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-        text_y = y1 - 12 if y1 > 12 else y1 + 2
-        draw.text((x1 + 2, text_y), caption, fill="yellow")
-
-    return annotated
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -121,10 +96,10 @@ def _infer_ultralytics(
     loaded: LoadedModel,
     image: Image.Image,
     confidence_threshold: float,
-) -> tuple[list[Detection], Image.Image]:
+) -> list[Detection]:
     """
     Run inference using an Ultralytics model (YOLO11 or RT-DETR).
-    Returns detections and annotated PIL Image.
+    Returns only detections.
     """
     results = loaded.model.predict(
         source=image,
@@ -134,14 +109,9 @@ def _infer_ultralytics(
     )
 
     detections: list[Detection] = []
-    annotated_pil = image.copy()
 
     for result in results:
-        # Annotated image — follows notebook: result.plot() → BGR → RGB
-        im_array = result.plot()
-        annotated_pil = Image.fromarray(im_array[..., ::-1])
-
-        # Extract detections — follows notebook extraction loop
+        # Extract detections
         for box in result.boxes:
             x1, y1, x2, y2 = box.xyxy[0].tolist()
             detections.append(
@@ -155,7 +125,7 @@ def _infer_ultralytics(
                 )
             )
 
-    return detections, annotated_pil
+    return detections
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -230,7 +200,7 @@ def _run_single_inference(
     image_filename: str,
 ) -> ImageResult:
     """
-    Run inference on a single image: detect, annotate, save, and return result.
+    Run inference on a single image: detect, save original, and return result.
 
     Parameters
     ----------
@@ -241,28 +211,27 @@ def _run_single_inference(
     confidence_threshold : float
         Minimum confidence for detections.
     output_dir : Path
-        Directory where annotated image will be saved.
+        Directory where image will be saved.
     image_filename : str
         Original filename (used for naming the output file).
 
     Returns
     -------
     ImageResult
-        Detections + path to annotated image for this single image.
+        Detections + path to saved image for this single image.
     """
     if loaded.framework == "ultralytics":
-        detections, annotated_pil = _infer_ultralytics(
-            loaded, image, confidence_threshold
-        )
+        detections = _infer_ultralytics(loaded, image, confidence_threshold)
     else:
         detections = _infer_pytorch(loaded, image, confidence_threshold)
-        # Annotation follows pcb_utils.draw_predictions()
-        annotated_pil = _annotate_image_pytorch(image, detections)
 
-    # Save annotated image to disk
+    # Save original image to disk
     stem = Path(image_filename).stem
-    output_filename = f"{stem}_pred.png"
-    image_url = _save_annotated_image(annotated_pil, output_dir, output_filename)
+    ext = Path(image_filename).suffix
+    if not ext:
+        ext = ".png"
+    output_filename = f"{stem}{ext}"
+    image_url = _save_image(image, output_dir, output_filename)
 
     return ImageResult(
         image_name=image_filename,
