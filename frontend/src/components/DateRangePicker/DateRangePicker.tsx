@@ -1,6 +1,9 @@
-import { useId } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DatePicker from 'react-datepicker';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import 'react-datepicker/dist/react-datepicker.css';
 import './DateRangePicker.css';
 
 interface DateRangePickerProps {
@@ -20,49 +23,57 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const { t } = useTranslation();
   const id = useId();
-  const startId = `${id}-start`;
-  const endId = `${id}-end`;
+
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+
+  // Synchronize internal state with props
+  useEffect(() => {
+    const parsedStart = startDate ? parseISO(startDate) : null;
+    const parsedEnd = endDate ? parseISO(endDate) : null;
+    setDateRange([parsedStart, parsedEnd]);
+  }, [startDate, endDate]);
+
+  const onChange = (update: [Date | null, Date | null]) => {
+    setDateRange(update);
+    const [start, end] = update;
+    
+    if (start) {
+      onStartDateChange(startOfDay(start).toISOString());
+    } else {
+      onStartDateChange('');
+    }
+    
+    if (end) {
+      onEndDateChange(endOfDay(end).toISOString());
+    } else {
+      onEndDateChange('');
+    }
+  };
 
   return (
     <div className="date-range-picker">
       {label && (
-        <span className="date-range-picker__label">{label}</span>
+        <label htmlFor={id} className="date-range-picker__label">
+          {label}
+        </label>
       )}
-      <div className="date-range-picker__row">
+      <div className="date-range-picker__wrapper">
         <Calendar
           size={18}
           className="date-range-picker__icon"
           aria-hidden="true"
         />
-        <div className="date-range-picker__field">
-          <label htmlFor={startId} className="sr-only">
-            {t('dateRangePicker.startDate', 'Start date')}
-          </label>
-          <input
-            id={startId}
-            type="date"
-            className="date-range-picker__input"
-            value={startDate}
-            max={endDate || undefined}
-            onChange={(e) => onStartDateChange(e.target.value)}
-          />
-        </div>
-        <span className="date-range-picker__separator" aria-hidden="true">
-          —
-        </span>
-        <div className="date-range-picker__field">
-          <label htmlFor={endId} className="sr-only">
-            {t('dateRangePicker.endDate', 'End date')}
-          </label>
-          <input
-            id={endId}
-            type="date"
-            className="date-range-picker__input"
-            value={endDate}
-            min={startDate || undefined}
-            onChange={(e) => onEndDateChange(e.target.value)}
-          />
-        </div>
+        <DatePicker
+          id={id}
+          selectsRange={true}
+          startDate={dateRange[0]}
+          endDate={dateRange[1]}
+          onChange={onChange}
+          isClearable={true}
+          placeholderText={t('dateRangePicker.placeholder', 'Selecione o período...')}
+          className="date-range-picker__input"
+          dateFormat="dd/MM/yyyy"
+        />
       </div>
     </div>
   );

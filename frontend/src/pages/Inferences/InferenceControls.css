@@ -2,7 +2,8 @@
   display: grid;
   grid-template-columns: 280px 1fr auto;
   gap: 20px;
-  align-items: start;
+  align-items: center;
+  padding: 12px 16px;
 }
 
 .inference-controls__model {
@@ -19,7 +20,37 @@
 }
 
 .inference-controls__dropzone {
-  min-height: 120px;
+  min-height: 60px;
+}
+
+.inference-controls__dropzone-inner {
+  min-height: 60px !important;
+  padding: 8px 16px !important;
+}
+
+.inference-controls__dropzone-inner .dropzone__content {
+  flex-direction: row;
+  gap: 12px;
+}
+
+.inference-controls__dropzone-inner .dropzone__icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0;
+}
+
+.inference-controls__dropzone-inner .dropzone__text-content {
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+}
+
+.inference-controls__dropzone-inner .dropzone__title {
+  font-size: 14px;
+}
+
+.inference-controls__dropzone-inner .dropzone__hint {
+  font-size: 12px;
 }
 
 .inference-controls__action {
@@ -28,7 +59,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding-top: 20px;
 }
 
 .inference-controls__run-btn {

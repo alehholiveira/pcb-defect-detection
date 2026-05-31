@@ -67,6 +67,10 @@ export function InferenceHistory({
     endDate: historyFilters.endDate,
     modelName: historyFilters.modelName,
   })
+  const [sortConfig, setSortConfig] = useState<{ key: string; order: 'asc' | 'desc' }>({
+    key: 'created_at',
+    order: 'desc',
+  })
 
   const modelOptions = [
     { value: '', label: t('inference.history.filter.allModels', 'Todos os Modelos') },
@@ -96,12 +100,10 @@ export function InferenceHistory({
   )
 
   const handleSort = useCallback(
-    (_field: string, order: 'asc' | 'desc') => {
-      // Backend only supports sortOrder currently, not sortField.
-      // But we will pass it anyway in case it's updated.
-      onFiltersChange({ sortOrder: order, page: 1 })
+    (field: string, order: 'asc' | 'desc') => {
+      setSortConfig({ key: field, order })
     },
-    [onFiltersChange]
+    []
   )
 
   const handleApplyFilters = useCallback(() => {
@@ -118,6 +120,7 @@ export function InferenceHistory({
         key: 'id',
         label: t('inference.history.columns.id', 'ID'),
         width: '100px',
+        sortable: true,
         render: (_: number, row: Inference) => (
           <span className="inference-history__id">INF-{row.id}</span>
         ),
@@ -131,6 +134,7 @@ export function InferenceHistory({
       {
         key: 'model_name',
         label: t('inference.history.columns.model', 'Modelo'),
+        sortable: true,
         render: (value: string) => (
           <span className="inference-history__model">{value}</span>
         ),
@@ -139,6 +143,7 @@ export function InferenceHistory({
         key: 'images',
         label: t('inference.history.columns.images', 'Imagens'),
         width: '90px',
+        sortable: true,
         render: (_: unknown, row: Inference) => row.images.length,
       },
       {
@@ -150,7 +155,8 @@ export function InferenceHistory({
       {
         key: 'avg_confidence',
         label: t('inference.history.columns.avgConfidence', 'Confiança Média'),
-        width: '120px',
+        width: '140px',
+        sortable: true,
         render: (_: unknown, row: Inference) => computeAvgConfidence(row),
       },
       {
@@ -204,7 +210,37 @@ export function InferenceHistory({
     [t]
   )
 
-  const data = historyData?.data ?? []
+  const data = historyData?.data || []
+  
+  const sortedData = useMemo(() => {
+    if (!data.length) return []
+    return [...data].sort((a, b) => {
+      let aVal: any = a[sortConfig.key as keyof Inference]
+      let bVal: any = b[sortConfig.key as keyof Inference]
+
+      if (sortConfig.key === 'images') {
+        aVal = a.images.length
+        bVal = b.images.length
+      } else if (sortConfig.key === 'total_detections') {
+        aVal = a.total_detections
+        bVal = b.total_detections
+      } else if (sortConfig.key === 'avg_confidence') {
+        aVal = parseFloat(computeAvgConfidence(a))
+        bVal = parseFloat(computeAvgConfidence(b))
+      } else if (sortConfig.key === 'inference_time_ms') {
+        aVal = a.inference_time_ms
+        bVal = b.inference_time_ms
+      } else if (sortConfig.key === 'created_at') {
+        aVal = new Date(a.created_at).getTime()
+        bVal = new Date(b.created_at).getTime()
+      }
+
+      if (aVal < bVal) return sortConfig.order === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortConfig.order === 'asc' ? 1 : -1
+      return 0
+    })
+  }, [data, sortConfig])
+
   const meta = historyData?.meta
 
   return (
@@ -279,10 +315,10 @@ export function InferenceHistory({
         )}
         <Table
           columns={columns}
-          data={data}
+          data={sortedData}
           loading={historyLoading}
-          sortField="created_at"
-          sortOrder={historyFilters.sortOrder || 'desc'}
+          sortField={sortConfig.key}
+          sortOrder={sortConfig.order}
           onSort={handleSort}
           emptyMessage={t(
             'inference.history.empty',

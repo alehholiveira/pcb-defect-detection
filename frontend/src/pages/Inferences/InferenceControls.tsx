@@ -31,7 +31,7 @@ export function InferenceControls({
   }))
 
   return (
-    <Card>
+    <Card noPadding>
       <div className="inference-controls">
         <div className="inference-controls__model">
           <Select
@@ -48,6 +48,7 @@ export function InferenceControls({
 
         <div className="inference-controls__dropzone">
           <DropZone
+            className="inference-controls__dropzone-inner"
             onFilesSelected={onFilesSelected}
             accept="image/jpeg,image/png,image/bmp"
             multiple

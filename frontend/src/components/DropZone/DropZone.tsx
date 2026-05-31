@@ -179,22 +179,24 @@ export function DropZone({
         <div className="dropzone__icon">
           <Upload size={32} />
         </div>
-        <p className="dropzone__title">
-          {t(
-            'dropzone.title',
-            'Arraste e solte seus arquivos aqui ou clique para selecionar',
-          )}
-        </p>
-        <p className="dropzone__hint">
-          {t('dropzone.hint', 'Formatos aceitos: {{formats}} — Máx. {{maxSize}}', {
-            formats: formatAcceptedTypes(),
-            maxSize: formatMaxSize(),
-          })}
-          {maxFiles &&
-            ` — ${t('dropzone.maxFiles', 'Máx. {{count}} arquivo(s)', {
-              count: maxFiles,
-            })}`}
-        </p>
+        <div className="dropzone__text-content">
+          <p className="dropzone__title">
+            {t(
+              'dropzone.title',
+              'Arraste e solte seus arquivos aqui ou clique para selecionar',
+            )}
+          </p>
+          <p className="dropzone__hint">
+            {t('dropzone.hint', 'Formatos aceitos: {{formats}} — Máx. {{maxSize}}', {
+              formats: formatAcceptedTypes(),
+              maxSize: formatMaxSize(),
+            })}
+            {maxFiles &&
+              ` — ${t('dropzone.maxFiles', 'Máx. {{count}} arquivo(s)', {
+                count: maxFiles,
+              })}`}
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -11,11 +11,11 @@ interface TabItem {
 }
 
 const TABS: TabItem[] = [
-  { labelKey: 'tabs.inferences', defaultLabel: 'Inferências', path: '/inferences', icon: <Cpu size={18} /> },
-  { labelKey: 'tabs.reports', defaultLabel: 'Relatórios', path: '/reports', icon: <FileText size={18} /> },
-  { labelKey: 'tabs.metrics', defaultLabel: 'Métricas', path: '/metrics', icon: <BarChart3 size={18} /> },
-  { labelKey: 'tabs.models', defaultLabel: 'Modelos', path: '/models', icon: <Box size={18} /> },
-  { labelKey: 'tabs.settings', defaultLabel: 'Configurações', path: '/settings', icon: <Settings2 size={18} /> },
+  { labelKey: 'nav.inferences', defaultLabel: 'Inferências', path: '/inferences', icon: <Cpu size={18} /> },
+  { labelKey: 'nav.reports', defaultLabel: 'Relatórios', path: '/reports', icon: <FileText size={18} /> },
+  { labelKey: 'nav.metrics', defaultLabel: 'Métricas', path: '/metrics', icon: <BarChart3 size={18} /> },
+  { labelKey: 'nav.models', defaultLabel: 'Modelos', path: '/models', icon: <Box size={18} /> },
+  { labelKey: 'nav.settings', defaultLabel: 'Configurações', path: '/settings', icon: <Settings2 size={18} /> },
 ];
 
 export function TabNav() {
