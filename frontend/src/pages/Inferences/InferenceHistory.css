@@ -1,0 +1,93 @@
+.inference-history {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header actions */
+.inference-history__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inference-history__search {
+  min-width: 220px;
+}
+
+.inference-history__filters-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--color-bg-tertiary, #f3f4f6);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.inference-history__filters-clear {
+  margin-left: auto;
+}
+
+/* ID styling */
+.inference-history__id {
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary, #16a34a);
+}
+
+/* Model badge style */
+.inference-history__model {
+  font-weight: 500;
+  color: var(--color-text, #111827);
+}
+
+/* Action buttons */
+.inference-history__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inference-history__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all var(--transition-base, 200ms ease);
+}
+
+.inference-history__action-btn:hover {
+  background: #f3f4f6;
+  color: var(--color-text, #111827);
+}
+
+.inference-history__action-btn--danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Pagination */
+.inference-history__pagination {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .inference-history__header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .inference-history__search {
+    min-width: auto;
+    width: 100%;
+  }
+}

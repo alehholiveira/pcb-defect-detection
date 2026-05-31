@@ -1,0 +1,33 @@
+.placeholder-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.placeholder-card {
+  text-align: center;
+  padding: 64px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.placeholder-card svg {
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.placeholder-card h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 8px;
+}
+
+.placeholder-card p {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}

@@ -1,0 +1,97 @@
+/* ============================================
+   DropZone Component
+   ============================================ */
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: var(--spacing-8) var(--spacing-6);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base);
+  outline: none;
+}
+
+.dropzone:hover:not(.dropzone--disabled) {
+  border-color: var(--color-border-hover);
+  background-color: var(--color-bg-secondary);
+}
+
+.dropzone:focus-visible:not(.dropzone--disabled) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* --- Drag Over State --- */
+.dropzone--drag-over {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-50);
+}
+
+/* --- Disabled State --- */
+.dropzone--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Hidden Input --- */
+.dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Content --- */
+.dropzone__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* --- Icon --- */
+.dropzone__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.dropzone--drag-over .dropzone__icon {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+/* --- Text --- */
+.dropzone__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+}
+
+.dropzone__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+  max-width: 360px;
+}

@@ -1,0 +1,44 @@
+.inferences-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0; /* Let app-content handle padding */
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inferences-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inferences-page__title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.inferences-page__subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 4px 0 0;
+}
+
+.inferences-page__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.inferences-page__error svg {
+  flex-shrink: 0;
+}

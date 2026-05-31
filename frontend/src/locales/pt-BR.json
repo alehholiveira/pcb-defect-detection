@@ -1,0 +1,146 @@
+{
+  "nav": {
+    "inferences": "Inferências",
+    "reports": "Relatórios",
+    "metrics": "Métricas",
+    "models": "Modelos",
+    "settings": "Configurações",
+    "help": "Ajuda",
+    "notifications": "Notificações"
+  },
+  "reports": {
+    "title": "Relatórios",
+    "subtitle": "Visualize e gerencie todos os relatórios de inspeção gerados no sistema.",
+    "generated": "Relatórios Gerados",
+    "generateManual": "Gerar Relatório Manual",
+    "period": "Período",
+    "reportType": "Tipo de Relatório",
+    "model": "Modelo",
+    "defectType": "Tipo de Defeito",
+    "statusFilter": "Status",
+    "all": "Todos",
+    "clearFilters": "Limpar Filtros",
+    "applyFilters": "Aplicar Filtros",
+    "expandFilters": "Expandir Filtros",
+    "reportName": "Nome do Relatório",
+    "generationDate": "Data de Geração",
+    "referencePeriod": "Período de Referência",
+    "inspections": "Inspeções",
+    "detectedDefects": "Defeitos Detectados",
+    "defectsByType": "Defeitos por Tipo",
+    "generatedBy": "Gerado Por",
+    "status": "Status",
+    "actions": "Ações",
+    "completed": "Concluído",
+    "systemAutomatic": "Sistema (Automático)",
+    "daily": "Diário",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "showingResults": "Mostrando {{from}} a {{to}} de {{total}} resultados",
+    "rowsPerPage": "Linhas por página:"
+  },
+  "defects": {
+    "missing_hole": "Missing Hole",
+    "mouse_bite": "Mouse Bite",
+    "open_circuit": "Open Circuit",
+    "short": "Short",
+    "spur": "Spur",
+    "spurious_copper": "Spurious Copper",
+    "others": "Outros"
+  },
+  "placeholders": {
+    "comingSoon": "Em breve",
+    "metricsDescription": "Dashboard de métricas e análises estará disponível aqui.",
+    "modelsDescription": "Gerenciamento de modelos de IA estará disponível aqui.",
+    "settingsDescription": "Configurações do sistema estarão disponíveis aqui."
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "retry": "Tentar novamente",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "view": "Visualizar",
+    "download": "Baixar",
+    "close": "Fechar",
+    "language": "Idioma"
+  },
+  "inference": {
+    "page": {
+      "title": "Inferência",
+      "subtitle": "Execute modelos de detecção de defeitos em imagens de PCB"
+    },
+    "controls": {
+      "title": "Configuração da Inferência",
+      "subtitle": "Selecione o modelo, adicione imagens e execute a análise",
+      "model": "Modelo de Detecção",
+      "uploadLabel": "Upload de Imagens PCB",
+      "run": "Executar Inferência",
+      "fileCount": "{{count}} imagem(ns) selecionada(s)"
+    },
+    "preview": {
+      "title": "Imagens Selecionadas",
+      "clearAll": "Limpar tudo",
+      "remove": "Remover imagem",
+      "more": "mais"
+    },
+    "loading": {
+      "title": "Analisando defeitos PCB..."
+    },
+    "results": {
+      "title": "Resultados da Inferência",
+      "completed": "Concluído",
+      "processed": "{{count}} imagem(ns) processada(s) em {{time}}s",
+      "original": "Imagem Original",
+      "annotated": "Detecções",
+      "detectionsCount": "{{count}} detecção(ões)",
+      "summary": "Resumo das Detecções",
+      "noDefects": "Nenhum defeito detectado",
+      "total": "Total",
+      "previous": "Imagem anterior",
+      "next": "Próxima imagem"
+    },
+    "summary": {
+      "imagesProcessed": "Imagens Processadas",
+      "detectedDefects": "Defeitos Detectados",
+      "avgConfidence": "Confiança Média",
+      "modelUsed": "Modelo Utilizado",
+      "executionTime": "Tempo de Execução"
+    },
+    "history": {
+      "title": "Histórico de Inferências",
+      "subtitle": "Visualize e gerencie inferências anteriores",
+      "search": "Buscar...",
+      "filters": "Filtros",
+      "refresh": "Atualizar",
+      "filter": {
+        "allModels": "Todos os Modelos",
+        "period": "Período",
+        "model": "Modelo",
+        "clear": "Limpar",
+        "reset": "Resetar",
+        "apply": "Aplicar"
+      },
+      "columns": {
+        "id": "ID",
+        "date": "Data",
+        "model": "Modelo",
+        "images": "Imagens",
+        "defects": "Defeitos",
+        "avgConfidence": "Confiança Média",
+        "execTime": "Tempo",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "status": {
+        "completed": "Concluído"
+      },
+      "view": "Visualizar",
+      "download": "Baixar",
+      "delete": "Excluir",
+      "empty": "Nenhuma inferência encontrada",
+      "emptyDesc": "Execute uma inferência para ver os resultados aqui."
+    }
+  }
+}
