@@ -15,12 +15,15 @@ export async function runInference(
   files.forEach((file) => {
     formData.append('files', file)
   })
-  formData.append('model_name', modelName)
+
+  const params = new URLSearchParams()
+  params.append('model_name', modelName)
   if (confidence !== undefined) {
-    formData.append('confidence', String(confidence))
+    params.append('confidence', String(confidence))
   }
 
   const response = await api.post<PredictionResponse>('ml-service/predict', formData, {
+    params,
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return response.data
