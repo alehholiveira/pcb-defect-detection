@@ -98,6 +98,7 @@ export function InferenceResults({
   const images = predictionResult.images
   const currentImage = images[currentIndex]
   const total = images.length
+  const totalTime = (predictionResult.inference_time_ms / 1000).toFixed(2)
 
   // Find the matching file preview for the current image
   const currentPreview = useMemo(() => {
@@ -149,6 +150,7 @@ export function InferenceResults({
         <span className="inference-results__processed">
           {t('inference.results.processed', '{{count}} imagem(ns) processada(s)', {
             count: total,
+            time: totalTime
           })}
         </span>
       </div>
