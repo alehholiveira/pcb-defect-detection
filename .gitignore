@@ -81,3 +81,23 @@ mysql_data/
 logs/
 *.log
 npm-debug.log*
+
+# ==============================================================================
+# Terraform
+# ==============================================================================
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/terraform.tfvars
+terraform/.terraform.tfstate.lock.info
+terraform/.terraform.lock.hcl
+
+# ==============================================================================
+# Lambda Build Artifacts
+# ==============================================================================
+terraform/src/lambda_report/node_modules/
+terraform/src/lambda_report/dist/
+terraform/src/lambda_report/lambda_function.zip
+terraform/src/lambda_report/layer_build/
+terraform/src/lambda_report/lambda_layer.zip
+terraform/dummy_*
