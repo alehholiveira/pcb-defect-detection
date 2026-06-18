@@ -69,3 +69,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "pcb_bucket_lifecycle" {
     }
   }
 }
+
+# ──────────────────────────────────────────────────────────────────────
+# Configuração de CORS — Permite que o frontend web carregue imagens do
+# S3 dentro de um elemento <canvas> (usando crossOrigin="anonymous")
+# ──────────────────────────────────────────────────────────────────────
+resource "aws_s3_bucket_cors_configuration" "pcb_bucket_cors" {
+  bucket = aws_s3_bucket.pcb_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
