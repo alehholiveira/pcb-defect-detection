@@ -97,9 +97,34 @@
   height: 18px;
 }
 
+.inference-controls__file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .inference-controls__file-count {
   font-size: 12px;
   color: var(--color-text-secondary, #6b7280);
+}
+
+.inference-controls__clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 4px;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.inference-controls__clear-btn:hover {
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger, #ef4444);
+  border-color: var(--color-danger-light, #fee2e2);
 }
 
 @media (max-width: 900px) {

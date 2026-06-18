@@ -17,6 +17,7 @@ export interface UseInferenceReturn {
   selectedModel: string
   selectedFiles: File[]
   filePreviews: FilePreview[]
+  resultPreviews: FilePreview[]
   isLoading: boolean
   predictionResult: PredictionResponse | null
   currentResultIndex: number
@@ -29,6 +30,7 @@ export interface UseInferenceReturn {
   removeFile: (index: number) => void
   runInferenceAction: () => Promise<void>
   clearResults: () => void
+  clearFiles: () => void
   setHistoryFilters: (filters: Partial<InferenceFilters>) => void
   fetchHistory: () => Promise<void>
   setCurrentResultIndex: (index: number) => void
@@ -41,6 +43,7 @@ export function useInference(): UseInferenceReturn {
   const [isLoading, setIsLoading] = useState(false)
   const [predictionResult, setPredictionResult] =
     useState<PredictionResponse | null>(null)
+  const [resultPreviews, setResultPreviews] = useState<FilePreview[]>([])
   const [currentResultIndex, setCurrentResultIndex] = useState(0)
   const [historyData, setHistoryData] =
     useState<PaginatedResponse<Inference> | null>(null)
@@ -65,6 +68,13 @@ export function useInference(): UseInferenceReturn {
     }
   }, [selectedFiles])
 
+  // Cleanup result previews when they change or unmount
+  useEffect(() => {
+    return () => {
+      resultPreviews.forEach((p) => URL.revokeObjectURL(p.preview))
+    }
+  }, [resultPreviews])
+
   const setModel = useCallback((model: string) => {
     setSelectedModel(model)
   }, [])
@@ -87,11 +97,22 @@ export function useInference(): UseInferenceReturn {
     setIsLoading(true)
     setError(null)
     setPredictionResult(null)
+    setResultPreviews([])
     setCurrentResultIndex(0)
 
     try {
       const result = await runInference(selectedFiles, selectedModel)
       setPredictionResult(result)
+      
+      // Store dedicated previews for the results view, so they don't get
+      // destroyed if the user clears the selected files dropzone
+      setResultPreviews(
+        selectedFiles.map((file) => ({
+          file,
+          preview: URL.createObjectURL(file),
+          name: file.name,
+        }))
+      )
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Erro ao executar inferência.'
@@ -103,9 +124,14 @@ export function useInference(): UseInferenceReturn {
 
   const clearResults = useCallback(() => {
     setPredictionResult(null)
+    setResultPreviews([])
     setCurrentResultIndex(0)
     setSelectedFiles([])
     setError(null)
+  }, [])
+
+  const clearFiles = useCallback(() => {
+    setSelectedFiles([])
   }, [])
 
   const setHistoryFilters = useCallback(
@@ -136,6 +162,7 @@ export function useInference(): UseInferenceReturn {
     selectedModel,
     selectedFiles,
     filePreviews,
+    resultPreviews,
     isLoading,
     predictionResult,
     currentResultIndex,
@@ -148,6 +175,7 @@ export function useInference(): UseInferenceReturn {
     removeFile,
     runInferenceAction,
     clearResults,
+    clearFiles,
     setHistoryFilters,
     fetchHistory,
     setCurrentResultIndex,

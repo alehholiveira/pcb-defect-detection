@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Play } from 'lucide-react'
+import { Play, X } from 'lucide-react'
 import { Card } from '../../components/Card'
 import { Select } from '../../components/Select'
 import { DropZone } from '../../components/DropZone'
@@ -11,6 +11,7 @@ interface InferenceControlsProps {
   onModelChange: (model: string) => void
   onFilesSelected: (files: File[]) => void
   onRunInference: () => void
+  onClearFiles?: () => void
   fileCount: number
   isLoading: boolean
 }
@@ -20,6 +21,7 @@ export function InferenceControls({
   onModelChange,
   onFilesSelected,
   onRunInference,
+  onClearFiles,
   fileCount,
   isLoading,
 }: InferenceControlsProps) {
@@ -67,11 +69,23 @@ export function InferenceControls({
             {t('inference.controls.run', 'Executar Inferência')}
           </button>
           {fileCount > 0 && (
-            <span className="inference-controls__file-count">
-              {t('inference.controls.fileCount', '{{count}} imagem(ns) selecionada(s)', {
-                count: fileCount,
-              })}
-            </span>
+            <div className="inference-controls__file-info">
+              <span className="inference-controls__file-count">
+                {t('inference.controls.fileCount', '{{count}} imagem(ns) selecionada(s)', {
+                  count: fileCount,
+                })}
+              </span>
+              {onClearFiles && (
+                <button 
+                  className="inference-controls__clear-btn" 
+                  onClick={onClearFiles}
+                  title={t('inference.controls.clearFiles', 'Limpar imagens')}
+                  aria-label={t('inference.controls.clearFiles', 'Limpar imagens')}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

@@ -15,6 +15,7 @@ export function Inferences() {
     selectedModel,
     selectedFiles,
     filePreviews,
+    resultPreviews,
     isLoading,
     predictionResult,
     currentResultIndex,
@@ -27,6 +28,7 @@ export function Inferences() {
     removeFile,
     runInferenceAction,
     clearResults,
+    clearFiles,
     setHistoryFilters,
     fetchHistory,
     setCurrentResultIndex,
@@ -60,6 +62,7 @@ export function Inferences() {
         onModelChange={setModel}
         onFilesSelected={addFiles}
         onRunInference={runInferenceAction}
+        onClearFiles={clearFiles}
         fileCount={selectedFiles.length}
         isLoading={isLoading}
       />
@@ -80,7 +83,7 @@ export function Inferences() {
 
           <InferenceResults
             predictionResult={predictionResult}
-            filePreviews={filePreviews}
+            filePreviews={resultPreviews}
             currentIndex={currentResultIndex}
             onIndexChange={setCurrentResultIndex}
           />
