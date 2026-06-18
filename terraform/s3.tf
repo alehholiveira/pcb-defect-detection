@@ -15,14 +15,43 @@ resource "aws_s3_bucket" "pcb_bucket" {
   force_destroy = true # Permite terraform destroy mesmo com arquivos dentro
 }
 
-# Bloquear qualquer forma de acesso público (Well-Architected: Security Pillar)
+# ──────────────────────────────────────────────────────────────────────
+# Acesso Público de Leitura
+#
+# NOTA: idealmente, o acesso seria restrito e o frontend
+# usaria Presigned URLs geradas pelo backend. Para o TCC, o acesso
+# público simplifica a integração com o frontend local.
+# ──────────────────────────────────────────────────────────────────────
+
+# Desbloquear as proteções de acesso público
 resource "aws_s3_bucket_public_access_block" "pcb_bucket_public" {
   bucket = aws_s3_bucket.pcb_bucket.id
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Política de leitura pública (s3:GetObject para qualquer objeto)
+resource "aws_s3_bucket_policy" "pcb_bucket_policy" {
+  bucket = aws_s3_bucket.pcb_bucket.id
+
+  # Garante que o public access block já foi aplicado antes da policy
+  depends_on = [aws_s3_bucket_public_access_block.pcb_bucket_public]
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.pcb_bucket.arn}/*"
+      }
+    ]
+  })
 }
 
 # Regra de Ciclo de Vida — apaga objetos após 7 dias (Cost Optimization Pillar)

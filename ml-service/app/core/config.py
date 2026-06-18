@@ -18,9 +18,6 @@ class Settings(BaseSettings):
     # Max upload file size (bytes)
     MAX_FILE_SIZE: int
 
-    # Output directory for annotated images
-    OUTPUTS_DIR: str
-
     # Default confidence threshold for detections
     CONFIDENCE_THRESHOLD: float
 
@@ -30,6 +27,10 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASSWORD: str
+
+    # AWS 
+    AWS_S3_BUCKET_NAME: str
+    AWS_REGION: str = "us-east-1"
 
     class Config:
         env_file = ".env"

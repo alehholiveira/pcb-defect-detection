@@ -21,3 +21,6 @@ ultralytics==8.4.48
 sqlalchemy[asyncio]==2.0.50
 aiomysql==0.3.2
 cryptography>=41.0.0
+
+# AWS (S3 uploads)
+boto3>=1.35.0

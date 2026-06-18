@@ -107,11 +107,10 @@ async def predict(
             detail="No valid images were provided.",
         )
 
-    # Run batch inference and persist to database
+    # Run batch inference, persist to DB, and upload to S3
     return await run_batch_inference(
         loaded=models[model_name],
         images=images,
-        output_base_dir=settings.OUTPUTS_DIR,
         session=session,
         confidence_threshold=confidence,
     )

@@ -9,6 +9,7 @@ Logic follows the inference notebooks:
 - PyTorch: pcb_utils.draw_predictions() style (FasterRCNN_inferencia, RetinaNet_inferencia)
 """
 
+import logging
 import time
 from datetime import datetime
 from pathlib import Path
@@ -18,62 +19,14 @@ from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 from torchvision.transforms import functional as TF
 
+from app.core.s3_client import upload_image, upload_json
 from app.db.models import Detection as DetectionORM
 from app.db.models import Inference as InferenceORM
 from app.db.models import InferenceImage as InferenceImageORM
 from app.models.loader import LoadedModel
 from app.schemas.prediction import Detection, ImageResult, PredictionResponse
 
-
-# ──────────────────────────────────────────────────────────────────────
-# Image saving
-# ──────────────────────────────────────────────────────────────────────
-
-
-def _save_image(
-    image: Image.Image,
-    output_dir: Path,
-    filename: str,
-) -> str:
-    """
-    Save the original image to disk and return its local path.
-
-    Directory structure:
-      outputs/<date>/<time>/filename
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / filename
-    # Determine format from extension or fallback to PNG
-    ext = output_path.suffix.lower()
-    save_format = "JPEG" if ext in [".jpg", ".jpeg"] else "PNG"
-    image.save(output_path, format=save_format)
-    return str(output_path)
-
-
-def _create_output_dir(base_dir: str) -> Path:
-    """
-    Create output directory following the pattern:
-      <base_dir>/<YYYY-MM-DD>/<HH-MM-SS>/
-
-    Parameters
-    ----------
-    base_dir : str
-        Base output directory (e.g. './outputs').
-
-    Returns
-    -------
-    Path
-        Full path to the timestamped directory.
-    """
-    now = datetime.now()
-    date_str = now.strftime("%Y-%m-%d")
-    time_str = now.strftime("%H-%M-%S")
-    output_dir = Path(base_dir) / date_str / time_str
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
-
-
-
+logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -196,11 +149,9 @@ def _run_single_inference(
     loaded: LoadedModel,
     image: Image.Image,
     confidence_threshold: float,
-    output_dir: Path,
-    image_filename: str,
-) -> ImageResult:
+) -> list[Detection]:
     """
-    Run inference on a single image: detect, save original, and return result.
+    Run inference on a single image and return detections.
 
     Parameters
     ----------
@@ -210,35 +161,53 @@ def _run_single_inference(
         Input image (RGB).
     confidence_threshold : float
         Minimum confidence for detections.
-    output_dir : Path
-        Directory where image will be saved.
-    image_filename : str
-        Original filename (used for naming the output file).
 
     Returns
     -------
-    ImageResult
-        Detections + path to saved image for this single image.
+    list[Detection]
+        List of detected defects.
     """
     if loaded.framework == "ultralytics":
-        detections = _infer_ultralytics(loaded, image, confidence_threshold)
+        return _infer_ultralytics(loaded, image, confidence_threshold)
     else:
-        detections = _infer_pytorch(loaded, image, confidence_threshold)
+        return _infer_pytorch(loaded, image, confidence_threshold)
 
-    # Save original image to disk
-    stem = Path(image_filename).stem
-    ext = Path(image_filename).suffix
-    if not ext:
-        ext = ".png"
-    output_filename = f"{stem}{ext}"
-    image_url = _save_image(image, output_dir, output_filename)
 
-    return ImageResult(
-        image_name=image_filename,
-        total_detections=len(detections),
-        detections=detections,
-        image_url=image_url,
-    )
+# ──────────────────────────────────────────────────────────────────────
+# S3 upload helpers
+# ──────────────────────────────────────────────────────────────────────
+
+
+def _build_s3_prefix(inference_date: datetime, inference_id: int) -> str:
+    """
+    Build the S3 key prefix for an inference.
+
+    Format: YYYY-MM-DD/<inference_id>/
+    Example: 2026-06-16/42/
+    """
+    date_str = inference_date.strftime("%Y-%m-%d")
+    return f"{date_str}/{inference_id}"
+
+
+def _upload_image_to_s3(
+    image: Image.Image,
+    s3_prefix: str,
+    filename: str,
+) -> str:
+    """Upload an image to S3 and return the public URL."""
+    stem = Path(filename).stem
+    ext = Path(filename).suffix or ".png"
+    s3_key = f"{s3_prefix}/{stem}{ext}"
+    return upload_image(image, s3_key, filename)
+
+
+def _upload_result_json_to_s3(
+    response_data: dict,
+    s3_prefix: str,
+) -> str:
+    """Upload the inference result JSON to S3 and return the public URL."""
+    s3_key = f"{s3_prefix}/result.json"
+    return upload_json(response_data, s3_key)
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -249,13 +218,23 @@ def _run_single_inference(
 async def run_batch_inference(
     loaded: LoadedModel,
     images: list[tuple[str, Image.Image]],
-    output_base_dir: str,
     session: AsyncSession,
     confidence_threshold: float | None = None,
 ) -> PredictionResponse:
     """
-    Run inference on multiple images, persist the result to the database,
+    Run inference on multiple images, upload to S3, persist to DB,
     and return the aggregated PredictionResponse.
+
+    Flow:
+    1. Run inference on all images (detections only)
+    2. Flush to DB to obtain the auto-incremented inference ID
+    3. Use the ID + date to build the S3 path: /{YYYY-MM-DD}/{id}/
+    4. Upload each original image to S3
+    5. Build the PredictionResponse and upload result.json to S3
+    6. Update image_url in DB with S3 public URLs and commit
+
+    If S3 upload fails at any point, session.rollback() is called
+    to undo the flush and keep the database clean.
 
     Parameters
     ----------
@@ -263,8 +242,6 @@ async def run_batch_inference(
         Model wrapper with loaded weights.
     images : list[tuple[str, PIL.Image]]
         List of (filename, PIL Image) tuples.
-    output_base_dir : str
-        Base directory for saving annotated images.
     session : AsyncSession
         Active SQLAlchemy async session for persisting the inference result.
     confidence_threshold : float | None
@@ -273,44 +250,35 @@ async def run_batch_inference(
     Returns
     -------
     PredictionResponse
-        Aggregated result with per-image detections and total count.
+        Aggregated result with per-image detections and S3 URLs.
     """
     if confidence_threshold is None:
         confidence_threshold = loaded.score_threshold
 
-    output_dir = _create_output_dir(output_base_dir)
-
     start = time.perf_counter()
 
-    image_results: list[ImageResult] = []
+    # ── Step 1: Run inference on all images ─────────────────────────
+    inference_results: list[tuple[str, Image.Image, list[Detection]]] = []
     for filename, image in images:
-        result = _run_single_inference(
-            loaded, image, confidence_threshold, output_dir, filename
-        )
-        image_results.append(result)
+        detections = _run_single_inference(loaded, image, confidence_threshold)
+        inference_results.append((filename, image, detections))
 
     elapsed_ms = (time.perf_counter() - start) * 1000
-    total_detections = sum(r.total_detections for r in image_results)
+    total_detections = sum(len(dets) for _, _, dets in inference_results)
 
-    response = PredictionResponse(
+    # ── Step 2: Flush to DB to get the auto-incremented ID ──────────
+    inference_orm = InferenceORM(
         model_name=loaded.name.value,
         inference_time_ms=round(elapsed_ms, 2),
         total_detections=total_detections,
-        images=image_results,
     )
 
-    # Persist to database
-    inference_orm = InferenceORM(
-        model_name=response.model_name,
-        inference_time_ms=response.inference_time_ms,
-        total_detections=response.total_detections,
-    )
-
-    for image_result in response.images:
+    image_orms: list[InferenceImageORM] = []
+    for filename, _, detections in inference_results:
         inference_image_orm = InferenceImageORM(
-            image_name=image_result.image_name,
-            total_detections=image_result.total_detections,
-            image_url=image_result.image_url,
+            image_name=filename,
+            total_detections=len(detections),
+            image_url="pending_s3_upload",  # Placeholder — updated after S3 upload
             detections=[
                 DetectionORM(
                     class_name=det.class_name,
@@ -320,12 +288,84 @@ async def run_batch_inference(
                     x2=det.x2,
                     y2=det.y2,
                 )
-                for det in image_result.detections
+                for det in detections
             ],
         )
         inference_orm.images.append(inference_image_orm)
+        image_orms.append(inference_image_orm)
 
-    session.add(inference_orm)
-    await session.commit()
+    try:
+        session.add(inference_orm)
+        await session.flush()  # Gets the ID without committing
+    except Exception as e:
+        logger.error("Failed to flush inference to DB: %s", e)
+        await session.rollback()
+        raise RuntimeError(f"Failed to persist inference to database: {e}") from e
+
+    inference_id = inference_orm.id
+    inference_date = inference_orm.created_at
+    s3_prefix = _build_s3_prefix(inference_date, inference_id)
+
+    logger.info(
+        "Inference %d flushed to DB. Uploading %d images to S3: %s/",
+        inference_id,
+        len(images),
+        s3_prefix,
+    )
+
+    # ── Step 3: Upload images to S3 and update DB URLs ──────────────
+    image_results: list[ImageResult] = []
+    for i, (filename, image, detections) in enumerate(inference_results):
+        try:
+            s3_url = _upload_image_to_s3(image, s3_prefix, filename)
+        except Exception as e:
+            logger.error("Failed to upload image '%s' to S3: %s", filename, e)
+            await session.rollback()
+            raise RuntimeError(
+                f"Failed to upload image '{filename}' to S3: {e}"
+            ) from e
+
+        # Update the ORM object with the real S3 URL
+        image_orms[i].image_url = s3_url
+
+        image_results.append(
+            ImageResult(
+                image_name=filename,
+                total_detections=len(detections),
+                detections=detections,
+                image_url=s3_url,
+            )
+        )
+
+    # ── Step 4: Build response and upload result.json to S3 ─────────
+    response = PredictionResponse(
+        model_name=loaded.name.value,
+        inference_time_ms=round(elapsed_ms, 2),
+        total_detections=total_detections,
+        images=image_results,
+    )
+
+    try:
+        _upload_result_json_to_s3(response.model_dump(), s3_prefix)
+    except Exception as e:
+        logger.error("Failed to upload result.json to S3: %s", e)
+        await session.rollback()
+        raise RuntimeError(f"Failed to upload result.json to S3: {e}") from e
+
+    # ── Step 5: Commit (all S3 uploads succeeded) ───────────────────
+    try:
+        await session.commit()
+    except Exception as e:
+        logger.error("Failed to commit inference %d to DB: %s", inference_id, e)
+        await session.rollback()
+        raise RuntimeError(f"Failed to commit inference to database: {e}") from e
+
+    logger.info(
+        "Inference %d completed: %d images, %d detections, %.1fms",
+        inference_id,
+        len(images),
+        total_detections,
+        elapsed_ms,
+    )
 
     return response
