@@ -27,6 +27,7 @@ export function Inferences() {
     addFiles,
     removeFile,
     runInferenceAction,
+    loadInferenceAction,
     clearResults,
     clearFiles,
     setHistoryFilters,
@@ -96,6 +97,7 @@ export function Inferences() {
         historyLoading={historyLoading}
         onFiltersChange={setHistoryFilters}
         onFetchHistory={fetchHistory}
+        onReplayInference={loadInferenceAction}
       />
     </div>
   )

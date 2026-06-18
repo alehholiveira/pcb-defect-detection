@@ -167,6 +167,7 @@ export function InferenceResults({
                 src={currentPreview.preview}
                 alt={currentPreview.name}
                 className="inference-results__image"
+                crossOrigin="anonymous"
               />
             </div>
             <span className="inference-results__image-name">

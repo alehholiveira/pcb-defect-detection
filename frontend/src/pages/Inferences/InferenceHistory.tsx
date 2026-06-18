@@ -30,6 +30,7 @@ interface InferenceHistoryProps {
   historyLoading: boolean
   onFiltersChange: (filters: Partial<InferenceFilters>) => void
   onFetchHistory: () => Promise<void>
+  onReplayInference?: (id: number) => void
 }
 
 function formatDate(iso: string): string {
@@ -58,6 +59,7 @@ export function InferenceHistory({
   historyLoading,
   onFiltersChange,
   onFetchHistory,
+  onReplayInference,
 }: InferenceHistoryProps) {
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useState(historyFilters.search ?? '')
@@ -180,12 +182,13 @@ export function InferenceHistory({
         key: 'actions',
         label: t('inference.history.columns.actions', 'Ações'),
         width: '120px',
-        render: () => (
+        render: (_: unknown, row: Inference) => (
           <div className="inference-history__actions">
             <button
               className="inference-history__action-btn"
               aria-label={t('inference.history.view', 'Visualizar')}
               title={t('inference.history.view', 'Visualizar')}
+              onClick={() => onReplayInference && onReplayInference(row.id)}
             >
               <Eye size={16} />
             </button>
@@ -207,7 +210,7 @@ export function InferenceHistory({
         ),
       },
     ],
-    [t]
+    [t, onReplayInference]
   )
 
   const data = historyData?.data || []

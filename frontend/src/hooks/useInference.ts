@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { runInference, getInferences } from '../services/inferenceService'
+import { runInference, getInferences, getInferenceById } from '../services/inferenceService'
 import type {
   PredictionResponse,
   Inference,
@@ -8,7 +8,7 @@ import type {
 } from '../types/inference'
 
 export interface FilePreview {
-  file: File
+  file: File | null
   preview: string
   name: string
 }
@@ -29,6 +29,7 @@ export interface UseInferenceReturn {
   addFiles: (files: File[]) => void
   removeFile: (index: number) => void
   runInferenceAction: () => Promise<void>
+  loadInferenceAction: (id: number) => Promise<void>
   clearResults: () => void
   clearFiles: () => void
   setHistoryFilters: (filters: Partial<InferenceFilters>) => void
@@ -64,14 +65,18 @@ export function useInference(): UseInferenceReturn {
     setFilePreviews(previews)
 
     return () => {
-      previews.forEach((p) => URL.revokeObjectURL(p.preview))
+      previews.forEach((p) => {
+        if (p.file) URL.revokeObjectURL(p.preview)
+      })
     }
   }, [selectedFiles])
 
   // Cleanup result previews when they change or unmount
   useEffect(() => {
     return () => {
-      resultPreviews.forEach((p) => URL.revokeObjectURL(p.preview))
+      resultPreviews.forEach((p) => {
+        if (p.file) URL.revokeObjectURL(p.preview)
+      })
     }
   }, [resultPreviews])
 
@@ -121,6 +126,44 @@ export function useInference(): UseInferenceReturn {
       setIsLoading(false)
     }
   }, [selectedFiles, selectedModel])
+
+  const loadInferenceAction = useCallback(async (id: number) => {
+    setIsLoading(true)
+    setError(null)
+    setPredictionResult(null)
+    setResultPreviews([])
+    setCurrentResultIndex(0)
+
+    try {
+      const inference = await getInferenceById(id)
+      
+      // Inference perfectly matches PredictionResponse structure
+      setPredictionResult({
+        model_name: inference.model_name,
+        inference_time_ms: inference.inference_time_ms,
+        total_detections: inference.total_detections,
+        images: inference.images,
+      })
+      
+      // Create previews using the S3 URLs
+      setResultPreviews(
+        inference.images.map((img) => ({
+          file: null, // No local file available for history items
+          preview: img.image_url,
+          name: img.image_name,
+        }))
+      )
+      
+      // Optional: scroll to top to see results
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Erro ao carregar inferência do histórico.'
+      setError(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   const clearResults = useCallback(() => {
     setPredictionResult(null)
@@ -174,6 +217,7 @@ export function useInference(): UseInferenceReturn {
     addFiles,
     removeFile,
     runInferenceAction,
+    loadInferenceAction,
     clearResults,
     clearFiles,
     setHistoryFilters,

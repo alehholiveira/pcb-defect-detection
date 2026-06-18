@@ -49,3 +49,8 @@ export async function getInferences(
   })
   return response.data
 }
+
+export async function getInferenceById(id: number): Promise<Inference> {
+  const response = await api.get<Inference>(`/api/v1/inferences/${id}`)
+  return response.data
+}
