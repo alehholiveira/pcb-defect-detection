@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { getInferencesService } from '../services/inferences.service.js';
+import { getInferencesService, getInferenceByIdService } from '../services/inferences.service.js';
 import type { FastifyTypedInstance } from '../schemas/common.js';
 import { API_ERRORS } from '../utils/errors.js';
 
@@ -15,6 +15,10 @@ export const GetInferencesSchema = z.object({
 });
 export type GetInferencesFilters = z.infer<typeof GetInferencesSchema>;
 
+export const GetInferenceByIdSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
 export async function inferencesController(app: FastifyTypedInstance): Promise<void> {
   app.get('/', {
     schema: {
@@ -24,6 +28,16 @@ export async function inferencesController(app: FastifyTypedInstance): Promise<v
       querystring: GetInferencesSchema,
     },
     handler: getInferencesHandler,
+  });
+
+  app.get('/:id', {
+    schema: {
+      tags: ['Inferences'],
+      summary: 'Get inference by ID',
+      description: 'Fetch a single inference by its ID, including all images and detections',
+      params: GetInferenceByIdSchema,
+    },
+    handler: getInferenceByIdHandler,
   });
 }
 
@@ -42,5 +56,35 @@ async function getInferencesHandler(
   } catch (error) {
     request.log.error({ error }, '[inferences.controller.ts] getInferencesHandler - Error');
     reply.status(API_ERRORS.FETCH_INFERENCES_FAILED.statusCode).send(API_ERRORS.FETCH_INFERENCES_FAILED);
+  }
+}
+
+async function getInferenceByIdHandler(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  const { id } = request.params as z.infer<typeof GetInferenceByIdSchema>;
+  request.log.info({ id }, '[inferences.controller.ts] getInferenceByIdHandler - Init');
+
+  try {
+    // getInferenceByIdService is missing from imports, need to add it above!
+    const result = await getInferenceByIdService(id, request.log);
+    if (!result) {
+      reply.status(404).send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'Inference not found',
+      });
+      return;
+    }
+    request.log.info('[inferences.controller.ts] getInferenceByIdHandler - Success');
+    reply.status(200).send(result);
+  } catch (error) {
+    request.log.error({ error }, '[inferences.controller.ts] getInferenceByIdHandler - Error');
+    reply.status(500).send({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'Failed to fetch inference',
+    });
   }
 }

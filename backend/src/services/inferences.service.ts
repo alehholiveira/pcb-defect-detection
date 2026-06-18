@@ -77,3 +77,29 @@ export async function getInferencesService(filters: GetInferencesFilters, logger
     },
   };
 }
+
+export async function getInferenceByIdService(id: number, logger: FastifyBaseLogger) {
+  logger.info({ id }, '[inferences.service.ts] getInferenceByIdService - Init');
+
+  const inference = await Inference.findByPk(id, {
+    include: [
+      {
+        model: InferenceImage,
+        as: 'images',
+        include: [
+          {
+            model: Detection,
+            as: 'detections',
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!inference) {
+    return null;
+  }
+
+  logger.info({ id }, '[inferences.service.ts] getInferenceByIdService - Success');
+  return inference;
+}
