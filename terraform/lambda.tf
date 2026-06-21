@@ -3,41 +3,19 @@
 # ──────────────────────────────────────────────────────────────────────
 locals {
   lambda_function_name = "${var.project_name}-report-service"
-  lambda_source_dir    = "${path.module}/src/lambda_report"
+  lambda_source_dir    = "${path.module}/lambda_report"
 }
 
 # ──────────────────────────────────────────────────────────────────────
-# Criação de ZIPs "dummy" para o deploy inicial da infraestrutura
-#
-# Como o código e a layer serão gerenciados e atualizados manualmente
-# via AWS Console (ou SAM), o Terraform precisa apenas de um pacote
-# inicial válido para criar os recursos (o "casco" da infraestrutura).
+# Referência aos ZIPs de layer e código.
 # ──────────────────────────────────────────────────────────────────────
-
-data "archive_file" "dummy_lambda" {
-  type        = "zip"
-  output_path = "${path.module}/dummy_lambda.zip"
-  source {
-    content  = "exports.handler = async (event) => { console.log('Placeholder'); return { statusCode: 200, body: 'Dummy' }; };"
-    filename = "index.js"
-  }
-}
-
-data "archive_file" "dummy_layer" {
-  type        = "zip"
-  output_path = "${path.module}/dummy_layer.zip"
-  source {
-    content  = "{}"
-    filename = "nodejs/package.json"
-  }
-}
 
 resource "aws_lambda_layer_version" "dependencies" {
-  filename            = data.archive_file.dummy_layer.output_path
-  source_code_hash    = data.archive_file.dummy_layer.output_base64sha256
-  layer_name          = "${var.project_name}-dependencies"
+  filename            = "${path.module}/lambda_layer.zip"
+  source_code_hash    = filebase64sha256("${path.module}/lambda_layer.zip")
+  layer_name          = "${var.project_name}-layer"
   compatible_runtimes = ["nodejs24.x"]
-  description         = "Dependencias de producao da Lambda (Gerenciado Manualmente)"
+  description         = "Dependencias da Lambda"
 }
 
 # ──────────────────────────────────────────────────────────────────────
@@ -137,28 +115,27 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
 }
 
 # ──────────────────────────────────────────────────────────────────────
-# Lambda Function — Node.js 24 (nativo)
+# Lambda Function — Node.js 24
 # ──────────────────────────────────────────────────────────────────────
 resource "aws_lambda_function" "report_lambda" {
-  filename         = data.archive_file.dummy_lambda.output_path
-  source_code_hash = data.archive_file.dummy_lambda.output_base64sha256
+  filename         = "${path.module}/lambda_function.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambda_function.zip")
   function_name    = local.lambda_function_name
   role             = aws_iam_role.lambda_exec_role.arn
-  handler          = "index.handler"
+  handler          = "src/index.handler"
   runtime          = "nodejs24.x"
 
-  # Lambda Layer base (as versões atualizadas serão gerenciadas manualmente)
+  # Lambda Layer base (as versões atualizadas serão gerenciadas pelo Terraform)
   layers = [aws_lambda_layer_version.dependencies.arn]
 
   # Dimensionamento frugal (Cost Optimization Pillar)
-  memory_size = 256 # 256MB — suficiente para gerar PDFs
-  timeout     = 30  # 30s — interrompe execuções travadas
+  memory_size = 512
+  timeout     = 60
 
   environment {
     variables = {
-      S3_BUCKET_NAME = aws_s3_bucket.pcb_bucket.id
-      SQS_QUEUE_URL  = aws_sqs_queue.pcb_report_queue.url
-      SENDER_EMAIL   = var.sender_email
+      # Injeta o tsx para permitir que a AWS Lambda execute o TypeScript (.ts) nativamente
+      NODE_OPTIONS   = "--import tsx"
     }
   }
 
@@ -166,15 +143,6 @@ resource "aws_lambda_function" "report_lambda" {
     aws_iam_role_policy_attachment.lambda_policy_attach,
     aws_cloudwatch_log_group.lambda_logs
   ]
-
-  # Ignora as mudanças caso você suba novos códigos ou layers manualmente no Console
-  lifecycle {
-    ignore_changes = [
-      filename,
-      source_code_hash,
-      layers
-    ]
-  }
 }
 
 # ──────────────────────────────────────────────────────────────────────
