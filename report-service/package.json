@@ -2,23 +2,17 @@
   "name": "pcb-report-lambda",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "npm run build:code && npm run build:layer",
     "build:code": "zip -r ../terraform/lambda_function.zip src package.json .env",
-    "build:layer": "mkdir -p layer_build/nodejs && cp package.json package-lock.json layer_build/nodejs/ && cd layer_build/nodejs && npm install --omit=dev --ignore-scripts && cd ../.. && cd layer_build && zip -r ../../terraform/lambda_layer.zip nodejs/ -x 'nodejs/package.json' -x 'nodejs/package-lock.json' && cd .. && rm -rf layer_build",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.145",
-    "esbuild": "^0.25.0",
-    "typescript": "^5.7.0"
+    "build:layer": "mkdir -p layer_build/nodejs && cp package.json package-lock.json layer_build/nodejs/ && cd layer_build/nodejs && npm install --omit=dev --ignore-scripts && cd ../.. && cd layer_build && zip -r ../../terraform/lambda_layer.zip nodejs/ -x 'nodejs/package.json' -x 'nodejs/package-lock.json' && cd .. && rm -rf layer_build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1072.0",
     "@aws-sdk/client-ses": "^3.1072.0",
     "dotenv": "^17.4.2",
     "image-size": "^2.0.2",
-    "pptxgenjs": "^4.0.1",
-    "tsx": "^4.22.4"
+    "pptxgenjs": "^4.0.1"
   }
 }

@@ -6,7 +6,7 @@
 resource "aws_cloudwatch_event_rule" "daily_report_schedule" {
   name                = "${var.project_name}-daily-report-rule"
   description         = "Disparo diário para geração automática de relatórios (D-1)"
-  schedule_expression = "rate(1 day)"
+  schedule_expression = "cron(0 0 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_daily_target" {

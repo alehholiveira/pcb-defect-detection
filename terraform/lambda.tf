@@ -132,12 +132,8 @@ resource "aws_lambda_function" "report_lambda" {
   memory_size = 512
   timeout     = 60
 
-  environment {
-    variables = {
-      # Injeta o tsx para permitir que a AWS Lambda execute o TypeScript (.ts) nativamente
-      NODE_OPTIONS   = "--import tsx"
-    }
-  }
+  # Nenhuma variável de ambiente necessária no Terraform,
+  # pois o `.env` é empacotado junto com o código.
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_policy_attach,

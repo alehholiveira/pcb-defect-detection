@@ -1,12 +1,8 @@
 import sizeOf from "image-size";
 
-export interface ImageDimensions {
-  width: number;
-  height: number;
-  base64Data: string;
-}
-
-export function processImageBuffer(imgBuffer: Buffer, filename: string): ImageDimensions {
+export function processImageBuffer(imgBuffer, filename) {
+  console.log(`[imageUtils.js] processImageBuffer - Init`, { filename, bufferSize: imgBuffer?.length });
+  
   const dimensions = sizeOf(imgBuffer);
   const width = dimensions.width || 800;
   const height = dimensions.height || 800;
@@ -15,5 +11,6 @@ export function processImageBuffer(imgBuffer: Buffer, filename: string): ImageDi
   const ext = extMatch ? extMatch[1].replace("jpg", "jpeg").toLowerCase() : "jpeg";
   const base64Data = `image/${ext};base64,${imgBuffer.toString("base64")}`;
 
+  console.log(`[imageUtils.js] processImageBuffer - Success`, { width, height });
   return { width, height, base64Data };
 }

@@ -1,9 +1,11 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
-import { env } from "../config/env";
+import { env } from "../config/env.js";
 
 const sesClient = new SESClient({ region: env.AWS_REGION });
 
-export async function sendReportEmail(periodLabel: string, reportUrl: string, stats: { totalInferences: number, totalImages: number, totalDefects: number }, reportTitle: string) {
+export async function sendReportEmail(periodLabel, reportUrl, stats, reportTitle) {
+  console.log(`[sesHelper.js] sendReportEmail - Init`, { periodLabel, reportUrl });
+  
   const emailHtml = `
     <h2>${reportTitle} de Inspeção PCB (${periodLabel})</h2>
     <p>O relatório foi gerado com sucesso.</p>
@@ -13,7 +15,6 @@ export async function sendReportEmail(periodLabel: string, reportUrl: string, st
       <li><b>Total de Defeitos Encontrados:</b> ${stats.totalDefects}</li>
     </ul>
     <p><a href="${reportUrl}">Clique aqui para baixar o relatório em PowerPoint (PPTX)</a></p>
-    <p><i>Nota: O arquivo pode ser editado. As marcações de defeito são formas vetoriais nativas.</i></p>
   `;
 
   try {
@@ -25,8 +26,8 @@ export async function sendReportEmail(periodLabel: string, reportUrl: string, st
         Body: { Html: { Data: emailHtml } }
       }
     }));
-    console.log("E-mail enviado com sucesso via SES");
-  } catch (err) {
-    console.error("Falha ao enviar e-mail pelo SES:", err);
+    console.log(`[sesHelper.js] sendReportEmail - Success`);
+  } catch (error) {
+    console.error(`[sesHelper.js] sendReportEmail - Error`, error);
   }
 }

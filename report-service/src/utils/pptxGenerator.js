@@ -1,7 +1,8 @@
-import pptxgen from "pptxgenjs";
-import { ImageDimensions } from "./imageUtils";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const pptxgen = require("pptxgenjs");
 
-const DEFECT_COLOR_MAP: Record<string, string> = {
+const DEFECT_COLOR_MAP = {
   missing_hole: "EF4444",
   mouse_bite: "F97316",
   open_circuit: "EAB308",
@@ -11,10 +12,8 @@ const DEFECT_COLOR_MAP: Record<string, string> = {
 };
 
 export class PptxGenerator {
-  private pres: pptxgen;
-  private targetDate: string;
-
-  constructor(targetDate: string) {
+  constructor(targetDate) {
+    console.log(`[pptxGenerator.js] constructor - Init`, { targetDate });
     this.targetDate = targetDate;
     this.pres = new pptxgen();
     this.pres.author = "PCB Defect Detection System";
@@ -23,12 +22,15 @@ export class PptxGenerator {
     this.pres.layout = "LAYOUT_16x9";
   }
 
-  addSummarySlide(
-    stats: { totalInferences: number; totalImages: number; totalDefects: number },
-    defectSummary: Record<string, number>
-  ) {
+  addSummarySlide(stats, defectSummary, logoPath) {
+    console.log(`[pptxGenerator.js] addSummarySlide - Init`);
     const slideSum = this.pres.addSlide();
-    slideSum.addText(`Resumo de Inspeções - ${this.targetDate}`, { x: 0.5, y: 0.5, w: "90%", h: 1, fontSize: 32, bold: true, color: "363636" });
+    
+    if (logoPath) {
+      slideSum.addImage({ path: logoPath, x: 8.0, y: 0.3, w: 1.5, h: 0.5, sizing: { type: "contain", w: 1.5, h: 0.5 } });
+    }
+
+    slideSum.addText(`Resumo de Inspeções - ${this.targetDate}`, { x: 0.5, y: 0.5, w: "70%", h: 1, fontSize: 32, bold: true, color: "363636" });
     
     slideSum.addText([
       { text: `Total de Inferências: `, options: { bold: true } },
@@ -40,7 +42,7 @@ export class PptxGenerator {
     ], { x: 0.5, y: 1.5, w: 4, h: 2, fontSize: 18, color: "363636" });
 
     // Tabela de resumo de defeitos
-    const tableRows: any[] = [
+    const tableRows = [
       [{ text: "Tipo de Defeito", options: { bold: true, fill: { color: "F3F4F6" } } }, { text: "Quantidade", options: { bold: true, fill: { color: "F3F4F6" } } }]
     ];
     
@@ -53,24 +55,19 @@ export class PptxGenerator {
     } else {
       slideSum.addText("Nenhum defeito detectado no período.", { x: 5.0, y: 1.5, w: 4, h: 1, fontSize: 16, color: "10B981" });
     }
+    console.log(`[pptxGenerator.js] addSummarySlide - Success`);
   }
 
-  addImageSlide(inferenceId: string, imageName: string, totalDetections: number, dimensions: ImageDimensions, detections: any[]) {
+  addImageSlide(inferenceId, imageName, totalDetections, dimensions, detections) {
     const slide = this.pres.addSlide();
         
     slide.addText(`Inferência: ${inferenceId}`, { x: 0.5, y: 0.2, w: 5, h: 0.5, fontSize: 18, bold: true, color: "363636" });
     slide.addText(`Imagem: ${imageName} | Defeitos: ${totalDetections}`, { x: 5.5, y: 0.2, w: 4, h: 0.5, fontSize: 14, color: "6B7280", align: "right" });
 
-    const slideImgW = 9;
+    const slideImgW = 9.0;
     const slideImgH = 4.3;
     const slideImgX = 0.5;
     const slideImgY = 1.0;
-
-    slide.addImage({
-      data: dimensions.base64Data,
-      x: slideImgX, y: slideImgY, w: slideImgW, h: slideImgH,
-      sizing: { type: "contain", w: slideImgW, h: slideImgH }
-    });
 
     const scaleX = slideImgW / dimensions.width;
     const scaleY = slideImgH / dimensions.height;
@@ -81,6 +78,11 @@ export class PptxGenerator {
     
     const offsetX = slideImgX + (slideImgW - actualDrawW) / 2;
     const offsetY = slideImgY + (slideImgH - actualDrawH) / 2;
+
+    slide.addImage({
+      data: dimensions.base64Data,
+      x: offsetX, y: offsetY, w: actualDrawW, h: actualDrawH
+    });
 
     for (const det of detections) {
       const color = DEFECT_COLOR_MAP[det.class_name] || "9CA3AF";
@@ -95,7 +97,7 @@ export class PptxGenerator {
         y: rectY,
         w: rectW,
         h: rectH,
-        fill: { transparency: 100 },
+        fill: { color: "FFFFFF", transparency: 100 },
         line: { color: color, width: 2 }
       });
 
@@ -115,7 +117,10 @@ export class PptxGenerator {
     }
   }
 
-  async generateBuffer(): Promise<Buffer> {
-    return await this.pres.write({ outputType: "nodebuffer" }) as Buffer;
+  async generateBuffer() {
+    console.log(`[pptxGenerator.js] generateBuffer - Init`);
+    const buffer = await this.pres.write({ outputType: "nodebuffer" });
+    console.log(`[pptxGenerator.js] generateBuffer - Success`);
+    return buffer;
   }
 }

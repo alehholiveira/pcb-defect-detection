@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import { LAMBDA_ERRORS } from "../utils/errors.js";
 
 // Tenta carregar do .env caso esteja rodando localmente ou empacotado no ZIP
 dotenv.config();
@@ -10,7 +11,10 @@ export const env = {
 };
 
 export function validateEnv() {
+  console.log(`[env.js] validateEnv - Init`);
   if (!env.S3_BUCKET_NAME || !env.SENDER_EMAIL) {
-    throw new Error("Variáveis de ambiente ausentes: S3_BUCKET_NAME ou SENDER_EMAIL.");
+    console.error(`[env.js] validateEnv - Error: Variáveis ausentes`);
+    throw LAMBDA_ERRORS.MISSING_ENV_VARS;
   }
+  console.log(`[env.js] validateEnv - Success`);
 }
