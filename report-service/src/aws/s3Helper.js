@@ -87,3 +87,23 @@ export async function uploadPptxToS3(key, buffer) {
     throw error;
   }
 }
+
+/** Faz upload de um objeto JSON de metadados para o S3 */
+export async function uploadJsonToS3(key, data) {
+  console.log(`[s3Helper.js] uploadJsonToS3 - Init`, { key });
+  try {
+    const jsonString = JSON.stringify(data, null, 2);
+    await s3Client.send(new PutObjectCommand({
+      Bucket: env.S3_BUCKET_NAME,
+      Key: key,
+      Body: jsonString,
+      ContentType: "application/json",
+    }));
+    
+    console.log(`[s3Helper.js] uploadJsonToS3 - Success`);
+    return `https://${env.S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+  } catch (error) {
+    console.error(`[s3Helper.js] uploadJsonToS3 - Error`, error);
+    throw error;
+  }
+}

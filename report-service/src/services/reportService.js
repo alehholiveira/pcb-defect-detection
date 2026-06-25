@@ -1,4 +1,4 @@
-import { listInferenceResultKeys, getJsonFromS3, getImageBufferFromS3, uploadPptxToS3 } from "../aws/s3Helper.js";
+import { listInferenceResultKeys, getJsonFromS3, getImageBufferFromS3, uploadPptxToS3, uploadJsonToS3 } from "../aws/s3Helper.js";
 import { processImageBuffer } from "../utils/imageUtils.js";
 import { PptxGenerator } from "../utils/pptxGenerator.js";
 import { sendReportEmail } from "../aws/sesHelper.js";
@@ -85,10 +85,31 @@ export async function generateReport(targetDates, reportType) {
     const pptxBuffer = await pptxGen.generateBuffer();
     // Cria um nome de arquivo que seja único por período
     const fileSuffix = reportType === 'daily' ? targetDates[0] : `${targetDates[targetDates.length - 1]}_to_${targetDates[0]}`;
-    const reportKey = `reports/${reportType}_${fileSuffix}.pptx`;
+    const filenameBase = `${reportType}_${fileSuffix}`;
+    const reportKey = `reports/${filenameBase}.pptx`;
+    const jsonKey = `reports/${filenameBase}.json`;
     
     const reportUrl = await uploadPptxToS3(reportKey, pptxBuffer);
     console.log(`[reportService.js] generateReport - Relatório salvo no S3: ${reportUrl}`);
+
+    // Cria e salva o JSON de metadados
+    const metadata = {
+      reportName: `${reportTitle} - ${periodLabel}`,
+      filename: `${filenameBase}.pptx`,
+      downloadUrl: reportUrl,
+      generatedAt: new Date().toISOString(),
+      reportType: reportType,
+      periodStart: oldest,
+      periodEnd: newest,
+      totalInferences: totalInferences,
+      totalImages: totalImages,
+      totalDefects: totalDefects,
+      defectsByType: defectSummary,
+      generatedBy: "system"
+    };
+
+    await uploadJsonToS3(jsonKey, metadata);
+    console.log(`[reportService.js] generateReport - Metadados JSON salvos no S3: ${jsonKey}`);
 
     await sendReportEmail(periodLabel, reportUrl, { totalInferences, totalImages, totalDefects }, reportTitle);
 

@@ -8,6 +8,12 @@ export const API_ERRORS = {
     description: 'Ocorreu um erro ao consultar o banco de dados. Tente novamente mais tarde.',
     statusCode: 500,
   },
+  FETCH_REPORTS_FAILED: {
+    code: 'ERR_FETCH_REPORTS_FAILED',
+    message: 'Não foi possível recuperar a lista de relatórios.',
+    description: 'Ocorreu um erro ao consultar os relatórios no S3.',
+    statusCode: 500,
+  },
   HEALTH_CHECK_FAILED: {
     code: 'ERR_HEALTH_CHECK_FAILED',
     message: 'O serviço encontra-se indisponível no momento.',

@@ -17,6 +17,10 @@ const envSchema = z.object({
   // ML Service
   ML_SERVICE_URL: z.string().default('http://ml-service:8000'),
 
+  // AWS
+  AWS_REGION: z.string().default('us-east-1'),
+  S3_BUCKET_NAME: z.string(),
+
   // CORS
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
 });
