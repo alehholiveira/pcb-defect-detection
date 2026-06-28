@@ -1,5 +1,6 @@
 import {GetObjectCommand, ListObjectsV2Command, S3Client} from '@aws-sdk/client-s3';
 import {env} from '../config/index.js';
+import {API_ERRORS} from '../utils/errors.js';
 
 const s3Client = new S3Client({ region: env.AWS_REGION });
 
@@ -32,7 +33,7 @@ export async function listReportMetadataKeys(): Promise<string[]> {
         .filter(key => key && key.endsWith('.json'));
   } catch (error) {
     console.error('[s3.helper.ts] listReportMetadataKeys - Error', error);
-    throw error;
+    throw API_ERRORS.S3_OPERATION_FAILED;
   }
 }
 
@@ -44,6 +45,6 @@ export async function getJsonFromS3<T>(key: string): Promise<T> {
     return JSON.parse(jsonStr) as T;
   } catch (error) {
     console.error(`[s3.helper.ts] getJsonFromS3 - Error fetching key ${key}`, error);
-    throw error;
+    throw API_ERRORS.S3_OPERATION_FAILED;
   }
 }
