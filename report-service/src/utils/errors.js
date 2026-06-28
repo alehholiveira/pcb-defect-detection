@@ -19,6 +19,11 @@ export const LAMBDA_ERRORS = {
     message: 'Falha ao baixar artefato do S3.',
     statusCode: 500
   },
+  SQS_PAYLOAD_INVALID: {
+    code: 'SQS_PAYLOAD_INVALID',
+    message: 'O payload recebido da fila SQS está inválido ou incompleto.',
+    statusCode: 400
+  },
   INTERNAL_ERROR: {
     code: 'INTERNAL_ERROR',
     message: 'Erro interno não tratado.',

@@ -1,5 +1,5 @@
 import { validateEnv } from "./config/env.js";
-import { generateReport } from "./services/reportService.js";
+import { generateReport, generateManualReport } from "./services/reportService.js";
 import { LAMBDA_ERRORS } from "./utils/errors.js";
 
 /** Retorna a data de ontem formatada como YYYY-MM-DD */
@@ -34,10 +34,23 @@ export const handler = async (event, context) => {
       for (const record of event.Records) {
         console.log(`[index.js] handler - Processando mensagem SQS: ${record.messageId}`);
         const body = JSON.parse(record.body);
-        console.log(`[index.js] handler - Parâmetros do relatório manual:`, body);
+
+        // Validação básica do payload
+        if (!body.inferences || !Array.isArray(body.inferences) || body.inferences.length === 0) {
+          throw LAMBDA_ERRORS.SQS_PAYLOAD_INVALID;
+        }
+        if (!body.report_name || typeof body.report_name !== 'string') {
+          throw LAMBDA_ERRORS.SQS_PAYLOAD_INVALID;
+        }
+
+        const message = await generateManualReport(
+          body.inferences,
+          body.report_name,
+          body.requested_by || "manual"
+        );
+        console.log(`[index.js] handler - Success (SQS): ${message}`);
       }
-      console.log(`[index.js] handler - Success (SQS)`);
-      return { statusCode: 200, body: JSON.stringify({ message: "SQS Manual não suportado ainda" }) };
+      return { statusCode: 200, body: JSON.stringify({ message: "Relatórios manuais processados" }) };
     }
 
     // ── EventBridge Trigger (Relatório Automático) ──────────────────────
