@@ -4,10 +4,16 @@ import { API_ERRORS } from '../utils/errors.js';
 
 const sqsClient = new SQSClient({ region: env.AWS_REGION });
 
+export interface InferenceReference {
+  id: number;
+  date: string; // YYYY-MM-DD
+}
+
 export interface ReportQueuePayload {
   trigger_type: string;
   report_type: string;
-  inference_ids: number[];
+  report_name: string;
+  inferences: InferenceReference[];
   requested_by: string;
 }
 

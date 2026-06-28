@@ -17,6 +17,7 @@ export const GetReportsSchema = z.object({
 export type GetReportsFilters = z.infer<typeof GetReportsSchema>;
 
 export const GenerateReportSchema = z.object({
+  reportName: z.string().min(1).max(200).describe('Nome do relatório definido pelo usuário'),
   selectedIds: z.array(z.number().int().positive()).optional(),
   excludedIds: z.array(z.number().int().positive()).optional(),
   filters: z.object({
