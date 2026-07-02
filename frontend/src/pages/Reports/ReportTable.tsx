@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Download, RefreshCcw, Filter } from 'lucide-react';
+import { Download, RefreshCcw, Filter, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
@@ -7,6 +7,7 @@ import { Pagination } from '../../components/Pagination';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { Select } from '../../components/Select';
+import { Input } from '../../components/Input';
 import { DateRangePicker } from '../../components/DateRangePicker';
 import { ToastContainer, type ToastData } from '../../components/Toast';
 import { useReports } from '../../hooks/useReports';
@@ -41,6 +42,7 @@ function formatDateOnly(iso: string): string {
 export function ReportTable() {
   const { t } = useTranslation();
   const { reportsData, filters, loading, setFilters, fetchReports } = useReports();
+  const [searchValue, setSearchValue] = useState('');
   const [localFilters, setLocalFilters] = useState({
     startDate: filters.startDate,
     endDate: filters.endDate,
@@ -71,14 +73,7 @@ export function ReportTable() {
     [setFilters],
   );
 
-  const handleSort = useCallback(
-    (field: string, order: 'asc' | 'desc') => {
-      if (field === 'generatedAt') {
-        setFilters({ sortOrder: order, page: 1 });
-      }
-    },
-    [setFilters],
-  );
+
 
   const handleApplyFilters = useCallback(() => {
     setFilters({ ...localFilters, page: 1 });
@@ -103,6 +98,7 @@ export function ReportTable() {
       {
         key: 'reportName',
         label: t('reports.columns.reportName', 'Nome do Relatório'),
+        sortable: true,
         render: (value: string, row: ReportMetadata) => (
           <div className="report-table__name-cell">
             <span className="report-table__name-primary">{value}</span>
@@ -120,6 +116,7 @@ export function ReportTable() {
       {
         key: 'period',
         label: t('reports.columns.referencePeriod', 'Período de Referência'),
+        sortable: true,
         width: '200px',
         render: (_: unknown, row: ReportMetadata) => {
           if (!row.periodStart || !row.periodEnd) return '-';
@@ -130,6 +127,7 @@ export function ReportTable() {
       {
         key: 'reportType',
         label: t('reports.columns.type', 'Tipo'),
+        sortable: true,
         width: '120px',
         render: (value: string) => {
           const typeMap: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'neutral' }> = {
@@ -145,11 +143,13 @@ export function ReportTable() {
       {
         key: 'totalInferences',
         label: t('reports.columns.inspections', 'Inspeções'),
+        sortable: true,
         width: '100px',
       },
       {
         key: 'totalDefects',
         label: t('reports.columns.defects', 'Defeitos'),
+        sortable: true,
         width: '100px',
         render: (value: number) => (
           <span className={value > 0 ? 'report-table__defects-count' : ''}>{value}</span>
@@ -190,6 +190,7 @@ export function ReportTable() {
       {
         key: 'generatedBy',
         label: t('reports.columns.generatedBy', 'Gerado Por'),
+        sortable: true,
         width: '180px',
         render: (value: string) => {
           if (value === 'system') return t('reports.generatedBySystem', 'Sistema (Automático)');
@@ -221,6 +222,34 @@ export function ReportTable() {
   const data = reportsData?.data || [];
   const meta = reportsData?.meta;
   const totalItems = meta?.total || 0;
+
+  const [sortConfig, setSortConfig] = useState<{ key: string, order: 'asc' | 'desc' }>({ key: 'generatedAt', order: 'desc' });
+  const handleSort = useCallback((field: string, order: 'asc' | 'desc') => {
+    setSortConfig({ key: field, order });
+  }, []);
+
+  const sortedData = useMemo(() => {
+    let filtered = data;
+    if (searchValue) {
+      const lowerSearch = searchValue.toLowerCase();
+      filtered = filtered.filter(item => item.reportName.toLowerCase().includes(lowerSearch));
+    }
+
+    if (!filtered.length) return [];
+    return [...filtered].sort((a, b) => {
+      let aVal: any = a[sortConfig.key as keyof ReportMetadata];
+      let bVal: any = b[sortConfig.key as keyof ReportMetadata];
+
+      if (sortConfig.key === 'generatedAt' || sortConfig.key === 'periodStart') {
+        aVal = new Date(a[sortConfig.key as keyof ReportMetadata] as string).getTime();
+        bVal = new Date(b[sortConfig.key as keyof ReportMetadata] as string).getTime();
+      }
+
+      if (aVal < bVal) return sortConfig.order === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.order === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortConfig, searchValue]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -275,16 +304,23 @@ export function ReportTable() {
             >
               {t('reports.refresh', 'Atualizar')}
             </Button>
+            <Input
+              placeholder={t('reports.search', 'Buscar relatório...')}
+              icon={<Search size={16} />}
+              value={searchValue}
+              onChange={(v) => setSearchValue(v)}
+              className="report-table__search"
+            />
           </div>
         }
         noPadding
       >
         <Table
           columns={columns}
-          data={data}
+          data={sortedData}
           loading={loading}
-          sortField={filters.sortOrder ? 'generatedAt' : undefined}
-          sortOrder={filters.sortOrder}
+          sortField={sortConfig.key}
+          sortOrder={sortConfig.order}
           onSort={handleSort}
           emptyMessage={t('reports.empty', 'Nenhum relatório encontrado')}
           emptyDescription={t(

@@ -421,13 +421,6 @@ export function InferenceHistory({
             >
               {t('inference.history.refresh', 'Atualizar')}
             </Button>
-            <Input
-              placeholder={t('inference.history.search', 'Buscar...')}
-              icon={<Search size={16} />}
-              value={searchValue}
-              onChange={handleSearchChange}
-              className="inference-history__search"
-            />
           </div>
         }
       >
