@@ -1,47 +1,28 @@
-.report-table__defects-by-type {
+.report-table__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-table__filters-panel {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--color-bg-secondary, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
 }
 
-.report-table__defect-dot {
-  display: inline-flex;
+.report-table__filters-actions {
+  display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 12px;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.report-table__filters-clear {
   color: var(--color-text-secondary, #6b7280);
-  white-space: nowrap;
-}
-
-.report-table__defect-dot-circle {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.report-table__defect-dot-circle--missing_hole {
-  background-color: #ef4444;
-}
-
-.report-table__defect-dot-circle--mouse_bite {
-  background-color: #f97316;
-}
-
-.report-table__defect-dot-circle--open_circuit {
-  background-color: #eab308;
-}
-
-.report-table__defect-dot-circle--short {
-  background-color: #8b5cf6;
-}
-
-.report-table__defect-dot-circle--spur {
-  background-color: #06b6d4;
-}
-
-.report-table__defect-dot-circle--spurious_copper {
-  background-color: #ec4899;
 }
 
 .report-table__name-cell {
@@ -52,13 +33,14 @@
 
 .report-table__name-primary {
   font-weight: 500;
-  color: var(--color-text-primary, #111827);
   font-size: 14px;
+  color: var(--color-text, #111827);
 }
 
 .report-table__name-secondary {
   font-size: 12px;
   color: var(--color-text-secondary, #6b7280);
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
 }
 
 .report-table__defects-count {
@@ -66,38 +48,50 @@
   font-weight: 600;
 }
 
-.report-table__model-cell {
+.report-table__defects-by-type {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
-.report-table__model-dot {
+.report-table__defect-dot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-bg-secondary, #f3f4f6);
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
+.report-table__defect-dot-circle {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  flex-shrink: 0;
 }
 
-.report-table__model-dot--yolo11 {
-  background-color: #16a34a;
+.report-table__defect-dot-circle--missing_hole {
+  background-color: #ef4444;
 }
-
-.report-table__model-dot--faster_rcnn {
-  background-color: #2563eb;
+.report-table__defect-dot-circle--mouse_bite {
+  background-color: #f97316;
 }
-
-.report-table__model-dot--retinanet {
-  background-color: #d97706;
+.report-table__defect-dot-circle--open_circuit {
+  background-color: #eab308;
 }
-
-.report-table__model-dot--rt_detr {
-  background-color: #9333ea;
+.report-table__defect-dot-circle--short {
+  background-color: #8b5cf6;
+}
+.report-table__defect-dot-circle--spur {
+  background-color: #06b6d4;
+}
+.report-table__defect-dot-circle--spurious_copper {
+  background-color: #ec4899;
 }
 
 .report-table__actions {
   display: flex;
-  align-items: center;
   gap: 4px;
 }
 
@@ -108,19 +102,26 @@
   width: 32px;
   height: 32px;
   border: none;
-  background: none;
   border-radius: var(--radius-md, 8px);
+  background: transparent;
   color: var(--color-text-secondary, #6b7280);
   cursor: pointer;
-  transition: background-color var(--transition-base, 200ms ease),
-              color var(--transition-base, 200ms ease);
+  transition: all var(--transition-base, 200ms ease);
 }
 
 .report-table__action-btn:hover {
-  background-color: #f3f4f6;
-  color: var(--color-text-primary, #111827);
+  background: #f3f4f6;
+  color: var(--color-text, #111827);
 }
 
 .report-table__pagination-wrapper {
-  padding: 16px 24px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+@media (max-width: 768px) {
+  .report-table__header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }

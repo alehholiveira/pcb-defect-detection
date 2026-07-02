@@ -1,426 +1,316 @@
-import { useState, useMemo } from 'react';
-import { Plus, Eye, Download, MoreVertical } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Download, RefreshCcw, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
 import { Pagination } from '../../components/Pagination';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
-import type { DefectClass } from '../../types/inference';
+import { Select } from '../../components/Select';
+import { DateRangePicker } from '../../components/DateRangePicker';
+import { ToastContainer, type ToastData } from '../../components/Toast';
+import { useReports } from '../../hooks/useReports';
+import type { ReportMetadata } from '../../services/reportService';
 import './ReportTable.css';
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-interface DefectsByType {
-  missing_hole: number;
-  mouse_bite: number;
-  open_circuit: number;
-  short: number;
-  spur: number;
-  spurious_copper: number;
-}
-
-interface ReportRow {
-  id: number;
-  name: string;
-  filename: string;
-  date: string;
-  period: string;
-  model: string;
-  modelKey: string;
-  inspections: number;
-  defects: number;
-  defectsByType: DefectsByType;
-  generatedBy: string;
-  status: 'completed' | 'pending' | 'failed';
-}
-
-/* ------------------------------------------------------------------ */
-/*  Defect-type label / color mapping                                  */
-/* ------------------------------------------------------------------ */
-
-const DEFECT_LABELS: Record<DefectClass, string> = {
-  missing_hole: 'MH',
-  mouse_bite: 'MB',
-  open_circuit: 'OC',
-  short: 'SH',
-  spur: 'SP',
-  spurious_copper: 'SC',
-};
-
-/* ------------------------------------------------------------------ */
-/*  Mock data (10 rows)                                                */
-/* ------------------------------------------------------------------ */
-
-const MOCK_REPORTS: ReportRow[] = [
-  {
-    id: 1,
-    name: 'Relatório Semanal - Semana 21',
-    filename: 'relatorio_semanal_2026_05_21.pdf',
-    date: '28/05/2026 08:00',
-    period: '19/05/2026 - 25/05/2026',
-    model: 'YOLOv11',
-    modelKey: 'yolo11',
-    inspections: 152,
-    defects: 38,
-    defectsByType: { missing_hole: 12, mouse_bite: 8, open_circuit: 10, short: 6, spur: 0, spurious_copper: 2 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 2,
-    name: 'Relatório Diário - 27/05',
-    filename: 'relatorio_diario_2026_05_27.pdf',
-    date: '27/05/2026 23:59',
-    period: '27/05/2026',
-    model: 'Faster R-CNN',
-    modelKey: 'faster_rcnn',
-    inspections: 24,
-    defects: 7,
-    defectsByType: { missing_hole: 2, mouse_bite: 1, open_circuit: 3, short: 0, spur: 1, spurious_copper: 0 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 3,
-    name: 'Relatório Semanal - Semana 20',
-    filename: 'relatorio_semanal_2026_05_14.pdf',
-    date: '21/05/2026 08:00',
-    period: '12/05/2026 - 18/05/2026',
-    model: 'YOLOv11',
-    modelKey: 'yolo11',
-    inspections: 198,
-    defects: 45,
-    defectsByType: { missing_hole: 15, mouse_bite: 10, open_circuit: 8, short: 7, spur: 3, spurious_copper: 2 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 4,
-    name: 'Relatório Diário - 26/05',
-    filename: 'relatorio_diario_2026_05_26.pdf',
-    date: '26/05/2026 23:59',
-    period: '26/05/2026',
-    model: 'RetinaNet',
-    modelKey: 'retinanet',
-    inspections: 18,
-    defects: 5,
-    defectsByType: { missing_hole: 1, mouse_bite: 0, open_circuit: 2, short: 1, spur: 0, spurious_copper: 1 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 5,
-    name: 'Relatório Mensal - Abril 2026',
-    filename: 'relatorio_mensal_2026_04.pdf',
-    date: '01/05/2026 08:00',
-    period: '01/04/2026 - 30/04/2026',
-    model: 'YOLOv11',
-    modelKey: 'yolo11',
-    inspections: 620,
-    defects: 134,
-    defectsByType: { missing_hole: 42, mouse_bite: 28, open_circuit: 30, short: 18, spur: 8, spurious_copper: 8 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 6,
-    name: 'Relatório Diário - 25/05',
-    filename: 'relatorio_diario_2026_05_25.pdf',
-    date: '25/05/2026 23:59',
-    period: '25/05/2026',
-    model: 'RT-DETR',
-    modelKey: 'rt_detr',
-    inspections: 30,
-    defects: 11,
-    defectsByType: { missing_hole: 3, mouse_bite: 2, open_circuit: 2, short: 2, spur: 1, spurious_copper: 1 },
-    generatedBy: 'Carlos Silva',
-    status: 'completed',
-  },
-  {
-    id: 7,
-    name: 'Relatório Semanal - Semana 19',
-    filename: 'relatorio_semanal_2026_05_07.pdf',
-    date: '14/05/2026 08:00',
-    period: '05/05/2026 - 11/05/2026',
-    model: 'Faster R-CNN',
-    modelKey: 'faster_rcnn',
-    inspections: 175,
-    defects: 52,
-    defectsByType: { missing_hole: 18, mouse_bite: 12, open_circuit: 9, short: 8, spur: 3, spurious_copper: 2 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'completed',
-  },
-  {
-    id: 8,
-    name: 'Relatório Diário - 30/05',
-    filename: 'relatorio_diario_2026_05_30.pdf',
-    date: '30/05/2026 23:59',
-    period: '30/05/2026',
-    model: 'YOLOv11',
-    modelKey: 'yolo11',
-    inspections: 22,
-    defects: 6,
-    defectsByType: { missing_hole: 2, mouse_bite: 1, open_circuit: 1, short: 1, spur: 0, spurious_copper: 1 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'pending',
-  },
-  {
-    id: 9,
-    name: 'Relatório Semanal - Semana 22',
-    filename: 'relatorio_semanal_2026_05_28.pdf',
-    date: '31/05/2026 08:00',
-    period: '26/05/2026 - 01/06/2026',
-    model: 'RetinaNet',
-    modelKey: 'retinanet',
-    inspections: 0,
-    defects: 0,
-    defectsByType: { missing_hole: 0, mouse_bite: 0, open_circuit: 0, short: 0, spur: 0, spurious_copper: 0 },
-    generatedBy: 'Sistema (Automático)',
-    status: 'failed',
-  },
-  {
-    id: 10,
-    name: 'Relatório Mensal - Março 2026',
-    filename: 'relatorio_mensal_2026_03.pdf',
-    date: '01/04/2026 08:00',
-    period: '01/03/2026 - 31/03/2026',
-    model: 'RT-DETR',
-    modelKey: 'rt_detr',
-    inspections: 580,
-    defects: 120,
-    defectsByType: { missing_hole: 38, mouse_bite: 22, open_circuit: 28, short: 16, spur: 10, spurious_copper: 6 },
-    generatedBy: 'Ana Souza',
-    status: 'completed',
-  },
+const REPORT_TYPE_OPTIONS = [
+  { value: 'all', label: 'reports.all' },
+  { value: 'automatic', label: 'reports.automatic' },
+  { value: 'manual', label: 'reports.manual' },
+  { value: 'daily', label: 'reports.daily' },
+  { value: 'weekly', label: 'reports.weekly' },
+  { value: 'monthly', label: 'reports.monthly' },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Helper renderers                                                   */
-/* ------------------------------------------------------------------ */
-
-function renderDefectsByType(defectsByType: DefectsByType) {
-  const entries = (Object.entries(defectsByType) as [DefectClass, number][]).filter(
-    ([, count]) => count > 0,
-  );
-
-  if (entries.length === 0) {
-    return <span className="report-table__name-secondary">—</span>;
-  }
-
-  return (
-    <span className="report-table__defects-by-type">
-      {entries.map(([type, count]) => (
-        <span key={type} className="report-table__defect-dot" title={type}>
-          <span className={`report-table__defect-dot-circle report-table__defect-dot-circle--${type}`} />
-          {DEFECT_LABELS[type]}: {count}
-        </span>
-      ))}
-    </span>
-  );
+function formatDate(iso: string): string {
+  const date = new Date(iso);
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
-function statusVariant(status: ReportRow['status']) {
-  switch (status) {
-    case 'completed':
-      return 'success' as const;
-    case 'pending':
-      return 'warning' as const;
-    case 'failed':
-      return 'danger' as const;
-  }
+function formatDateOnly(iso: string): string {
+  const date = new Date(iso);
+  return date.toLocaleDateString('pt-BR');
 }
-
-function statusLabel(status: ReportRow['status'], t: (key: string) => string) {
-  switch (status) {
-    case 'completed':
-      return t('reports.completed');
-    case 'pending':
-      return t('inferences.pending');
-    case 'failed':
-      return t('inferences.failed');
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
-
-const ITEMS_PER_PAGE = 5;
 
 export function ReportTable() {
   const { t } = useTranslation();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(ITEMS_PER_PAGE);
+  const { reportsData, filters, loading, setFilters, fetchReports } = useReports();
+  const [showFilters, setShowFilters] = useState(false);
+  const [localFilters, setLocalFilters] = useState({
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    reportType: filters.reportType || 'all',
+  });
+  const [toasts, setToasts] = useState<ToastData[]>([]);
 
-  // TODO: replace mock data with API call when backend is ready
-  const data = MOCK_REPORTS;
-  const totalItems = data.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const addToast = useCallback((message: string, variant: ToastData['variant']) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, variant }]);
+  }, []);
 
-  const paginatedData = useMemo(
-    () => data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
-    [data, currentPage, itemsPerPage],
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setFilters({ page });
+    },
+    [setFilters],
   );
 
-  const handleViewReport = (_report: ReportRow) => {
-    // TODO: implement when backend is ready — open report detail / preview
-  };
+  const handleItemsPerPageChange = useCallback(
+    (limit: number) => {
+      setFilters({ limit, page: 1 });
+    },
+    [setFilters],
+  );
 
-  const handleDownloadReport = (_report: ReportRow) => {
-    // TODO: implement when backend is ready — trigger file download
-  };
+  const handleSort = useCallback(
+    (field: string, order: 'asc' | 'desc') => {
+      if (field === 'generatedAt') {
+        setFilters({ sortOrder: order, page: 1 });
+      }
+    },
+    [setFilters],
+  );
 
-  const handleMoreActions = (_report: ReportRow) => {
-    // TODO: implement when backend is ready — show context menu (delete, share, etc.)
-  };
+  const handleApplyFilters = useCallback(() => {
+    setFilters({ ...localFilters, page: 1 });
+  }, [localFilters, setFilters]);
 
-  const handleGenerateManual = () => {
-    // TODO: implement when backend is ready — open manual generation modal
-  };
+  const handleResetFilters = useCallback(() => {
+    const reset = { startDate: undefined, endDate: undefined, reportType: 'all' as const };
+    setLocalFilters(reset);
+    setFilters({ ...reset, page: 1 });
+  }, [setFilters]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const handleDownload = useCallback((url: string) => {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      addToast('Download URL not available.', 'error');
+    }
+  }, [addToast]);
 
-  const handleItemsPerPageChange = (size: number) => {
-    setItemsPerPage(size);
-    setCurrentPage(1);
-  };
+  const columns = useMemo(
+    () => [
+      {
+        key: 'reportName',
+        label: t('reports.columns.reportName', 'Nome do Relatório'),
+        render: (value: string, row: ReportMetadata) => (
+          <div className="report-table__name-cell">
+            <span className="report-table__name-primary">{value}</span>
+            <span className="report-table__name-secondary">{row.filename}</span>
+          </div>
+        ),
+      },
+      {
+        key: 'generatedAt',
+        label: t('reports.columns.generationDate', 'Data de Geração'),
+        sortable: true,
+        width: '160px',
+        render: (value: string) => formatDate(value),
+      },
+      {
+        key: 'period',
+        label: t('reports.columns.referencePeriod', 'Período de Referência'),
+        width: '200px',
+        render: (_: unknown, row: ReportMetadata) => {
+          if (!row.periodStart || !row.periodEnd) return '-';
+          if (row.periodStart === row.periodEnd) return formatDateOnly(row.periodStart);
+          return `${formatDateOnly(row.periodStart)} - ${formatDateOnly(row.periodEnd)}`;
+        },
+      },
+      {
+        key: 'reportType',
+        label: t('reports.columns.type', 'Tipo'),
+        width: '120px',
+        render: (value: string) => {
+          const typeMap: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'neutral' }> = {
+            daily: { label: t('reports.daily', 'Diário'), variant: 'success' },
+            weekly: { label: t('reports.weekly', 'Semanal'), variant: 'success' },
+            monthly: { label: t('reports.monthly', 'Mensal'), variant: 'success' },
+            manual: { label: t('reports.manual', 'Manual'), variant: 'neutral' },
+          };
+          const config = typeMap[value] || { label: value, variant: 'neutral' };
+          return <Badge variant={config.variant}>{config.label}</Badge>;
+        },
+      },
+      {
+        key: 'totalInferences',
+        label: t('reports.columns.inspections', 'Inspeções'),
+        width: '100px',
+      },
+      {
+        key: 'totalDefects',
+        label: t('reports.columns.defects', 'Defeitos'),
+        width: '100px',
+        render: (value: number) => (
+          <span className={value > 0 ? 'report-table__defects-count' : ''}>{value}</span>
+        ),
+      },
+      {
+        key: 'defectsByType',
+        label: t('reports.columns.defectsByType', 'Defeitos por Tipo'),
+        width: '160px',
+        render: (value: Record<string, number>) => {
+          if (!value || Object.keys(value).length === 0) return '-';
+          const defectLabels: Record<string, string> = {
+            missing_hole: 'MH',
+            mouse_bite: 'MB',
+            open_circuit: 'OC',
+            short: 'SH',
+            spur: 'SP',
+            spurious_copper: 'SC',
+          };
+          return (
+            <div className="report-table__defects-by-type">
+              {Object.entries(value).map(([type, count]) => {
+                if (count === 0) return null;
+                const abbr = defectLabels[type] || type.substring(0, 2).toUpperCase();
+                return (
+                  <div key={type} className="report-table__defect-dot" title={`${type}: ${count}`}>
+                    <span className={`report-table__defect-dot-circle report-table__defect-dot-circle--${type}`} />
+                    <span>
+                      {abbr}: {count}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'generatedBy',
+        label: t('reports.columns.generatedBy', 'Gerado Por'),
+        width: '180px',
+        render: (value: string) => {
+          if (value === 'system') return t('reports.generatedBySystem', 'Sistema (Automático)');
+          if (value === 'manual') return t('reports.generatedByManual', 'Manual');
+          return value;
+        },
+      },
+      {
+        key: 'actions',
+        label: t('reports.columns.actions', 'Ações'),
+        width: '80px',
+        render: (_: unknown, row: ReportMetadata) => (
+          <div className="report-table__actions">
+            <button
+              className="report-table__action-btn"
+              aria-label={t('reports.download', 'Download')}
+              title={t('reports.download', 'Download')}
+              onClick={() => handleDownload(row.downloadUrl)}
+            >
+              <Download size={16} />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [t, handleDownload],
+  );
 
-  const columns = [
-    {
-      key: 'name',
-      label: t('reports.reportName'),
-      width: '220px',
-      render: (_: unknown, row: ReportRow) => (
-        <div className="report-table__name-cell">
-          <span className="report-table__name-primary">{row.name}</span>
-          <span className="report-table__name-secondary">{row.filename}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'date',
-      label: t('reports.generationDate'),
-      sortable: true,
-      width: '150px',
-    },
-    {
-      key: 'period',
-      label: t('reports.referencePeriod'),
-      width: '180px',
-    },
-    {
-      key: 'model',
-      label: t('reports.model'),
-      width: '130px',
-      render: (_: unknown, row: ReportRow) => (
-        <span className="report-table__model-cell">
-          <span className={`report-table__model-dot report-table__model-dot--${row.modelKey}`} />
-          {row.model}
-        </span>
-      ),
-    },
-    {
-      key: 'inspections',
-      label: t('reports.inspections'),
-      sortable: true,
-      width: '100px',
-    },
-    {
-      key: 'defects',
-      label: t('reports.detectedDefects'),
-      sortable: true,
-      width: '120px',
-      render: (value: number) => (
-        <span className="report-table__defects-count">{value}</span>
-      ),
-    },
-    {
-      key: 'defectsByType',
-      label: t('reports.defectsByType'),
-      width: '200px',
-      render: (value: DefectsByType) => renderDefectsByType(value),
-    },
-    {
-      key: 'generatedBy',
-      label: t('reports.generatedBy'),
-      width: '150px',
-    },
-    {
-      key: 'status',
-      label: t('reports.status'),
-      width: '110px',
-      render: (_: unknown, row: ReportRow) => (
-        <Badge variant={statusVariant(row.status)} dot>
-          {statusLabel(row.status, t)}
-        </Badge>
-      ),
-    },
-    {
-      key: 'actions',
-      label: t('reports.actions'),
-      width: '110px',
-      render: (_: unknown, row: ReportRow) => (
-        <span className="report-table__actions">
-          <button
-            type="button"
-            className="report-table__action-btn"
-            title={t('common.view')}
-            onClick={() => handleViewReport(row)}
-          >
-            <Eye size={16} />
-          </button>
-          <button
-            type="button"
-            className="report-table__action-btn"
-            title={t('common.download')}
-            onClick={() => handleDownloadReport(row)}
-          >
-            <Download size={16} />
-          </button>
-          <button
-            type="button"
-            className="report-table__action-btn"
-            onClick={() => handleMoreActions(row)}
-          >
-            <MoreVertical size={16} />
-          </button>
-        </span>
-      ),
-    },
-  ];
+  const data = reportsData?.data || [];
+  const meta = reportsData?.meta;
+  const totalItems = meta?.total || 0;
 
   return (
-    <Card
-      title={t('reports.generated')}
-      subtitle={`${totalItems} ${t('reports.title').toLowerCase()}`}
-      headerAction={
-        <Button
-          variant="secondary"
-          icon={<Plus size={16} />}
-          onClick={handleGenerateManual}
-        >
-          {t('reports.generateManual')}
-        </Button>
-      }
-      noPadding
-    >
-      <Table columns={columns} data={paginatedData} />
+    <>
+      <Card
+        title={t('reports.title', 'Relatórios')}
+        subtitle={t('reports.subtitle', 'Visualize e gerencie todos os relatórios de inspeção gerados no sistema.')}
+        headerAction={
+          <div className="report-table__header-actions">
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<RefreshCcw size={16} />}
+              onClick={fetchReports}
+              aria-label={t('reports.refresh', 'Atualizar')}
+            >
+              {t('reports.refresh', 'Atualizar')}
+            </Button>
+            <Button
+              variant={showFilters ? 'primary' : 'secondary'}
+              size="sm"
+              icon={<SlidersHorizontal size={16} />}
+              aria-label={t('reports.filters', 'Filtros')}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {t('reports.filters', 'Filtros')}
+            </Button>
+          </div>
+        }
+        noPadding
+      >
+        {showFilters && (
+          <div className="report-table__filters-panel">
+            <DateRangePicker
+              label={t('reports.period', 'Período')}
+              startDate={localFilters.startDate ?? ''}
+              endDate={localFilters.endDate ?? ''}
+              onStartDateChange={(val) => setLocalFilters((prev) => ({ ...prev, startDate: val || undefined }))}
+              onEndDateChange={(val) => setLocalFilters((prev) => ({ ...prev, endDate: val || undefined }))}
+            />
+            <Select
+              label={t('reports.reportType', 'Tipo de Relatório')}
+              options={REPORT_TYPE_OPTIONS.map((opt) => ({ ...opt, label: t(opt.label) }))}
+              value={localFilters.reportType || ''}
+              onChange={(val) =>
+                setLocalFilters((prev) => ({
+                  ...prev,
+                  reportType: (val as any) || undefined,
+                }))
+              }
+            />
+            <div className="report-table__filters-actions">
+              <Button variant="ghost" onClick={handleResetFilters} className="report-table__filters-clear">
+                {t('reports.clearFilters', 'Resetar')}
+              </Button>
+              <Button variant="primary" onClick={handleApplyFilters}>
+                {t('reports.applyFilters', 'Aplicar')}
+              </Button>
+            </div>
+          </div>
+        )}
 
-      <div className="report-table__pagination-wrapper">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={handleItemsPerPageChange}
+        <Table
+          columns={columns}
+          data={data}
+          loading={loading}
+          sortField={filters.sortOrder ? 'generatedAt' : undefined}
+          sortOrder={filters.sortOrder}
+          onSort={handleSort}
+          emptyMessage={t('reports.empty', 'Nenhum relatório encontrado')}
+          emptyDescription={t(
+            'reports.emptyDesc',
+            'Os relatórios aparecerão aqui assim que forem gerados automática ou manualmente.'
+          )}
         />
-      </div>
-    </Card>
+
+        {meta && meta.totalPages > 0 && (
+          <div className="report-table__pagination-wrapper">
+            <Pagination
+              currentPage={meta.page}
+              totalPages={meta.totalPages}
+              totalItems={meta.total}
+              itemsPerPage={meta.limit}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        )}
+      </Card>
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
   );
 }
