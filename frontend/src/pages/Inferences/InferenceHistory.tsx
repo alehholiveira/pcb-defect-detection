@@ -8,6 +8,7 @@ import {
   Trash2,
   RefreshCcw,
   FileText,
+  Filter,
 } from 'lucide-react'
 import { Card } from '../../components/Card'
 import { Table } from '../../components/Table'
@@ -68,7 +69,6 @@ export function InferenceHistory({
 }: InferenceHistoryProps) {
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useState(historyFilters.search ?? '')
-  const [showFilters, setShowFilters] = useState(false)
   const [localFilters, setLocalFilters] = useState({
     startDate: historyFilters.startDate,
     endDate: historyFilters.endDate,
@@ -346,7 +346,47 @@ export function InferenceHistory({
   }, [data, sortConfig])
 
   return (
-    <div className="inference-history">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="inference-history__page-header">
+        <h1 className="inference-history__page-title">{t('inference.history.title', 'Histórico de Inferências')}</h1>
+        <p className="inference-history__page-subtitle">{t('inference.history.subtitle', 'Visualize e gerencie inferências anteriores')}</p>
+      </div>
+
+      <Card className="inference-history__filters-card">
+        <div className="inference-history__filters-row">
+          <DateRangePicker
+            label={t('inference.history.filter.period', 'Período')}
+            startDate={localFilters.startDate ?? ''}
+            endDate={localFilters.endDate ?? ''}
+            onStartDateChange={(val) => setLocalFilters(prev => ({ ...prev, startDate: val || undefined }))}
+            onEndDateChange={(val) => setLocalFilters(prev => ({ ...prev, endDate: val || undefined }))}
+          />
+          <Select
+            label={t('inference.history.filter.model', 'Modelo')}
+            options={modelOptions}
+            value={localFilters.modelName ?? ''}
+            onChange={(val) => setLocalFilters(prev => ({ ...prev, modelName: val || undefined }))}
+          />
+        </div>
+
+        <div className="inference-history__filters-actions" style={{ marginLeft: 'auto', marginTop: '8px' }}>
+          <Button
+            variant="ghost"
+            onClick={handleResetFilters}
+            className="inference-history__filters-clear"
+          >
+            {t('inference.history.filter.reset', 'Resetar')}
+          </Button>
+          <Button
+            variant="primary"
+            icon={<Filter size={16} />}
+            onClick={handleApplyFilters}
+          >
+            {t('inference.history.filter.apply', 'Aplicar')}
+          </Button>
+        </div>
+      </Card>
+
       <Card
         title={t('inference.history.title', 'Histórico de Inferências')}
         subtitle={t(
@@ -388,50 +428,9 @@ export function InferenceHistory({
               onChange={handleSearchChange}
               className="inference-history__search"
             />
-            <Button
-              variant={showFilters ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<SlidersHorizontal size={16} />}
-              aria-label={t('inference.history.filters', 'Filtros')}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              {t('inference.history.filters', 'Filtros')}
-            </Button>
           </div>
         }
       >
-        {showFilters && (
-          <div className="inference-history__filters-panel">
-            <DateRangePicker
-              label={t('inference.history.filter.period', 'Período')}
-              startDate={localFilters.startDate ?? ''}
-              endDate={localFilters.endDate ?? ''}
-              onStartDateChange={(val) => setLocalFilters(prev => ({ ...prev, startDate: val || undefined }))}
-              onEndDateChange={(val) => setLocalFilters(prev => ({ ...prev, endDate: val || undefined }))}
-            />
-            <Select
-              label={t('inference.history.filter.model', 'Modelo')}
-              options={modelOptions}
-              value={localFilters.modelName ?? ''}
-              onChange={(val) => setLocalFilters(prev => ({ ...prev, modelName: val || undefined }))}
-            />
-            <div className="inference-history__filters-actions">
-              <Button
-                variant="ghost"
-                onClick={handleResetFilters}
-                className="inference-history__filters-clear"
-              >
-                {t('inference.history.filter.reset', 'Resetar')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleApplyFilters}
-              >
-                {t('inference.history.filter.apply', 'Aplicar')}
-              </Button>
-            </div>
-          </div>
-        )}
         <Table
           columns={columns}
           data={sortedData}

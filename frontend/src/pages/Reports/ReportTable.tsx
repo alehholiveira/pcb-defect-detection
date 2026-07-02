@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Download, RefreshCcw, SlidersHorizontal } from 'lucide-react';
+import { Download, RefreshCcw, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
@@ -41,7 +41,6 @@ function formatDateOnly(iso: string): string {
 export function ReportTable() {
   const { t } = useTranslation();
   const { reportsData, filters, loading, setFilters, fetchReports } = useReports();
-  const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
     startDate: filters.startDate,
     endDate: filters.endDate,
@@ -224,10 +223,47 @@ export function ReportTable() {
   const totalItems = meta?.total || 0;
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="report-table__page-header">
+        <h1 className="report-table__page-title">{t('reports.title', 'Relatórios')}</h1>
+        <p className="report-table__page-subtitle">{t('reports.subtitle', 'Visualize e gerencie todos os relatórios de inspeção gerados no sistema.')}</p>
+      </div>
+
+      <Card className="report-table__filters-card">
+        <div className="report-table__filters-row">
+          <DateRangePicker
+            label={t('reports.period', 'Período')}
+            startDate={localFilters.startDate ?? ''}
+            endDate={localFilters.endDate ?? ''}
+            onStartDateChange={(val) => setLocalFilters((prev) => ({ ...prev, startDate: val || undefined }))}
+            onEndDateChange={(val) => setLocalFilters((prev) => ({ ...prev, endDate: val || undefined }))}
+          />
+          <Select
+            label={t('reports.reportType', 'Tipo de Relatório')}
+            options={REPORT_TYPE_OPTIONS.map((opt) => ({ ...opt, label: t(opt.label) }))}
+            value={localFilters.reportType || ''}
+            onChange={(val) =>
+              setLocalFilters((prev) => ({
+                ...prev,
+                reportType: (val as any) || undefined,
+              }))
+            }
+          />
+        </div>
+
+        <div className="report-table__filters-actions" style={{ marginLeft: 'auto', marginTop: '8px' }}>
+          <Button variant="secondary" onClick={handleResetFilters}>
+            {t('reports.clearFilters', 'Limpar Filtros')}
+          </Button>
+          <Button variant="primary" icon={<Filter size={16} />} onClick={handleApplyFilters}>
+            {t('reports.applyFilters', 'Aplicar Filtros')}
+          </Button>
+        </div>
+      </Card>
+
       <Card
-        title={t('reports.title', 'Relatórios')}
-        subtitle={t('reports.subtitle', 'Visualize e gerencie todos os relatórios de inspeção gerados no sistema.')}
+        title={t('reports.generated', 'Relatórios Gerados')}
+        subtitle={`${totalItems} ${t('reports.title', 'Relatórios').toLowerCase()}`}
         headerAction={
           <div className="report-table__header-actions">
             <Button
@@ -239,50 +275,10 @@ export function ReportTable() {
             >
               {t('reports.refresh', 'Atualizar')}
             </Button>
-            <Button
-              variant={showFilters ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<SlidersHorizontal size={16} />}
-              aria-label={t('reports.filters', 'Filtros')}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              {t('reports.filters', 'Filtros')}
-            </Button>
           </div>
         }
         noPadding
       >
-        {showFilters && (
-          <div className="report-table__filters-panel">
-            <DateRangePicker
-              label={t('reports.period', 'Período')}
-              startDate={localFilters.startDate ?? ''}
-              endDate={localFilters.endDate ?? ''}
-              onStartDateChange={(val) => setLocalFilters((prev) => ({ ...prev, startDate: val || undefined }))}
-              onEndDateChange={(val) => setLocalFilters((prev) => ({ ...prev, endDate: val || undefined }))}
-            />
-            <Select
-              label={t('reports.reportType', 'Tipo de Relatório')}
-              options={REPORT_TYPE_OPTIONS.map((opt) => ({ ...opt, label: t(opt.label) }))}
-              value={localFilters.reportType || ''}
-              onChange={(val) =>
-                setLocalFilters((prev) => ({
-                  ...prev,
-                  reportType: (val as any) || undefined,
-                }))
-              }
-            />
-            <div className="report-table__filters-actions">
-              <Button variant="ghost" onClick={handleResetFilters} className="report-table__filters-clear">
-                {t('reports.clearFilters', 'Resetar')}
-              </Button>
-              <Button variant="primary" onClick={handleApplyFilters}>
-                {t('reports.applyFilters', 'Aplicar')}
-              </Button>
-            </div>
-          </div>
-        )}
-
         <Table
           columns={columns}
           data={data}
@@ -311,6 +307,6 @@ export function ReportTable() {
         )}
       </Card>
       <ToastContainer toasts={toasts} onClose={removeToast} />
-    </>
+    </div>
   );
 }
