@@ -3,7 +3,7 @@
 .modal {
   position: fixed;
   inset: 0;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border: none;
@@ -14,6 +14,10 @@
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+}
+
+.modal[open] {
+  display: flex;
 }
 
 /* Native dialog backdrop */

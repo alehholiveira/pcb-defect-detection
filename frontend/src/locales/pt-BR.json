@@ -140,7 +140,24 @@
       "download": "Baixar",
       "delete": "Excluir",
       "empty": "Nenhuma inferência encontrada",
-      "emptyDesc": "Execute uma inferência para ver os resultados aqui."
+      "emptyDesc": "Execute uma inferência para ver os resultados aqui.",
+      "selectAll": "Selecionar Todas",
+      "generateReport": "Gerar Relatório",
+      "selectedCount": "{{count}} selecionada(s)",
+      "modal": {
+        "title": "Gerar Relatório Manual",
+        "reportNameLabel": "Nome do Relatório",
+        "reportNamePlaceholder": "Ex.: Lote de Inspeção #42",
+        "inferencesIncluded": "{{count}} inferência(s) será(ão) incluída(s) no relatório.",
+        "allInferencesIncluded": "Todas as {{count}} inferência(s) que correspondem aos filtros atuais serão incluídas.",
+        "confirm": "Gerar Relatório",
+        "cancel": "Cancelar"
+      }
     }
+  },
+  "toast": {
+    "reportRequested": "Geração do relatório solicitada com sucesso!",
+    "reportRequestFailed": "Falha ao solicitar a geração do relatório. Tente novamente.",
+    "reportNameRequired": "Por favor, forneça um nome para o relatório."
   }
 }

@@ -3,7 +3,6 @@
   flex-direction: column;
 }
 
-/* Header actions */
 .inference-history__header-actions {
   display: flex;
   align-items: center;
@@ -38,7 +37,6 @@
   color: var(--color-text-secondary);
 }
 
-/* ID styling */
 .inference-history__id {
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
   font-size: 13px;
@@ -46,13 +44,11 @@
   color: var(--color-primary, #16a34a);
 }
 
-/* Model badge style */
 .inference-history__model {
   font-weight: 500;
   color: var(--color-text, #111827);
 }
 
-/* Action buttons */
 .inference-history__actions {
   display: flex;
   align-items: center;
@@ -83,13 +79,63 @@
   color: #dc2626;
 }
 
-/* Pagination */
 .inference-history__pagination {
   padding: 12px 16px;
   border-top: 1px solid var(--color-border, #e5e7eb);
 }
 
-/* Responsive */
+/* Novos estilos para seleção e modal */
+.inference-history__checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.inference-history__checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-primary, #16a34a);
+}
+
+.inference-history__generate-btn {
+  position: relative;
+}
+
+.inference-history__selection-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--color-primary, #16a34a);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.inference-history__modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inference-history__modal-text {
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 14px;
+  margin: 0;
+}
+
+.inference-history__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 @media (max-width: 768px) {
   .inference-history__header-actions {
     flex-direction: column;

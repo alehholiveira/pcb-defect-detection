@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Search,
@@ -7,6 +7,7 @@ import {
   Download,
   Trash2,
   RefreshCcw,
+  FileText,
 } from 'lucide-react'
 import { Card } from '../../components/Card'
 import { Table } from '../../components/Table'
@@ -16,6 +17,10 @@ import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
 import { Select } from '../../components/Select'
 import { DateRangePicker } from '../../components/DateRangePicker'
+import { Modal } from '../../components/Modal'
+import { ToastContainer, type ToastData } from '../../components/Toast'
+import { useInferenceSelection } from '../../hooks/useInferenceSelection'
+import { generateReport } from '../../services/reportService'
 import type {
   Inference,
   InferenceFilters,
@@ -74,6 +79,46 @@ export function InferenceHistory({
     order: 'desc',
   })
 
+  // Modal e form state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [reportName, setReportName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Toasts state
+  const [toasts, setToasts] = useState<ToastData[]>([])
+  
+  const addToast = useCallback((message: string, variant: ToastData['variant']) => {
+    const id = Math.random().toString(36).substring(2, 9)
+    setToasts(prev => [...prev, { id, message, variant }])
+  }, [])
+  
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }, [])
+
+  const meta = historyData?.meta
+  const totalInferences = meta?.total || 0
+
+  const {
+    selectionMode,
+    isSelected,
+    toggleSelect,
+    toggleSelectAll,
+    isAllSelected,
+    isIndeterminate,
+    selectionCount,
+    clearSelection,
+    getRequestPayload
+  } = useInferenceSelection(totalInferences)
+
+  const headerCheckboxRef = useRef<HTMLInputElement>(null)
+  
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate = isIndeterminate
+    }
+  }, [isIndeterminate])
+
   const modelOptions = [
     { value: '', label: t('inference.history.filter.allModels', 'Todos os Modelos') },
     ...AVAILABLE_MODELS.map(m => ({ value: m.value, label: m.label }))
@@ -109,15 +154,71 @@ export function InferenceHistory({
   )
 
   const handleApplyFilters = useCallback(() => {
+    clearSelection()
     onFiltersChange({ ...localFilters, page: 1 })
-  }, [localFilters, onFiltersChange])
+  }, [localFilters, clearSelection, onFiltersChange])
 
   const handleResetFilters = useCallback(() => {
+    clearSelection()
     setLocalFilters({ startDate: undefined, endDate: undefined, modelName: undefined })
+  }, [clearSelection])
+
+  const handleGenerateReportClick = useCallback(() => {
+    setReportName('')
+    setIsModalOpen(true)
   }, [])
+
+  const submitGenerateReport = useCallback(async () => {
+    if (!reportName.trim()) {
+      addToast(t('toast.reportNameRequired', 'Por favor, forneça um nome para o relatório.'), 'warning')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const payload = getRequestPayload(reportName.trim(), historyFilters)
+      await generateReport(payload)
+      
+      addToast(t('toast.reportRequested', 'Geração do relatório solicitada com sucesso!'), 'success')
+      setIsModalOpen(false)
+      clearSelection()
+    } catch (error) {
+      addToast(t('toast.reportRequestFailed', 'Falha ao solicitar a geração do relatório. Tente novamente.'), 'error')
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [reportName, historyFilters, getRequestPayload, addToast, t, clearSelection])
 
   const columns = useMemo(
     () => [
+      {
+        key: 'selection',
+        label: (
+          <div className="inference-history__checkbox-container">
+            <input
+              type="checkbox"
+              ref={headerCheckboxRef}
+              checked={isAllSelected}
+              onChange={toggleSelectAll}
+              className="inference-history__checkbox"
+              aria-label={t('inference.history.selectAll', 'Selecionar Todas')}
+            />
+          </div>
+        ),
+        width: '50px',
+        render: (_: unknown, row: Inference) => (
+          <div className="inference-history__checkbox-container">
+            <input
+              type="checkbox"
+              checked={isSelected(row.id)}
+              onChange={() => toggleSelect(row.id)}
+              className="inference-history__checkbox"
+              aria-label={`Select ${row.id}`}
+            />
+          </div>
+        )
+      },
       {
         key: 'id',
         label: t('inference.history.columns.id', 'ID'),
@@ -210,7 +311,7 @@ export function InferenceHistory({
         ),
       },
     ],
-    [t, onReplayInference]
+    [t, onReplayInference, isAllSelected, toggleSelectAll, isSelected, toggleSelect]
   )
 
   const data = historyData?.data || []
@@ -244,8 +345,6 @@ export function InferenceHistory({
     })
   }, [data, sortConfig])
 
-  const meta = historyData?.meta
-
   return (
     <div className="inference-history">
       <Card
@@ -256,11 +355,28 @@ export function InferenceHistory({
         )}
         headerAction={
           <div className="inference-history__header-actions">
+            <div className="inference-history__generate-btn">
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<FileText size={16} />}
+                disabled={selectionMode === 'none'}
+                onClick={handleGenerateReportClick}
+                aria-label={t('inference.history.generateReport', 'Gerar Relatório')}
+              >
+                {t('inference.history.generateReport', 'Gerar Relatório')}
+              </Button>
+              {selectionMode !== 'none' && (
+                <span className="inference-history__selection-badge">
+                  {selectionCount}
+                </span>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="sm"
               icon={<RefreshCcw size={16} />}
-              onClick={() => onFetchHistory()}
+              onClick={() => { clearSelection(); onFetchHistory(); }}
               aria-label={t('inference.history.refresh', 'Atualizar')}
             >
               {t('inference.history.refresh', 'Atualizar')}
@@ -346,6 +462,51 @@ export function InferenceHistory({
           </div>
         )}
       </Card>
+
+      <Modal
+        open={isModalOpen}
+        onClose={() => !isSubmitting && setIsModalOpen(false)}
+        title={t('inference.history.modal.title', 'Gerar Relatório Manual')}
+        size="md"
+      >
+        <div className="inference-history__modal-content">
+          <p className="inference-history__modal-text">
+            {selectionMode === 'all' 
+              ? t('inference.history.modal.allInferencesIncluded', 'Todas as {{count}} inferência(s) que correspondem aos filtros atuais serão incluídas.', { count: selectionCount })
+              : t('inference.history.modal.inferencesIncluded', '{{count}} inferência(s) será(ão) incluída(s) no relatório.', { count: selectionCount })
+            }
+          </p>
+          
+          <Input
+            label={t('inference.history.modal.reportNameLabel', 'Nome do Relatório')}
+            placeholder={t('inference.history.modal.reportNamePlaceholder', 'Ex.: Lote de Inspeção #42')}
+            value={reportName}
+            onChange={setReportName}
+            disabled={isSubmitting}
+            autoFocus
+          />
+
+          <div className="inference-history__modal-actions">
+            <Button
+              variant="ghost"
+              onClick={() => setIsModalOpen(false)}
+              disabled={isSubmitting}
+            >
+              {t('inference.history.modal.cancel', 'Cancelar')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={submitGenerateReport}
+              disabled={isSubmitting || !reportName.trim()}
+              loading={isSubmitting}
+            >
+              {t('inference.history.modal.confirm', 'Gerar Relatório')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }

@@ -140,7 +140,24 @@
       "download": "Download",
       "delete": "Delete",
       "empty": "No inferences found",
-      "emptyDesc": "Run an inference to see results here."
+      "emptyDesc": "Run an inference to see results here.",
+      "selectAll": "Select All",
+      "generateReport": "Generate Report",
+      "selectedCount": "{{count}} selected",
+      "modal": {
+        "title": "Generate Manual Report",
+        "reportNameLabel": "Report Name",
+        "reportNamePlaceholder": "E.g.: Inspection Batch #42",
+        "inferencesIncluded": "{{count}} inference(s) will be included in the report.",
+        "allInferencesIncluded": "All {{count}} inference(s) matching the current filters will be included.",
+        "confirm": "Generate Report",
+        "cancel": "Cancel"
+      }
     }
+  },
+  "toast": {
+    "reportRequested": "Report generation requested successfully!",
+    "reportRequestFailed": "Failed to request report generation. Please try again.",
+    "reportNameRequired": "Please provide a report name."
   }
 }
