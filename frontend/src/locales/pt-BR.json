@@ -52,9 +52,45 @@
   },
   "placeholders": {
     "comingSoon": "Em breve",
-    "metricsDescription": "Dashboard de métricas e análises estará disponível aqui.",
     "modelsDescription": "Gerenciamento de modelos de IA estará disponível aqui.",
     "settingsDescription": "Configurações do sistema estarão disponíveis aqui."
+  },
+  "metrics": {
+    "page": {
+      "title": "Dashboard de Métricas",
+      "subtitle": "Analise o desempenho do sistema, distribuição de defeitos e eficiência dos modelos."
+    },
+    "loading": "Carregando dados das métricas...",
+    "summary": {
+      "totalInferences": "Total de Inferências",
+      "totalImages": "Total de Imagens",
+      "totalDefects": "Total de Defeitos",
+      "avgConfidence": "Confiança Média",
+      "avgTime": "Tempo Médio",
+      "defectRate": "Taxa de Defeitos",
+      "perImage": "por imagem"
+    },
+    "filters": {
+      "title": "Filtros",
+      "period": "Período",
+      "granularity": "Granularidade",
+      "model": "Modelo",
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "allModels": "Todos os Modelos",
+      "clear": "Limpar Filtros"
+    },
+    "charts": {
+      "inferencesTime": "Inferências ao Longo do Tempo",
+      "defectsTime": "Defeitos ao Longo do Tempo",
+      "defectDistribution": "Distribuição de Defeitos",
+      "modelUsage": "Uso de Modelos",
+      "confidenceByType": "Confiança por Tipo de Defeito",
+      "reportsByType": "Relatórios Gerados",
+      "maxConfidence": "Máx",
+      "avgConfidence": "Méd"
+    }
   },
   "common": {
     "loading": "Carregando...",

@@ -5,7 +5,7 @@ import './Table.css';
 
 interface TableColumn {
   key: string;
-  label: string;
+  label: ReactNode;
   sortable?: boolean;
   width?: string;
   render?: (value: any, row: any) => ReactNode;

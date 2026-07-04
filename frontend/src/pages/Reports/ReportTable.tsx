@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Download, RefreshCcw, Filter, Search } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
+import { i18n } from '../../i18n';
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
 import { Pagination } from '../../components/Pagination';
@@ -25,7 +26,8 @@ const REPORT_TYPE_OPTIONS = [
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
-  return date.toLocaleDateString('pt-BR', {
+  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US';
+  return date.toLocaleDateString(lang, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -36,7 +38,8 @@ function formatDate(iso: string): string {
 
 function formatDateOnly(iso: string): string {
   const date = new Date(iso);
-  return date.toLocaleDateString('pt-BR');
+  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US';
+  return date.toLocaleDateString(lang);
 }
 
 export function ReportTable() {
@@ -130,7 +133,7 @@ export function ReportTable() {
         sortable: true,
         width: '120px',
         render: (value: string) => {
-          const typeMap: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'neutral' }> = {
+          const typeMap: Record<string, { label: string; variant: 'info' | 'success' | 'warning' | 'neutral' }> = {
             daily: { label: t('reports.daily', 'Diário'), variant: 'success' },
             weekly: { label: t('reports.weekly', 'Semanal'), variant: 'success' },
             monthly: { label: t('reports.monthly', 'Mensal'), variant: 'success' },

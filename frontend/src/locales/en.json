@@ -52,9 +52,45 @@
   },
   "placeholders": {
     "comingSoon": "Coming Soon",
-    "metricsDescription": "Metrics and analytics dashboard will be available here.",
     "modelsDescription": "AI model management will be available here.",
     "settingsDescription": "System settings will be available here."
+  },
+  "metrics": {
+    "page": {
+      "title": "Metrics Dashboard",
+      "subtitle": "Analyze system performance, defect distribution, and model efficiency."
+    },
+    "loading": "Loading metrics data...",
+    "summary": {
+      "totalInferences": "Total Inferences",
+      "totalImages": "Total Images",
+      "totalDefects": "Total Defects",
+      "avgConfidence": "Avg. Confidence",
+      "avgTime": "Avg. Time",
+      "defectRate": "Defect Rate",
+      "perImage": "per image"
+    },
+    "filters": {
+      "title": "Filters",
+      "period": "Period",
+      "granularity": "Granularity",
+      "model": "Model",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "allModels": "All Models",
+      "clear": "Clear Filters"
+    },
+    "charts": {
+      "inferencesTime": "Inferences Over Time",
+      "defectsTime": "Defects Over Time",
+      "defectDistribution": "Defect Distribution",
+      "modelUsage": "Model Usage",
+      "confidenceByType": "Confidence by Defect Type",
+      "reportsByType": "Generated Reports",
+      "maxConfidence": "Max",
+      "avgConfidence": "Avg"
+    }
   },
   "common": {
     "loading": "Loading...",

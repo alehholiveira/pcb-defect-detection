@@ -21,7 +21,7 @@ export function DateRangePicker({
   onEndDateChange,
   label,
 }: DateRangePickerProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const id = useId();
 
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
@@ -72,7 +72,7 @@ export function DateRangePicker({
           isClearable={true}
           placeholderText={t('dateRangePicker.placeholder', 'Selecione o período...')}
           className="date-range-picker__input"
-          dateFormat="dd/MM/yyyy"
+          dateFormat={i18n.language.startsWith('pt') ? 'dd/MM/yyyy' : 'MM/dd/yyyy'}
         />
       </div>
     </div>

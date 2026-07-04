@@ -1,14 +1,13 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { i18n } from '../../i18n'
 import {
-  Search,
-  SlidersHorizontal,
   Eye,
   Download,
   Trash2,
   RefreshCcw,
   FileText,
-  Filter,
+  Filter
 } from 'lucide-react'
 import { Card } from '../../components/Card'
 import { Table } from '../../components/Table'
@@ -41,7 +40,8 @@ interface InferenceHistoryProps {
 
 function formatDate(iso: string): string {
   const date = new Date(iso)
-  return date.toLocaleDateString('pt-BR', {
+  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US'
+  return date.toLocaleDateString(lang, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -68,7 +68,6 @@ export function InferenceHistory({
   onReplayInference,
 }: InferenceHistoryProps) {
   const { t } = useTranslation()
-  const [searchValue, setSearchValue] = useState(historyFilters.search ?? '')
   const [localFilters, setLocalFilters] = useState({
     startDate: historyFilters.startDate,
     endDate: historyFilters.endDate,
@@ -124,13 +123,6 @@ export function InferenceHistory({
     ...AVAILABLE_MODELS.map(m => ({ value: m.value, label: m.label }))
   ]
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchValue(value)
-      onFiltersChange({ search: value || undefined, page: 1 })
-    },
-    [onFiltersChange]
-  )
 
   const handlePageChange = useCallback(
     (page: number) => {
