@@ -22,6 +22,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
         { name: 'Health', description: 'Health check endpoints' },
         { name: 'Analysis', description: 'PCB analysis endpoints' },
         { name: 'Reports', description: 'Report management endpoints' },
+        { name: 'Metrics', description: 'System metrics and dashboard data' },
       ],
     },
     transform: jsonSchemaTransform,

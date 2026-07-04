@@ -14,6 +14,12 @@ export const API_ERRORS = {
     description: 'Ocorreu um erro ao consultar os relatórios no S3.',
     statusCode: 500,
   },
+  METRICS_FETCH_ERROR: {
+    code: 'ERR_METRICS_FETCH_FAILED',
+    message: 'Não foi possível recuperar as métricas.',
+    description: 'Ocorreu um erro ao agregar os dados das métricas.',
+    statusCode: 500,
+  },
   GENERATE_REPORT_FAILED: {
     code: 'ERR_GENERATE_REPORT_FAILED',
     message: 'Não foi possível solicitar a geração do relatório.',
