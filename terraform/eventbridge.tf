@@ -55,3 +55,30 @@ resource "aws_lambda_permission" "allow_eventbridge_weekly" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.weekly_report_schedule.arn
 }
+
+# 3. Regra Mensal (1º dia do mês)
+resource "aws_cloudwatch_event_rule" "monthly_report_schedule" {
+  name                = "${var.project_name}-monthly-report-rule"
+  description         = "Disparo mensal (1º dia do mês) para relatórios"
+  schedule_expression = "cron(0 0 1 * ? *)"
+  state               = "ENABLED"
+}
+
+resource "aws_cloudwatch_event_target" "lambda_monthly_target" {
+  rule      = aws_cloudwatch_event_rule.monthly_report_schedule.name
+  target_id = "monthly-report-lambda-target"
+  arn       = aws_lambda_function.report_lambda.arn
+
+  input = jsonencode({
+    trigger_type = "scheduled"
+    report_type  = "monthly"
+  })
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_monthly" {
+  statement_id  = "AllowExecutionFromEventBridgeMonthly"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.report_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.monthly_report_schedule.arn
+}

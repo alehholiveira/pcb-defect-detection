@@ -46,3 +46,18 @@ output "ses_sender_email" {
   value       = aws_ses_email_identity.sender.email
   description = "E-mail remetente verificado no SES"
 }
+
+output "eventbridge_daily_rule_name" {
+  value       = aws_cloudwatch_event_rule.daily_report_schedule.name
+  description = "Nome da regra diária"
+}
+
+output "eventbridge_weekly_rule_name" {
+  value       = aws_cloudwatch_event_rule.weekly_report_schedule.name
+  description = "Nome da regra semanal"
+}
+
+output "eventbridge_monthly_rule_name" {
+  value       = aws_cloudwatch_event_rule.monthly_report_schedule.name
+  description = "Nome da regra mensal"
+}

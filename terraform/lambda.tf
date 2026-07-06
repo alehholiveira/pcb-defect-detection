@@ -104,6 +104,16 @@ resource "aws_iam_policy" "lambda_policy" {
           "ses:SendRawEmail"
         ]
         Resource = aws_ses_email_identity.sender.arn
+      },
+      # SES — Listar e consultar status de verificação de identidades
+      {
+        Sid    = "SESListAndRead"
+        Effect = "Allow"
+        Action = [
+          "ses:GetIdentityVerificationAttributes",
+          "ses:ListIdentities"
+        ]
+        Resource = "*"
       }
     ]
   })
