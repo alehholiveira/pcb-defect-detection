@@ -23,6 +23,22 @@ function getLastWeekDaysStrs() {
   return dates;
 }
 
+/** Retorna um array com todas as datas do mês anterior formatadas como YYYY-MM-DD */
+function getLastMonthDaysStrs() {
+  const dates = [];
+  const today = new Date();
+  const year = today.getMonth() === 0 ? today.getFullYear() - 1 : today.getFullYear();
+  const month = today.getMonth() === 0 ? 11 : today.getMonth() - 1; // 0-indexed
+  
+  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  
+  for (let day = 1; day <= lastDayOfMonth; day++) {
+    const d = new Date(year, month, day);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+  return dates;
+}
+
 export const handler = async (event, context) => {
   console.log(`[index.js] handler - Init`, { requestId: context.awsRequestId, eventType: event.trigger_type || "SQS" });
   
@@ -63,6 +79,8 @@ export const handler = async (event, context) => {
         targetDates = [getYesterdayStr()];
       } else if (reportType === "weekly") {
         targetDates = getLastWeekDaysStrs();
+      } else if (reportType === "monthly") {
+        targetDates = getLastMonthDaysStrs();
       } else {
         throw LAMBDA_ERRORS.INVALID_REPORT_TYPE;
       }
