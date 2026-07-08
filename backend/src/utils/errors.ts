@@ -38,6 +38,18 @@ export const API_ERRORS = {
     description: 'Ocorreu um erro ao enviar a mensagem para a fila.',
     statusCode: 500,
   },
+  EMAIL_ALREADY_REGISTERED: {
+    code: 'ERR_EMAIL_ALREADY_REGISTERED',
+    message: 'Este e-mail já está cadastrado.',
+    description: 'O e-mail fornecido já possui uma conta associada.',
+    statusCode: 409,
+  },
+  RESOURCE_NOT_FOUND: {
+    code: 'ERR_RESOURCE_NOT_FOUND',
+    message: 'Recurso não encontrado.',
+    description: 'O recurso solicitado não existe.',
+    statusCode: 404,
+  },
   NO_INFERENCES_FOUND: {
     code: 'ERR_NO_INFERENCES_FOUND',
     message: 'Nenhuma inferência encontrada para os filtros informados.',
@@ -71,3 +83,17 @@ export const API_ERRORS = {
 } as const;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;
+
+export class AppError extends Error {
+  public statusCode: number;
+  public code: string;
+  public description?: string;
+
+  constructor(apiError: typeof API_ERRORS[keyof typeof API_ERRORS]) {
+    super(apiError.message);
+    this.name = 'AppError';
+    this.statusCode = apiError.statusCode;
+    this.code = apiError.code;
+    this.description = apiError.description;
+  }
+}

@@ -21,6 +21,9 @@ const envSchema = z.object({
   AWS_REGION: z.string().default('us-east-1'),
   S3_BUCKET_NAME: z.string(),
   SQS_QUEUE_URL: z.string(),
+  EVENTBRIDGE_DAILY_RULE_NAME: z.string().default('pcb-defect-detection-daily-report-rule'),
+  EVENTBRIDGE_WEEKLY_RULE_NAME: z.string().default('pcb-defect-detection-weekly-report-rule'),
+  EVENTBRIDGE_MONTHLY_RULE_NAME: z.string().default('pcb-defect-detection-monthly-report-rule'),
 
   // CORS
   CORS_ORIGIN: z.string().default('http://localhost:5173'),

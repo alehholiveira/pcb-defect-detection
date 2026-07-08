@@ -3,6 +3,8 @@
 import { Inference } from './Inference.js';
 import { InferenceImage } from './InferenceImage.js';
 import { Detection } from './Detection.js';
+import { SystemSetting } from './SystemSetting.js';
+import { RecipientEmail } from './RecipientEmail.js';
 
 export function registerModels(): void {
   // --- Associations ---
@@ -27,7 +29,7 @@ export function registerModels(): void {
     as: 'inferenceImage',
   });
 
-  console.log('📦 Models registered (Inference, InferenceImage, Detection).');
+  console.log('📦 Models registered (Inference, InferenceImage, Detection, SystemSetting, RecipientEmail).');
 }
 
-export { Inference, InferenceImage, Detection };
+export { Inference, InferenceImage, Detection, SystemSetting, RecipientEmail };

@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { env } from './index.js';
 import { up as createInferenceTables } from '../migrations/01-create-inference-tables.js';
+import { up as createSystemSettings } from '../migrations/02-create-system-settings.js';
+import { up as createRecipientEmails } from '../migrations/03-create-recipient-emails.js';
 
 export const sequelize = new Sequelize({
   dialect: 'mysql',
@@ -45,7 +47,21 @@ async function runMigrations(): Promise<void> {
     console.log('🔄 Running migration: 01-create-inference-tables...');
     await createInferenceTables(queryInterface);
     console.log('✅ Migration completed: inference tables created.');
-  } else {
+  }
+
+  if (!tables.includes('system_settings')) {
+    console.log('🔄 Running migration: 02-create-system-settings...');
+    await createSystemSettings(queryInterface);
+    console.log('✅ Migration completed: system_settings created.');
+  }
+
+  if (!tables.includes('recipient_emails')) {
+    console.log('🔄 Running migration: 03-create-recipient-emails...');
+    await createRecipientEmails(queryInterface);
+    console.log('✅ Migration completed: recipient_emails created.');
+  }
+
+  if (tables.includes('inferences') && tables.includes('system_settings') && tables.includes('recipient_emails')) {
     console.log('✅ Database tables already exist, skipping migrations.');
   }
 }
