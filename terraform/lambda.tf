@@ -103,7 +103,12 @@ resource "aws_iam_policy" "lambda_policy" {
           "ses:SendEmail",
           "ses:SendRawEmail"
         ]
-        Resource = aws_ses_email_identity.sender.arn
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "ses:FromAddress" = var.sender_email
+          }
+        }
       },
       # SES — Listar e consultar status de verificação de identidades
       {

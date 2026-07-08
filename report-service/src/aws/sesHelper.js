@@ -15,7 +15,7 @@ async function getVerifiedEmails() {
     const verified = [];
     if (verificationResponse.VerificationAttributes) {
       for (const [email, attrs] of Object.entries(verificationResponse.VerificationAttributes)) {
-        if (attrs.VerificationStatus === 'Success') {
+        if (attrs.VerificationStatus === 'Success' && email !== env.SENDER_EMAIL) {
           verified.push(email);
         }
       }
