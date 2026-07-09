@@ -254,5 +254,132 @@
       }
     },
     "loading": "Carregando configurações..."
+  },
+  "models": {
+    "page": {
+      "title": "Modelos de IA",
+      "subtitle": "Conheça as redes neurais desenvolvidas para a detecção de defeitos em PCBs."
+    },
+    "intro": {
+      "title": "Visão Geral do Problema",
+      "description": "A detecção de defeitos em placas de circuito impresso (PCBs) é altamente desafiadora na indústria: defeitos microscópicos representam menos de 1% da imagem (desbalanceamento extremo de classes), variam enormemente de tamanho e exigem decisões em milissegundos para esteiras de produção em tempo real. Desenvolvemos e avaliamos 4 diferentes arquiteturas de Visão Computacional para cobrir todas essas necessidades com máxima robustez."
+    },
+    "metrics": {
+      "title": "Comparativo de Performance",
+      "subtitle": "Resultados obtidos na base de testes consolidada.",
+      "columns": {
+        "architecture": "Arquitetura",
+        "structure": "Estrutura Base",
+        "map": "mAP @50",
+        "f1": "F1 Máximo",
+        "precision": "Precision",
+        "recall": "Recall"
+      },
+      "badges": {
+        "best": "Melhor",
+        "bestSpeed": "Melhor Velocidade & mAP",
+        "bestRecall": "Melhor Recall",
+        "bestBackground": "Melhor Supressão de Fundo",
+        "bestInnovation": "Inovação Real-Time"
+      }
+    },
+    "conclusions": {
+      "title": "Conclusões Práticas para a Indústria",
+      "yolo": "O YOLOv11 obteve a melhor relação global de precisão e velocidade, sendo recomendado para implantação imediata nas linhas de produção.",
+      "fasterrcnn": "O Faster R-CNN obteve o maior Recall (97.65%), servindo como uma excelente opção para triagens rígidas onde nenhum defeito pode passar.",
+      "retinanet": "O RetinaNet validou o uso da Focal Loss ao manter falsos positivos do fundo sob controle absoluto mesmo em cenários complexos.",
+      "rtdetr": "O RT-DETR provou que Transformers híbridos operam em tempo real e simplificam o hardware de borda por não precisarem de NMS."
+    },
+    "card": {
+      "howItWorks": "Como Funciona",
+      "pcbContext": "Contexto Industrial PCB",
+      "expectative": "Expectativa vs. Obtido",
+      "trainingCurves": "Curva de Aprendizado",
+      "predictions": "Exemplo de Inspeção",
+      "confusionMatrix": "Matriz de Confusão",
+      "clickToZoom": "Clique para ampliar"
+    },
+    "architectures": {
+      "yolo": {
+        "category": "Estágio Único (Single-stage) & Anchor-free",
+        "highlight": "Melhor mAP & Velocidade",
+        "howItWorks": "O YOLOv11 processa a imagem inteira em uma única passagem de rede convolucional (Single-stage). Ele prevê diretamente as caixas delimitadoras e as classes sem a necessidade de âncoras predefinidas, eliminando complexidades computacionais.",
+        "pcbContext": "A grande vantagem na indústria é a sua velocidade absurda (FPS alto). Graças ao PANet Neck, ele funde características em diferentes escalas, impedindo que pequenos defeitos passem despercebidos na esteira.",
+        "expectative": "Esperava-se excelente tempo de resposta e boa precisão. O resultado prático foi excepcional: mAP@50 de 0.9836 e F1-Score Máximo de 0.9884, consagrando-se a melhor performance global."
+      },
+      "fasterrcnn": {
+        "category": "Dois Estágios (Two-stage) / ResNet-50-FPN V2",
+        "highlight": "Maior Recall (Recuperação)",
+        "howItWorks": "Utiliza um módulo dedicado chamado RPN (Region Proposal Network) para rastrear primeiro possíveis regiões candidatas a conter defeitos (Estágio 1). Depois, um classificador profundo analisa minuciosamente essas regiões para enquadrar a falha (Estágio 2).",
+        "pcbContext": "Funciona essencialmente como uma lupa digital na placa. Ao adotarmos o backbone profundo ResNet-50-FPN V2 no lugar de modelos mais leves, a capacidade de identificar pequenas quebras de trilhas ou furos ausentes saltou drasticamente.",
+        "expectative": "Esperava-se precisão cirúrgica ao custo de processamento mais lento. Obteve o maior Recall do estudo (97.65%), consolidando sua eficácia absoluta contra falsos negativos (escape de defeitos)."
+      },
+      "retinanet": {
+        "category": "Estágio Único Baseado em Âncoras / ResNet-50-FPN",
+        "highlight": "Combate a Falsos Positivos",
+        "howItWorks": "Embora seja um detector de estágio único rápido, ele implementa a função Focal Loss. Essa matemática penaliza drasticamente o erro nas classes difíceis de defeitos e ignora a perda gerada pelas grandes áreas normais (placa vazia).",
+        "pcbContext": "Numa PCB onde 99% da imagem representa fundo sem falhas, as milhares de âncoras da rede gerariam falsos positivos contínuos. A Focal Loss força a atenção da rede a focar puramente nas irregularidades do cobre e furos.",
+        "expectative": "Esperava-se precisão comparável ao Faster R-CNN com velocidade superior. Obteve mAP@50 de 0.9745 e excelente supressão de falsos positivos no fundo da placa, validando o backbone ResNet50."
+      },
+      "rtdetr": {
+        "category": "Detector Baseado em Vision Transformers (VIT)",
+        "highlight": "Velocidade Constante",
+        "howItWorks": "Usa CNNs apenas para a extração inicial e repassa as imagens a um Transformer Encoder-Decoder. Os mecanismos de Self-Attention observam o contexto da placa inteira de uma só vez, eliminando o algoritmo NMS de pós-processamento.",
+        "pcbContext": "Defeitos como trilhas abertas têm pistas visuais espalhadas pela placa. A atenção global conecta essas regiões distantes. Além disso, a ausência de NMS garante que o tempo de análise não suba caso a placa tenha muitas falhas.",
+        "expectative": "Esperava-se inovação de ponta, porém com treinamento difícil. Entregou mAP@50 de 0.9657 e F1 de 0.9690, mostrando que Transformers podem sim rodar em tempo real na indústria."
+      }
+    },
+    "glossary": {
+      "title": "Glossário de Termos Técnicos",
+      "subtitle": "Entenda as métricas e conceitos usados na avaliação dos modelos de IA.",
+      "performanceSection": "Métricas de Performance",
+      "architectureSection": "Conceitos de Arquitetura",
+      "terms": {
+        "map": {
+          "title": "mAP@50 (Mean Average Precision)",
+          "desc": "Métrica global de precisão do detector. Mede quão bem o modelo localiza e classifica o defeito simultaneamente (com pelo menos 50% de sobreposição com a falha real). Quanto mais próximo de 1.0000 (100%), melhor."
+        },
+        "f1": {
+          "title": "F1-Score Máximo",
+          "desc": "O equilíbrio ideal (média harmônica) entre Precisão e Recall. Serve para resumir a eficácia prática do modelo em um único valor estável, balanceando alarmes falsos e defeitos não detectados."
+        },
+        "precision": {
+          "title": "Precision (Precisão)",
+          "desc": "De todos os defeitos que o modelo apontou, quantos eram realmente defeitos. Um valor alto significa pouquíssimos falsos alarmes (evitando rejeição desnecessária de placas boas)."
+        },
+        "recall": {
+          "title": "Recall (Sensibilidade / Revocação)",
+          "desc": "De todos os defeitos reais existentes na placa, quantos o modelo conseguiu detectar. Um recall alto garante que quase nenhum defeito passe despercebido pela inspeção (evitando escape de defeito para o cliente)."
+        },
+        "singlestage": {
+          "title": "Single-stage (Estágio Único)",
+          "desc": "Modelos que detectam a localização e a classe do defeito em uma única passagem pela rede convolucional (ex: YOLOv11 e RetinaNet). São extremamente rápidos, ideais para esteiras de produção velozes."
+        },
+        "twostage": {
+          "title": "Two-stage (Dois Estágios)",
+          "desc": "Modelos que realizam a tarefa em duas etapas separadas (ex: Faster R-CNN): primeiro sugerem regiões candidatas (lupa) e depois as classificam detalhadamente. São mais lentos, mas cirúrgicos para defeitos microscópicos."
+        },
+        "anchorfree": {
+          "title": "Anchor-free (Sem Âncoras)",
+          "desc": "Abordagem moderna que prevê as caixas delimitadoras diretamente sobre os pixels do defeito, sem depender de gabaritos predefinidos (âncoras). Simplifica a arquitetura e melhora a velocidade e precisão de objetos fora do padrão."
+        },
+        "anchorbased": {
+          "title": "Anchor-based (Com Âncoras)",
+          "desc": "Abordagem tradicional que usa caixas de tamanhos e proporções predefinidos como gabarito inicial. O modelo tenta ajustar esses gabaritos aos defeitos reais encontrados."
+        },
+        "transformers": {
+          "title": "Vision Transformers (ViT)",
+          "desc": "Arquiteturas baseadas em mecanismos de atenção global (ex: RT-DETR). Analisam a imagem inteira simultaneamente, correlacionando pistas visuais em partes distantes da placa, o que ajuda na detecção de quebras de trilhas complexas."
+        },
+        "focalloss": {
+          "title": "Focal Loss",
+          "desc": "Função matemática de perda criada para lidar com o desbalanceamento brutal do dataset (onde 99% da imagem é fundo normal da placa). Ela força a rede a ignorar as áreas fáceis e focar puramente nas falhas raras e difíceis."
+        },
+        "nms": {
+          "title": "NMS (Supressão Não-Máxima)",
+          "desc": "Algoritmo de pós-processamento que remove caixas delimitadoras sobrepostas e redundantes para o mesmo defeito, restando apenas a caixa de maior probabilidade."
+        }
+      }
+    }
   }
 }
