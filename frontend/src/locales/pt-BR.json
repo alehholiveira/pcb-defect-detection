@@ -197,5 +197,62 @@
     "reportRequested": "Geração do relatório solicitada com sucesso!",
     "reportRequestFailed": "Falha ao solicitar a geração do relatório. Tente novamente.",
     "reportNameRequired": "Por favor, forneça um nome para o relatório."
+  },
+  "settings": {
+    "page": {
+      "title": "Configurações",
+      "subtitle": "Gerencie os destinatários de relatórios e os agendamentos automáticos."
+    },
+    "emails": {
+      "title": "Destinatários de E-mail",
+      "addButton": "Adicionar E-mail",
+      "emptyState": "Nenhum e-mail cadastrado. Adicione um destinatário para receber relatórios.",
+      "deleteConfirm": "Tem certeza que deseja remover este e-mail?",
+      "columns": {
+        "email": "E-mail",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "status": {
+        "Success": "Verificado",
+        "Pending": "Pendente",
+        "Failed": "Falhou",
+        "TemporaryFailure": "Falha Temporária",
+        "NotStarted": "Não Iniciado"
+      },
+      "modal": {
+        "title": "Adicionar Destinatário",
+        "placeholder": "Digite o e-mail",
+        "submit": "Adicionar"
+      },
+      "toast": {
+        "added": "E-mail adicionado. Verifique a caixa de entrada para confirmar.",
+        "removed": "E-mail removido com sucesso.",
+        "error": "Erro ao processar a solicitação."
+      }
+    },
+    "schedules": {
+      "title": "Agendamentos Automáticos",
+      "subtitle": "Controle a geração automática de relatórios.",
+      "save": "Salvar Configurações",
+      "noChanges": "Nenhuma alteração para salvar.",
+      "daily": {
+        "label": "Relatório Diário",
+        "description": "Gerado automaticamente todos os dias às 00:00 UTC"
+      },
+      "weekly": {
+        "label": "Relatório Semanal",
+        "description": "Gerado automaticamente toda segunda-feira às 00:00 UTC"
+      },
+      "monthly": {
+        "label": "Relatório Mensal",
+        "description": "Gerado automaticamente no primeiro dia de cada mês às 00:00 UTC"
+      },
+      "toast": {
+        "saved": "Agendamentos atualizados com sucesso.",
+        "error": "Erro ao atualizar agendamentos."
+      }
+    },
+    "loading": "Carregando configurações..."
   }
 }

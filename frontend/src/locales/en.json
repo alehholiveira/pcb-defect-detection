@@ -197,5 +197,62 @@
     "reportRequested": "Report generation requested successfully!",
     "reportRequestFailed": "Failed to request report generation. Please try again.",
     "reportNameRequired": "Please provide a report name."
+  },
+  "settings": {
+    "page": {
+      "title": "Settings",
+      "subtitle": "Manage report recipients and automated schedules."
+    },
+    "emails": {
+      "title": "Email Recipients",
+      "addButton": "Add Email",
+      "emptyState": "No emails registered. Add a recipient to receive reports.",
+      "deleteConfirm": "Are you sure you want to remove this email?",
+      "columns": {
+        "email": "Email",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "Success": "Verified",
+        "Pending": "Pending",
+        "Failed": "Failed",
+        "TemporaryFailure": "Temporary Failure",
+        "NotStarted": "Not Started"
+      },
+      "modal": {
+        "title": "Add Recipient",
+        "placeholder": "Enter email address",
+        "submit": "Add"
+      },
+      "toast": {
+        "added": "Email added. Please check inbox to verify.",
+        "removed": "Email removed successfully.",
+        "error": "Error processing request."
+      }
+    },
+    "schedules": {
+      "title": "Automated Schedules",
+      "subtitle": "Control automated report generation.",
+      "save": "Save Settings",
+      "noChanges": "No changes to save.",
+      "daily": {
+        "label": "Daily Report",
+        "description": "Automatically generated every day at 00:00 UTC"
+      },
+      "weekly": {
+        "label": "Weekly Report",
+        "description": "Automatically generated every Monday at 00:00 UTC"
+      },
+      "monthly": {
+        "label": "Monthly Report",
+        "description": "Automatically generated on the first day of each month at 00:00 UTC"
+      },
+      "toast": {
+        "saved": "Schedules updated successfully.",
+        "error": "Error updating schedules."
+      }
+    },
+    "loading": "Loading settings..."
   }
 }

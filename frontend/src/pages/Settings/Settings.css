@@ -1,0 +1,189 @@
+.settings-page {
+  padding: 24px 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fade-in 0.3s ease-out;
+}
+
+.settings-page__header {
+  margin-bottom: 24px;
+}
+
+.settings-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.settings-page__subtitle {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.settings-page__error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.settings-page__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--color-text-muted);
+  gap: 16px;
+}
+
+.settings-page__section + .settings-page__section {
+  margin-top: 24px;
+}
+
+/* ── Emails Table ── */
+
+.settings-emails__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.settings-emails__table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-emails__table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+.settings-emails__table tr:last-child td {
+  border-bottom: none;
+}
+
+.settings-emails__table tr:hover td {
+  background-color: var(--color-bg-secondary);
+}
+
+.settings-emails__actions {
+  text-align: right;
+}
+
+.settings-emails__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings-emails__delete-btn:hover {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.settings-emails__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  color: var(--color-text-muted);
+  gap: 12px;
+  text-align: center;
+}
+
+.settings-emails__empty p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+/* ── Add Email Modal ── */
+
+.settings-emails__modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-emails__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+/* ── Schedules ── */
+
+.settings-schedules__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.settings-schedules__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-schedules__item:last-child {
+  border-bottom: none;
+}
+
+.settings-schedules__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-schedules__label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-schedules__description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.settings-schedules__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 16px;
+  }
+}
