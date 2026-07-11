@@ -54,18 +54,18 @@ resource "aws_s3_bucket_policy" "pcb_bucket_policy" {
   })
 }
 
-# Regra de Ciclo de Vida — apaga objetos após 7 dias (Cost Optimization Pillar)
+# Regra de Ciclo de Vida — apaga objetos após 30 dias (Cost Optimization Pillar)
 resource "aws_s3_bucket_lifecycle_configuration" "pcb_bucket_lifecycle" {
   bucket = aws_s3_bucket.pcb_bucket.id
 
   rule {
-    id     = "expire-after-7-days"
+    id     = "expire-after-30-days"
     status = "Enabled"
 
     filter {} # Aplicar a todos os objetos do bucket
 
     expiration {
-      days = 7
+      days = 30
     }
   }
 }
