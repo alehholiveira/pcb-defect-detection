@@ -103,3 +103,20 @@ export async function getInferenceByIdService(id: number, logger: FastifyBaseLog
   logger.info({ id }, '[inferences.service.ts] getInferenceByIdService - Success');
   return inference;
 }
+
+export async function deleteInferenceService(id: number, logger: FastifyBaseLogger): Promise<boolean> {
+  logger.info({ id }, '[inferences.service.ts] deleteInferenceService - Init');
+
+  const deletedCount = await Inference.destroy({
+    where: { id },
+  });
+
+  if (deletedCount === 0) {
+    logger.info({ id }, '[inferences.service.ts] deleteInferenceService - Not Found');
+    return false;
+  }
+
+  logger.info({ id }, '[inferences.service.ts] deleteInferenceService - Success');
+  return true;
+}
+
