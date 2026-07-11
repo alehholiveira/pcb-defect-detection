@@ -90,4 +90,10 @@ export async function getInferenceById(id: number, config?: AxiosRequestConfig):
   return response.data
 }
 
+export async function deleteInference(id: number): Promise<void> {
+  validateSchema(InferenceIdSchema, id)
+  await api.delete(`/api/v1/inferences/${id}`)
+}
+
+
 

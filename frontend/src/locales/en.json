@@ -192,6 +192,12 @@
         "allInferencesIncluded": "All {{total}} inference(s) matching the current filters will be included.",
         "confirm": "Generate Report",
         "cancel": "Cancel"
+      },
+      "deleteModal": {
+        "title": "Delete Inference",
+        "confirmText": "Are you sure you want to permanently delete inference INF-{{id}}?",
+        "confirm": "Delete",
+        "cancel": "Cancel"
       }
     },
     "errors": {
@@ -203,7 +209,9 @@
   "toast": {
     "reportRequested": "Report generation requested successfully!",
     "reportRequestFailed": "Failed to request report generation. Please try again.",
-    "reportNameRequired": "Please provide a report name."
+    "reportNameRequired": "Please provide a report name.",
+    "inferenceDeleted": "Inference deleted successfully!",
+    "inferenceDeleteFailed": "Failed to delete inference. Please try again."
   },
   "settings": {
     "page": {

@@ -2,7 +2,6 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Eye,
-  Download,
   Trash2,
   RefreshCcw,
   FileText,
@@ -20,6 +19,7 @@ import { Modal } from '../../components/Modal'
 import { ToastContainer } from '../../components/Toast'
 import { useInferenceSelection } from '../../hooks/useInferenceSelection'
 import { generateReport } from '../../services/reportService'
+import { deleteInference } from '../../services/inferenceService'
 import type {
   Inference,
   InferenceFilters,
@@ -71,6 +71,7 @@ export function InferenceHistory({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [reportName, setReportName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [inferenceToDelete, setInferenceToDelete] = useState<number | null>(null)
 
   // Toast hook
   const { toasts, addToast, removeToast } = useToast()
@@ -161,6 +162,23 @@ export function InferenceHistory({
       setIsSubmitting(false)
     }
   }, [reportName, historyFilters, getRequestPayload, addToast, t, clearSelection])
+
+  const handleDeleteInference = useCallback(async () => {
+    if (inferenceToDelete === null) return
+    setIsSubmitting(true)
+    try {
+      await deleteInference(inferenceToDelete)
+      addToast(t('toast.inferenceDeleted'), 'success')
+      setInferenceToDelete(null)
+      clearSelection()
+      await onFetchHistory()
+    } catch (error) {
+      addToast(t('toast.inferenceDeleteFailed'), 'error')
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [inferenceToDelete, onFetchHistory, addToast, t, clearSelection])
 
   const columns = useMemo(
     () => [
@@ -266,18 +284,10 @@ export function InferenceHistory({
               <Eye size={16} />
             </button>
             <button
-              className="inference-history__action-btn"
-              aria-label={t('inference.history.download')}
-              title={t('inference.history.download')}
-              onClick={() => addToast(t('common.comingSoon'), 'info')}
-            >
-              <Download size={16} />
-            </button>
-            <button
               className="inference-history__action-btn inference-history__action-btn--danger"
               aria-label={t('inference.history.delete')}
               title={t('inference.history.delete')}
-              onClick={() => addToast(t('common.comingSoon'), 'info')}
+              onClick={() => setInferenceToDelete(row.id)}
             >
               <Trash2 size={16} />
             </button>
@@ -285,7 +295,7 @@ export function InferenceHistory({
         ),
       },
     ],
-    [t, onReplayInference, isAllSelected, toggleSelectAll, isSelected, toggleSelect]
+    [t, onReplayInference, isAllSelected, toggleSelectAll, isSelected, toggleSelect, setInferenceToDelete]
   )
 
   const data = historyData?.data || []
@@ -464,6 +474,36 @@ export function InferenceHistory({
               loading={isSubmitting}
             >
               {t('inference.history.modal.confirm')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={inferenceToDelete !== null}
+        onClose={() => !isSubmitting && setInferenceToDelete(null)}
+        title={t('inference.history.deleteModal.title')}
+        size="sm"
+      >
+        <div className="inference-history__modal-content">
+          <p className="inference-history__modal-text">
+            {inferenceToDelete !== null && t('inference.history.deleteModal.confirmText', { id: inferenceToDelete })}
+          </p>
+          <div className="inference-history__modal-actions">
+            <Button
+              variant="ghost"
+              onClick={() => setInferenceToDelete(null)}
+              disabled={isSubmitting}
+            >
+              {t('inference.history.deleteModal.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteInference}
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            >
+              {t('inference.history.deleteModal.confirm')}
             </Button>
           </div>
         </div>

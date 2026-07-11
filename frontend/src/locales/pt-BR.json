@@ -192,6 +192,12 @@
         "allInferencesIncluded": "Todas as {{total}} inferência(s) que correspondem aos filtros atuais serão incluídas.",
         "confirm": "Gerar Relatório",
         "cancel": "Cancelar"
+      },
+      "deleteModal": {
+        "title": "Excluir Inferência",
+        "confirmText": "Tem certeza que deseja excluir permanentemente a inferência INF-{{id}}?",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
       }
     },
     "errors": {
@@ -203,7 +209,9 @@
   "toast": {
     "reportRequested": "Geração do relatório solicitada com sucesso!",
     "reportRequestFailed": "Falha ao solicitar a geração do relatório. Tente novamente.",
-    "reportNameRequired": "Por favor, forneça um nome para o relatório."
+    "reportNameRequired": "Por favor, forneça um nome para o relatório.",
+    "inferenceDeleted": "Inferência excluída com sucesso!",
+    "inferenceDeleteFailed": "Falha ao excluir a inferência. Tente novamente."
   },
   "settings": {
     "page": {
