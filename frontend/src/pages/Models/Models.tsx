@@ -41,7 +41,7 @@ export function Models() {
     <div className="models-page">
       {/* Header */}
       <div className="models-page__header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div className="models-page__header-container">
           <div>
             <h1 className="models-page__title">{t('models.page.title')}</h1>
             <p className="models-page__subtitle">{t('models.page.subtitle')}</p>
@@ -74,7 +74,7 @@ export function Models() {
             >
               <img
                 src={classDistributionImg}
-                alt="Defect Class Distribution Chart"
+                alt={t('models.intro.chartAlt', 'Gráfico de distribuição de classes de defeitos')}
               />
               <div className="model-card__image-overlay">
                 <ZoomIn size={24} />
@@ -112,7 +112,7 @@ export function Models() {
                 <th>
                   <div className="models-metrics__header-cell">
                     {t('models.metrics.columns.map')}
-                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label="Help">
+                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label={t('models.metrics.helpAriaLabel', 'Explicar métrica')}>
                       <Info size={14} />
                     </button>
                   </div>
@@ -120,7 +120,7 @@ export function Models() {
                 <th>
                   <div className="models-metrics__header-cell">
                     {t('models.metrics.columns.f1')}
-                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label="Help">
+                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label={t('models.metrics.helpAriaLabel', 'Explicar métrica')}>
                       <Info size={14} />
                     </button>
                   </div>
@@ -128,7 +128,7 @@ export function Models() {
                 <th>
                   <div className="models-metrics__header-cell">
                     {t('models.metrics.columns.precision')}
-                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label="Help">
+                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label={t('models.metrics.helpAriaLabel', 'Explicar métrica')}>
                       <Info size={14} />
                     </button>
                   </div>
@@ -136,7 +136,7 @@ export function Models() {
                 <th>
                   <div className="models-metrics__header-cell">
                     {t('models.metrics.columns.recall')}
-                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label="Help">
+                    <button type="button" className="models-metrics__info-btn" onClick={scrollToGlossary} aria-label={t('models.metrics.helpAriaLabel', 'Explicar métrica')}>
                       <Info size={14} />
                     </button>
                   </div>
@@ -152,14 +152,8 @@ export function Models() {
                 return (
                   <tr key={idx}>
                     <td>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                        }}
-                      >
-                        <span style={{ fontWeight: 600 }}>
+                      <div className="models-metrics__cell-arch">
+                        <span className="models-metrics__text-arch">
                           {row.architecture}
                         </span>
                         {badgeText && (
@@ -301,5 +295,4 @@ export function Models() {
     </div>
   );
 }
-export default Models;
 

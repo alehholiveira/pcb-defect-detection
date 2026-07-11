@@ -71,7 +71,7 @@ export function ModelCard({
               onKeyDown={(e) => handleKeyDown(e, trainingImage, `${title} - ${t('models.card.trainingCurves')}`, t('models.card.trainingCurves'))}
               aria-label={`${t('models.card.trainingCurves')} - ${t('models.card.clickToZoom')}`}
             >
-              <img src={trainingImage} alt={`${title} Training Curves`} />
+              <img src={trainingImage} alt={t('models.card.trainingCurvesAlt', 'Curvas de aprendizado do modelo {{model}}', { model: title })} />
               <div className="model-card__image-overlay">
                 <ZoomIn size={20} />
                 <span>{t('models.card.clickToZoom')}</span>
@@ -89,7 +89,7 @@ export function ModelCard({
               onKeyDown={(e) => handleKeyDown(e, predictionImage, `${title} - ${t('models.card.predictions')}`, t('models.card.predictions'))}
               aria-label={`${t('models.card.predictions')} - ${t('models.card.clickToZoom')}`}
             >
-              <img src={predictionImage} alt={`${title} Prediction Example`} />
+              <img src={predictionImage} alt={t('models.card.predictionsAlt', 'Exemplo de predição do modelo {{model}}', { model: title })} />
               <div className="model-card__image-overlay">
                 <ZoomIn size={20} />
                 <span>{t('models.card.clickToZoom')}</span>

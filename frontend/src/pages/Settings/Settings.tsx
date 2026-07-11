@@ -2,14 +2,16 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, Loader2, Mail, Plus, Trash2, Save } from 'lucide-react';
 import { useSettings } from '../../hooks/useSettings';
-import { Card } from '../../components/Card/Card';
-import { Button } from '../../components/Button/Button';
-import { Input } from '../../components/Input/Input';
-import { Badge } from '../../components/Badge/Badge';
-import { Modal } from '../../components/Modal/Modal';
-import { ToggleSwitch } from '../../components/ToggleSwitch/ToggleSwitch';
-import { ToastContainer, type ToastData } from '../../components/Toast/Toast';
-import type { SchedulesMap, EmailVerificationStatus } from '../../types/settings.types';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
+import { Badge } from '../../components/Badge';
+import { Modal } from '../../components/Modal';
+import { ToggleSwitch } from '../../components/ToggleSwitch';
+import { ToastContainer } from '../../components/Toast';
+import { useToast } from '../../hooks/useToast';
+import { isValidEmail } from '../../utils/validation';
+import type { SchedulesMap, EmailVerificationStatus } from '../../types/settings';
 import './Settings.css';
 
 const STATUS_BADGE_VARIANT: Record<EmailVerificationStatus, 'success' | 'warning' | 'danger' | 'neutral'> = {
@@ -34,8 +36,8 @@ export function Settings() {
     saveSchedules,
   } = useSettings();
 
-  // Toast state
-  const [toasts, setToasts] = useState<ToastData[]>([]);
+  // Toast hook
+  const { toasts, addToast, removeToast } = useToast();
 
   // Add Email Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,28 +58,25 @@ export function Settings() {
     );
   }, [schedules, effectiveSchedules]);
 
-  // ── Toast helpers ──
-
-  const addToast = (message: string, variant: ToastData['variant']) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setToasts(prev => [...prev, { id, message, variant }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
-
   // ── Email handlers ──
 
   const handleAddEmail = async () => {
-    if (!newEmail.trim()) return;
+    const trimmedEmail = newEmail.trim();
+    if (!trimmedEmail) return;
+
+    if (!isValidEmail(trimmedEmail)) {
+      addToast(t('settings.emails.toast.invalidFormat', 'E-mail inválido'), 'error');
+      return;
+    }
+
     try {
-      await addEmail(newEmail.trim());
+      await addEmail(trimmedEmail);
       addToast(t('settings.emails.toast.added'), 'success');
       setNewEmail('');
       setIsModalOpen(false);
-    } catch {
-      addToast(t('settings.emails.toast.error'), 'error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('settings.emails.toast.error');
+      addToast(message, 'error');
     }
   };
 
@@ -163,7 +162,7 @@ export function Settings() {
                 <tr>
                   <th>{t('settings.emails.columns.email')}</th>
                   <th>{t('settings.emails.columns.status')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('settings.emails.columns.actions')}</th>
+                  <th className="settings-emails__header-actions">{t('settings.emails.columns.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -184,7 +183,7 @@ export function Settings() {
                         className="settings-emails__delete-btn"
                         onClick={() => handleRemoveEmail(email.id)}
                         disabled={emailsLoading}
-                        aria-label={`Remove ${email.email}`}
+                        aria-label={t('settings.emails.removeAriaLabel', 'Remove recipient {{email}}', { email: email.email })}
                       >
                         <Trash2 size={16} />
                       </button>

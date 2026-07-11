@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './Toast.css';
 
 export type ToastVariant = 'success' | 'error' | 'info' | 'warning';
@@ -23,11 +24,14 @@ const icons = {
 };
 
 export function Toast({ id, message, variant, duration = 5000, onClose }: ToastProps) {
+  const { t } = useTranslation();
+  
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
         onClose(id);
       }, duration);
+
       return () => clearTimeout(timer);
     }
   }, [id, duration, onClose]);
@@ -40,7 +44,7 @@ export function Toast({ id, message, variant, duration = 5000, onClose }: ToastP
         type="button" 
         className="toast__close" 
         onClick={() => onClose(id)}
-        aria-label="Close"
+        aria-label={t('common.close', 'Close')}
       >
         <X size={16} />
       </button>

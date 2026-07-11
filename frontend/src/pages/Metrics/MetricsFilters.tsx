@@ -52,7 +52,18 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
 
   return (
     <div className="metrics-filters">
-      <div className="metrics-filters__header" onClick={() => setIsExpanded(!isExpanded)}>
+      <div 
+        className="metrics-filters__header" 
+        onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
+      >
         <div className="metrics-filters__title">
           <Filter size={18} />
           <span>{t('metrics.filters.title', 'Filters')}</span>
@@ -60,7 +71,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
             <span className="metrics-filters__badge">{activeFiltersCount}</span>
           )}
         </div>
-        <button className="metrics-filters__toggle" aria-label="Toggle filters">
+        <button className="metrics-filters__toggle" aria-label={t('metrics.filters.toggleAriaLabel', 'Toggle filters')} tabIndex={-1}>
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       </div>
@@ -82,7 +93,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
               <label>{t('metrics.filters.granularity', 'Granularity')}</label>
               <Select
                 value={draftFilters.granularity || 'daily'}
-                onChange={(val) => setDraftFilters(prev => ({ ...prev, granularity: val as any }))}
+                onChange={(val) => setDraftFilters(prev => ({ ...prev, granularity: val as FilterTypes['granularity'] }))}
                 options={granularityOptions}
               />
             </div>

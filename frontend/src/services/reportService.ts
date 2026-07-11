@@ -1,60 +1,44 @@
+import type { AxiosRequestConfig } from 'axios'
 import { api } from './api'
+import { isPositiveInteger, isNonEmptyString } from '../utils/validation'
+import type { GenerateReportRequest, GenerateReportResponse, ReportFilters, PaginatedReports } from '../types/report'
 
-export interface GenerateReportFilters {
-  startDate?: string
-  endDate?: string
-  modelName?: string
-  defectType?: string
-}
+export async function generateReport(body: GenerateReportRequest, config?: AxiosRequestConfig): Promise<GenerateReportResponse> {
+  if (!body) {
+    throw new Error('Request body must be provided');
+  }
 
-export interface GenerateReportRequest {
-  reportName: string
-  selectedIds?: number[]
-  excludedIds?: number[]
-  filters?: GenerateReportFilters
-}
+  if (!isNonEmptyString(body.reportName)) {
+    throw new Error('Report name must be provided');
+  }
 
-export interface GenerateReportResponse {
-  message: string
-  inferenceCount: number
-  messageId: string
-}
+  if (body.selectedIds) {
+    body.selectedIds.forEach((id) => {
+      if (!isPositiveInteger(id)) throw new Error('Invalid selected ID');
+    });
+  }
 
-export interface ReportMetadata {
-  reportName: string
-  filename: string
-  downloadUrl: string
-  generatedAt: string
-  reportType: 'daily' | 'weekly' | 'monthly' | 'manual'
-  periodStart: string
-  periodEnd: string
-  totalInferences: number
-  totalImages: number
-  totalDefects: number
-  defectsByType: Record<string, number>
-  generatedBy: string
-}
+  if (body.excludedIds) {
+    body.excludedIds.forEach((id) => {
+      if (!isPositiveInteger(id)) throw new Error('Invalid excluded ID');
+    });
+  }
 
-export interface ReportFilters {
-  reportType?: 'all' | 'automatic' | 'manual' | 'daily' | 'weekly' | 'monthly'
-  startDate?: string
-  endDate?: string
-  sortOrder?: 'asc' | 'desc'
-  page?: number
-  limit?: number
-}
-
-export interface PaginatedReports {
-  data: ReportMetadata[]
-  meta: { total: number; page: number; limit: number; totalPages: number }
-}
-
-export async function generateReport(body: GenerateReportRequest): Promise<GenerateReportResponse> {
-  const response = await api.post<GenerateReportResponse>('/api/v1/reports/generate', body)
+  const response = await api.post<GenerateReportResponse>('/api/v1/reports/generate', body, config)
   return response.data
 }
 
-export async function getReports(filters?: ReportFilters): Promise<PaginatedReports> {
-  const response = await api.get<PaginatedReports>('/api/v1/reports', { params: filters })
+export async function getReports(filters?: ReportFilters, config?: AxiosRequestConfig): Promise<PaginatedReports> {
+  if (filters) {
+    if (filters.page && !isPositiveInteger(filters.page)) {
+      throw new Error('Invalid page number');
+    }
+    if (filters.limit && !isPositiveInteger(filters.limit)) {
+      throw new Error('Invalid limit number');
+    }
+  }
+  const response = await api.get<PaginatedReports>('/api/v1/reports', { params: filters, ...config })
   return response.data
 }
+
+

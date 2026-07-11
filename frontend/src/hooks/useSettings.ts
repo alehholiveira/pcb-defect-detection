@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getRecipientEmails, addRecipientEmail, removeRecipientEmail, getSchedules, updateSchedules } from '../services/settingsService';
-import type { RecipientEmail, SchedulesMap } from '../types/settings.types';
+import type { RecipientEmail, SchedulesMap } from '../types/settings';
+import { parseApiError } from '../utils/apiError';
 
 export function useSettings() {
+  const { t } = useTranslation();
   const [emails, setEmails] = useState<RecipientEmail[]>([]);
   const [schedules, setSchedules] = useState<SchedulesMap | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -11,24 +14,28 @@ export function useSettings() {
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
 
   const fetchEmails = useCallback(async () => {
+    setError(null);
     try {
       const data = await getRecipientEmails();
       setEmails(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch emails', err);
-      setError(err.response?.data?.message || 'Failed to fetch emails');
+      const apiMsg = parseApiError(err);
+      setError(apiMsg === 'An unexpected error occurred' ? t('settings.errors.fetchEmailsFailed') : apiMsg);
     }
-  }, []);
+  }, [t]);
 
   const fetchSchedules = useCallback(async () => {
+    setError(null);
     try {
       const data = await getSchedules();
       setSchedules(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch schedules', err);
-      setError(err.response?.data?.message || 'Failed to fetch schedules');
+      const apiMsg = parseApiError(err);
+      setError(apiMsg === 'An unexpected error occurred' ? t('settings.errors.fetchSchedulesFailed') : apiMsg);
     }
-  }, []);
+  }, [t]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -46,45 +53,51 @@ export function useSettings() {
 
   const addEmail = useCallback(async (email: string) => {
     setEmailsLoading(true);
+    setError(null);
     try {
       await addRecipientEmail(email);
       await fetchEmails();
       return true;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to add email';
+    } catch (err: unknown) {
+      const apiMsg = parseApiError(err);
+      const message = apiMsg === 'An unexpected error occurred' ? t('settings.errors.addEmailFailed') : apiMsg;
       throw new Error(message);
     } finally {
       setEmailsLoading(false);
     }
-  }, [fetchEmails]);
+  }, [fetchEmails, t]);
 
   const removeEmail = useCallback(async (id: number) => {
     setEmailsLoading(true);
+    setError(null);
     try {
       await removeRecipientEmail(id);
       await fetchEmails();
       return true;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to remove email';
+    } catch (err: unknown) {
+      const apiMsg = parseApiError(err);
+      const message = apiMsg === 'An unexpected error occurred' ? t('settings.errors.removeEmailFailed') : apiMsg;
       throw new Error(message);
     } finally {
       setEmailsLoading(false);
     }
-  }, [fetchEmails]);
+  }, [fetchEmails, t]);
 
   const saveSchedules = useCallback(async (newSchedules: SchedulesMap) => {
     setSchedulesLoading(true);
+    setError(null);
     try {
       const data = await updateSchedules(newSchedules);
       setSchedules(data);
       return true;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to update schedules';
+    } catch (err: unknown) {
+      const apiMsg = parseApiError(err);
+      const message = apiMsg === 'An unexpected error occurred' ? t('settings.errors.updateSchedulesFailed') : apiMsg;
       throw new Error(message);
     } finally {
       setSchedulesLoading(false);
     }
-  }, []);
+  }, [t]);
 
   return {
     emails,
@@ -99,3 +112,4 @@ export function useSettings() {
     refresh: fetchAll,
   };
 }
+

@@ -87,6 +87,10 @@
   text-align: right;
 }
 
+.settings-emails__header-actions {
+  text-align: right;
+}
+
 .settings-emails__delete-btn {
   display: inline-flex;
   align-items: center;

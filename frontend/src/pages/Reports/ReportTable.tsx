@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Download, RefreshCcw, Filter, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
-import { i18n } from '../../i18n';
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
 import { Pagination } from '../../components/Pagination';
@@ -10,9 +9,11 @@ import { Button } from '../../components/Button';
 import { Select } from '../../components/Select';
 import { Input } from '../../components/Input';
 import { DateRangePicker } from '../../components/DateRangePicker';
-import { ToastContainer, type ToastData } from '../../components/Toast';
+import { ToastContainer } from '../../components/Toast';
 import { useReports } from '../../hooks/useReports';
-import type { ReportMetadata } from '../../services/reportService';
+import type { ReportMetadata, ReportFilters } from '../../types/report';
+import { formatDateTime, formatDateOnly } from '../../utils/formatDate';
+import { useToast } from '../../hooks/useToast';
 import './ReportTable.css';
 
 const REPORT_TYPE_OPTIONS = [
@@ -24,43 +25,20 @@ const REPORT_TYPE_OPTIONS = [
   { value: 'monthly', label: 'reports.monthly' },
 ];
 
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US';
-  return date.toLocaleDateString(lang, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-function formatDateOnly(iso: string): string {
-  const date = new Date(iso);
-  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US';
-  return date.toLocaleDateString(lang);
-}
-
 export function ReportTable() {
   const { t } = useTranslation();
   const { reportsData, filters, loading, setFilters, fetchReports } = useReports();
   const [searchValue, setSearchValue] = useState('');
-  const [localFilters, setLocalFilters] = useState({
+  const [localFilters, setLocalFilters] = useState<{
+    startDate: string | undefined;
+    endDate: string | undefined;
+    reportType: ReportFilters['reportType'];
+  }>({
     startDate: filters.startDate,
     endDate: filters.endDate,
     reportType: filters.reportType || 'all',
   });
-  const [toasts, setToasts] = useState<ToastData[]>([]);
-
-  const addToast = useCallback((message: string, variant: ToastData['variant']) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, variant }]);
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const { toasts, addToast, removeToast } = useToast();
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -92,9 +70,9 @@ export function ReportTable() {
     if (url) {
       window.open(url, '_blank');
     } else {
-      addToast('Download URL not available.', 'error');
+      addToast(t('reports.errors.downloadUrlUnavailable', 'Download URL not available.'), 'error');
     }
-  }, [addToast]);
+  }, [addToast, t]);
 
   const columns = useMemo(
     () => [
@@ -114,7 +92,7 @@ export function ReportTable() {
         label: t('reports.columns.generationDate', 'Data de Geração'),
         sortable: true,
         width: '160px',
-        render: (value: string) => formatDate(value),
+        render: (value: string) => formatDateTime(value),
       },
       {
         key: 'period',
@@ -235,17 +213,23 @@ export function ReportTable() {
     let filtered = data;
     if (searchValue) {
       const lowerSearch = searchValue.toLowerCase();
-      filtered = filtered.filter(item => item.reportName.toLowerCase().includes(lowerSearch));
+      filtered = filtered.filter((item: ReportMetadata) => item.reportName.toLowerCase().includes(lowerSearch));
     }
 
     if (!filtered.length) return [];
     return [...filtered].sort((a, b) => {
-      let aVal: any = a[sortConfig.key as keyof ReportMetadata];
-      let bVal: any = b[sortConfig.key as keyof ReportMetadata];
+      let aVal: string | number = '';
+      let bVal: string | number = '';
 
-      if (sortConfig.key === 'generatedAt' || sortConfig.key === 'periodStart') {
-        aVal = new Date(a[sortConfig.key as keyof ReportMetadata] as string).getTime();
-        bVal = new Date(b[sortConfig.key as keyof ReportMetadata] as string).getTime();
+      const key = sortConfig.key as keyof ReportMetadata;
+      if (key === 'generatedAt' || key === 'periodStart') {
+        aVal = new Date(a[key] as string).getTime();
+        bVal = new Date(b[key] as string).getTime();
+      } else {
+        const valA = a[key];
+        const valB = b[key];
+        aVal = typeof valA === 'string' || typeof valA === 'number' ? valA : '';
+        bVal = typeof valB === 'string' || typeof valB === 'number' ? valB : '';
       }
 
       if (aVal < bVal) return sortConfig.order === 'asc' ? -1 : 1;
@@ -255,7 +239,7 @@ export function ReportTable() {
   }, [data, sortConfig, searchValue]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="report-table__page-container">
       <div className="report-table__page-header">
         <h1 className="report-table__page-title">{t('reports.title', 'Relatórios')}</h1>
         <p className="report-table__page-subtitle">{t('reports.subtitle', 'Visualize e gerencie todos os relatórios de inspeção gerados no sistema.')}</p>
@@ -277,13 +261,13 @@ export function ReportTable() {
             onChange={(val) =>
               setLocalFilters((prev) => ({
                 ...prev,
-                reportType: (val as any) || undefined,
+                reportType: (val as ReportFilters['reportType']) || undefined,
               }))
             }
           />
         </div>
 
-        <div className="report-table__filters-actions" style={{ marginLeft: 'auto', marginTop: '8px' }}>
+        <div className="report-table__filters-actions">
           <Button variant="secondary" onClick={handleResetFilters}>
             {t('reports.clearFilters', 'Limpar Filtros')}
           </Button>

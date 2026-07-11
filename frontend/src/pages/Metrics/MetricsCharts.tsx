@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { Card } from '../../components/Card';
 import type { MetricsResponse } from '../../types/metrics';
+import { formatDateString } from '../../utils/formatDate';
 import './MetricsCharts.css';
 
 interface MetricsChartsProps {
@@ -15,24 +16,27 @@ interface MetricsChartsProps {
 const COLORS = ['#16A34A', '#3B82F6', '#F59E0B', '#DC2626', '#8B5CF6', '#EC4899'];
 
 export function MetricsCharts({ metrics }: MetricsChartsProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      const [y, m, d] = dateStr.split('-');
-      return i18n.language.startsWith('pt') ? `${d}/${m}/${y}` : `${m}/${d}/${y}`;
-    }
-    return dateStr;
-  };
+  interface TooltipPayloadEntry {
+    color?: string;
+    name?: string;
+    value?: string | number;
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: TooltipPayloadEntry[];
+    label?: string;
+  }
 
   // Custom tooltips
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="metrics-chart-tooltip">
-          <p className="metrics-chart-tooltip__label">{formatDate(label)}</p>
-          {payload.map((entry: any, index: number) => (
+          <p className="metrics-chart-tooltip__label">{formatDateString(label ?? '')}</p>
+          {payload.map((entry: TooltipPayloadEntry, index: number) => (
             <p key={`item-${index}`} style={{ color: entry.color }}>
               {entry.name}: {entry.value}
             </p>
@@ -58,7 +62,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="date" tickFormatter={formatDate} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
+                <XAxis dataKey="date" tickFormatter={formatDateString} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
                 <Area type="monotone" name={t('metrics.summary.totalInferences', 'Inferences')} dataKey="count" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorInferences)" />
@@ -78,7 +82,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="date" tickFormatter={formatDate} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
+                <XAxis dataKey="date" tickFormatter={formatDateString} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
                 <Area type="monotone" name={t('metrics.summary.totalDefects', 'Defects')} dataKey="count" stroke="#DC2626" strokeWidth={2} fillOpacity={1} fill="url(#colorDefects)" />

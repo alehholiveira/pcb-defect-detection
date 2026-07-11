@@ -3,17 +3,17 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import './Table.css';
 
-interface TableColumn {
+interface TableColumn<T = any> {
   key: string;
   label: ReactNode;
   sortable?: boolean;
   width?: string;
-  render?: (value: any, row: any) => ReactNode;
+  render?: (value: any, row: T) => ReactNode;
 }
 
-interface TableProps {
-  columns: TableColumn[];
-  data: any[];
+interface TableProps<T = any> {
+  columns: TableColumn<T>[];
+  data: T[];
   onSort?: (key: string, order: 'asc' | 'desc') => void;
   sortField?: string;
   sortOrder?: 'asc' | 'desc';
@@ -23,7 +23,7 @@ interface TableProps {
   className?: string;
 }
 
-export function Table({
+export function Table<T extends Record<string, any>>({
   columns,
   data,
   onSort,
@@ -33,7 +33,7 @@ export function Table({
   emptyDescription,
   loading = false,
   className = '',
-}: TableProps) {
+}: TableProps<T>) {
   const { t } = useTranslation();
   const [internalSortField, setInternalSortField] = useState<string | null>(null);
   const [internalSortOrder, setInternalSortOrder] = useState<'asc' | 'desc'>('asc');

@@ -413,3 +413,22 @@
   font-weight: 500;
 }
 
+.models-page__header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.models-metrics__cell-arch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.models-metrics__text-arch {
+  font-weight: 600;
+}
+
+

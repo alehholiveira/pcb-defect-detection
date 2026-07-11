@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { i18n } from '../../i18n'
 import {
   Eye,
   Download,
@@ -18,7 +17,7 @@ import { Button } from '../../components/Button'
 import { Select } from '../../components/Select'
 import { DateRangePicker } from '../../components/DateRangePicker'
 import { Modal } from '../../components/Modal'
-import { ToastContainer, type ToastData } from '../../components/Toast'
+import { ToastContainer } from '../../components/Toast'
 import { useInferenceSelection } from '../../hooks/useInferenceSelection'
 import { generateReport } from '../../services/reportService'
 import type {
@@ -27,6 +26,8 @@ import type {
   PaginatedResponse,
 } from '../../types/inference'
 import { AVAILABLE_MODELS } from '../../types/inference'
+import { formatDateTime } from '../../utils/formatDate'
+import { useToast } from '../../hooks/useToast'
 import './InferenceHistory.css'
 
 interface InferenceHistoryProps {
@@ -36,18 +37,6 @@ interface InferenceHistoryProps {
   onFiltersChange: (filters: Partial<InferenceFilters>) => void
   onFetchHistory: () => Promise<void>
   onReplayInference?: (id: number) => void
-}
-
-function formatDate(iso: string): string {
-  const date = new Date(iso)
-  const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US'
-  return date.toLocaleDateString(lang, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 function computeAvgConfidence(inference: Inference): string {
@@ -83,17 +72,8 @@ export function InferenceHistory({
   const [reportName, setReportName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Toasts state
-  const [toasts, setToasts] = useState<ToastData[]>([])
-  
-  const addToast = useCallback((message: string, variant: ToastData['variant']) => {
-    const id = Math.random().toString(36).substring(2, 9)
-    setToasts(prev => [...prev, { id, message, variant }])
-  }, [])
-  
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id))
-  }, [])
+  // Toast hook
+  const { toasts, addToast, removeToast } = useToast()
 
   const meta = historyData?.meta
   const totalInferences = meta?.total || 0
@@ -206,7 +186,7 @@ export function InferenceHistory({
               checked={isSelected(row.id)}
               onChange={() => toggleSelect(row.id)}
               className="inference-history__checkbox"
-              aria-label={`Select ${row.id}`}
+              aria-label={t('inference.history.selectRow', 'Select {{id}}', { id: row.id })}
             />
           </div>
         )
@@ -224,7 +204,7 @@ export function InferenceHistory({
         key: 'created_at',
         label: t('inference.history.columns.date', 'Data'),
         sortable: true,
-        render: (value: string) => formatDate(value),
+        render: (value: string) => formatDateTime(value),
       },
       {
         key: 'model_name',
@@ -289,6 +269,7 @@ export function InferenceHistory({
               className="inference-history__action-btn"
               aria-label={t('inference.history.download', 'Baixar')}
               title={t('inference.history.download', 'Baixar')}
+              onClick={() => addToast(t('common.comingSoon', 'Funcionalidade em breve!'), 'info')}
             >
               <Download size={16} />
             </button>
@@ -296,6 +277,7 @@ export function InferenceHistory({
               className="inference-history__action-btn inference-history__action-btn--danger"
               aria-label={t('inference.history.delete', 'Excluir')}
               title={t('inference.history.delete', 'Excluir')}
+              onClick={() => addToast(t('common.comingSoon', 'Funcionalidade em breve!'), 'info')}
             >
               <Trash2 size={16} />
             </button>
@@ -311,24 +293,30 @@ export function InferenceHistory({
   const sortedData = useMemo(() => {
     if (!data.length) return []
     return [...data].sort((a, b) => {
-      let aVal: any = a[sortConfig.key as keyof Inference]
-      let bVal: any = b[sortConfig.key as keyof Inference]
+      let aVal: string | number = '';
+      let bVal: string | number = '';
 
-      if (sortConfig.key === 'images') {
+      const key = sortConfig.key;
+      if (key === 'images') {
         aVal = a.images.length
         bVal = b.images.length
-      } else if (sortConfig.key === 'total_detections') {
+      } else if (key === 'total_detections') {
         aVal = a.total_detections
         bVal = b.total_detections
-      } else if (sortConfig.key === 'avg_confidence') {
+      } else if (key === 'avg_confidence') {
         aVal = parseFloat(computeAvgConfidence(a))
         bVal = parseFloat(computeAvgConfidence(b))
-      } else if (sortConfig.key === 'inference_time_ms') {
+      } else if (key === 'inference_time_ms') {
         aVal = a.inference_time_ms
         bVal = b.inference_time_ms
-      } else if (sortConfig.key === 'created_at') {
+      } else if (key === 'created_at') {
         aVal = new Date(a.created_at).getTime()
         bVal = new Date(b.created_at).getTime()
+      } else {
+        const valA = a[key as keyof Inference];
+        const valB = b[key as keyof Inference];
+        aVal = typeof valA === 'string' || typeof valA === 'number' ? valA : '';
+        bVal = typeof valB === 'string' || typeof valB === 'number' ? valB : '';
       }
 
       if (aVal < bVal) return sortConfig.order === 'asc' ? -1 : 1
@@ -338,7 +326,7 @@ export function InferenceHistory({
   }, [data, sortConfig])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="inference-history__page-container">
       <div className="inference-history__page-header">
         <h1 className="inference-history__page-title">{t('inference.history.title', 'Histórico de Inferências')}</h1>
         <p className="inference-history__page-subtitle">{t('inference.history.subtitle', 'Visualize e gerencie inferências anteriores')}</p>
@@ -361,7 +349,7 @@ export function InferenceHistory({
           />
         </div>
 
-        <div className="inference-history__filters-actions" style={{ marginLeft: 'auto', marginTop: '8px' }}>
+        <div className="inference-history__filters-actions">
           <Button
             variant="ghost"
             onClick={handleResetFilters}

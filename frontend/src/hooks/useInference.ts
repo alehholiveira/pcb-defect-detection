@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { runInference, getInferences, getInferenceById } from '../services/inferenceService'
 import type {
   PredictionResponse,
@@ -6,6 +7,7 @@ import type {
   InferenceFilters,
   PaginatedResponse,
 } from '../types/inference'
+import { parseApiError } from '../utils/apiError'
 
 export interface FilePreview {
   file: File | null
@@ -38,6 +40,7 @@ export interface UseInferenceReturn {
 }
 
 export function useInference(): UseInferenceReturn {
+  const { t } = useTranslation()
   const [selectedModel, setSelectedModel] = useState('yolo11')
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
@@ -95,7 +98,7 @@ export function useInference(): UseInferenceReturn {
 
   const runInferenceAction = useCallback(async () => {
     if (selectedFiles.length === 0) {
-      setError('Selecione pelo menos uma imagem para análise.')
+      setError(t('inference.errors.noImagesSelected'))
       return
     }
 
@@ -118,14 +121,14 @@ export function useInference(): UseInferenceReturn {
           name: file.name,
         }))
       )
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Erro ao executar inferência.'
+    } catch (err: unknown) {
+      const apiMsg = parseApiError(err)
+      const message = apiMsg === 'An unexpected error occurred' ? t('inference.errors.executionFailed') : apiMsg
       setError(message)
     } finally {
       setIsLoading(false)
     }
-  }, [selectedFiles, selectedModel])
+  }, [selectedFiles, selectedModel, t])
 
   const loadInferenceAction = useCallback(async (id: number) => {
     setIsLoading(true)
@@ -156,14 +159,14 @@ export function useInference(): UseInferenceReturn {
       
       // Optional: scroll to top to see results
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Erro ao carregar inferência do histórico.'
+    } catch (err: unknown) {
+      const apiMsg = parseApiError(err)
+      const message = apiMsg === 'An unexpected error occurred' ? t('inference.errors.historyLoadFailed') : apiMsg
       setError(message)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [t])
 
   const clearResults = useCallback(() => {
     setPredictionResult(null)
@@ -184,21 +187,34 @@ export function useInference(): UseInferenceReturn {
     []
   )
 
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(async (signal?: AbortSignal) => {
     setHistoryLoading(true)
     try {
-      const data = await getInferences(historyFilters)
+      const data = await getInferences(historyFilters, { signal })
       setHistoryData(data)
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'CanceledError') {
+        return
+      }
       console.error('Failed to fetch inference history:', err)
+      const apiMsg = parseApiError(err)
+      setError(apiMsg === 'An unexpected error occurred' ? t('inference.errors.historyLoadFailed') : apiMsg)
     } finally {
       setHistoryLoading(false)
     }
-  }, [historyFilters])
+  }, [historyFilters, t])
 
   // Fetch history on mount and when filters change
   useEffect(() => {
-    fetchHistory()
+    const controller = new AbortController()
+    fetchHistory(controller.signal)
+    return () => {
+      controller.abort()
+    }
+  }, [fetchHistory])
+
+  const refreshHistory = useCallback(async () => {
+    await fetchHistory()
   }, [fetchHistory])
 
   return {
@@ -221,7 +237,8 @@ export function useInference(): UseInferenceReturn {
     clearResults,
     clearFiles,
     setHistoryFilters,
-    fetchHistory,
+    fetchHistory: refreshHistory,
     setCurrentResultIndex,
   }
 }
+

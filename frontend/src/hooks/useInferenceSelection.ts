@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { InferenceFilters } from '../types/inference';
-import type { GenerateReportRequest } from '../services/reportService';
+import type { GenerateReportRequest, GenerateReportFilters } from '../types/report';
 
 export type SelectionMode = 'none' | 'individual' | 'all';
 
@@ -117,7 +117,7 @@ export function useInferenceSelection(totalInferencesFiltered: number): UseInfer
     }
     
     // Convert current UI filters to API format
-    const apiFilters: any = {};
+    const apiFilters: GenerateReportFilters = {};
     if (filters.startDate) apiFilters.startDate = filters.startDate;
     if (filters.endDate) apiFilters.endDate = filters.endDate;
     if (filters.modelName) apiFilters.modelName = filters.modelName;

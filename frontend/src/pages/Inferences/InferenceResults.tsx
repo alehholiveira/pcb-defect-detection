@@ -35,7 +35,8 @@ interface InferenceResultsProps {
 function drawDetections(
   canvas: HTMLCanvasElement,
   img: HTMLImageElement,
-  detections: Detection[]
+  detections: Detection[],
+  t: any
 ) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -58,7 +59,8 @@ function drawDetections(
     ctx.strokeRect(x, y, w, h)
 
     // Label background
-    const label = `${det.class_name} ${(det.confidence * 100).toFixed(0)}%`
+    const defectLabel = t(`defects.${det.class_name}`, DEFECT_LABEL_MAP[det.class_name] ?? det.class_name)
+    const label = `${defectLabel} ${(det.confidence * 100).toFixed(0)}%`
     const fontSize = Math.max(12, Math.round(img.naturalWidth / 50))
     ctx.font = `bold ${fontSize}px sans-serif`
     const textMetrics = ctx.measureText(label)
@@ -116,15 +118,15 @@ export function InferenceResults({
 
   const handleImageLoad = useCallback(() => {
     if (!canvasRef.current || !imgRef.current || !currentImage) return
-    drawDetections(canvasRef.current, imgRef.current, currentImage.detections)
-  }, [currentImage])
+    drawDetections(canvasRef.current, imgRef.current, currentImage.detections, t)
+  }, [currentImage, t])
 
   // Redraw when index changes
   useEffect(() => {
     if (imgRef.current?.complete && canvasRef.current && currentImage) {
-      drawDetections(canvasRef.current, imgRef.current, currentImage.detections)
+      drawDetections(canvasRef.current, imgRef.current, currentImage.detections, t)
     }
-  }, [currentIndex, currentImage])
+  }, [currentIndex, currentImage, t])
 
   const handlePrev = () => {
     onIndexChange(currentIndex > 0 ? currentIndex - 1 : total - 1)
@@ -218,7 +220,7 @@ export function InferenceResults({
                     }}
                   />
                   <span className="inference-results__defect-name">
-                    {DEFECT_LABEL_MAP[className] ?? className}
+                    {t(`defects.${className}`, DEFECT_LABEL_MAP[className] ?? className)}
                   </span>
                   <span className="inference-results__defect-count">
                     {count}

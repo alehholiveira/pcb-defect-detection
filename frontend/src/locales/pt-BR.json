@@ -22,7 +22,6 @@
     "monthly": "Mensal",
     "clearFilters": "Resetar",
     "applyFilters": "Aplicar",
-    "filters": "Filtros",
     "refresh": "Atualizar",
     "columns": {
       "reportName": "Nome do Relatório",
@@ -39,7 +38,12 @@
     "generatedByManual": "Manual",
     "download": "Baixar",
     "empty": "Nenhum relatório encontrado",
-    "emptyDesc": "Os relatórios aparecerão aqui assim que forem gerados automática ou manualmente."
+    "emptyDesc": "Os relatórios aparecerão aqui assim que forem gerados automática ou manualmente.",
+    "search": "Buscar relatório...",
+    "errors": {
+      "fetchFailed": "Falha ao buscar relatórios.",
+      "downloadUrlUnavailable": "URL de download não disponível."
+    }
   },
   "defects": {
     "missing_hole": "Missing Hole",
@@ -49,11 +53,6 @@
     "spur": "Spur",
     "spurious_copper": "Spurious Copper",
     "others": "Outros"
-  },
-  "placeholders": {
-    "comingSoon": "Em breve",
-    "modelsDescription": "Gerenciamento de modelos de IA estará disponível aqui.",
-    "settingsDescription": "Configurações do sistema estarão disponíveis aqui."
   },
   "metrics": {
     "page": {
@@ -79,7 +78,9 @@
       "weekly": "Semanal",
       "monthly": "Mensal",
       "allModels": "Todos os Modelos",
-      "clear": "Limpar Filtros"
+      "clear": "Limpar Filtros",
+      "apply": "Aplicar Filtros",
+      "toggleAriaLabel": "Alternar filtros"
     },
     "charts": {
       "inferencesTime": "Inferências ao Longo do Tempo",
@@ -90,6 +91,9 @@
       "reportsByType": "Relatórios Gerados",
       "maxConfidence": "Máx",
       "avgConfidence": "Méd"
+    },
+    "errors": {
+      "fetchFailed": "Falha ao carregar os dados de métricas."
     }
   },
   "common": {
@@ -110,12 +114,11 @@
       "subtitle": "Execute modelos de detecção de defeitos em imagens de PCB"
     },
     "controls": {
-      "title": "Configuração da Inferência",
-      "subtitle": "Selecione o modelo, adicione imagens e execute a análise",
       "model": "Modelo de Detecção",
-      "uploadLabel": "Upload de Imagens PCB",
       "run": "Executar Inferência",
-      "fileCount": "{{count}} imagem(ns) selecionada(s)"
+      "fileCount": "{{count}} imagem(ns) selecionada(s)",
+      "selectModel": "Selecionar modelo...",
+      "clearFiles": "Limpar imagens"
     },
     "preview": {
       "title": "Imagens Selecionadas",
@@ -124,7 +127,8 @@
       "more": "mais"
     },
     "loading": {
-      "title": "Analisando defeitos PCB..."
+      "title": "Analisando defeitos PCB...",
+      "description": "O modelo de inteligência artificial está processando as imagens..."
     },
     "results": {
       "title": "Resultados da Inferência",
@@ -149,14 +153,11 @@
     "history": {
       "title": "Histórico de Inferências",
       "subtitle": "Visualize e gerencie inferências anteriores",
-      "search": "Buscar...",
-      "filters": "Filtros",
       "refresh": "Atualizar",
       "filter": {
         "allModels": "Todos os Modelos",
         "period": "Período",
         "model": "Modelo",
-        "clear": "Limpar",
         "reset": "Resetar",
         "apply": "Aplicar"
       },
@@ -181,7 +182,6 @@
       "emptyDesc": "Execute uma inferência para ver os resultados aqui.",
       "selectAll": "Selecionar Todas",
       "generateReport": "Gerar Relatório",
-      "selectedCount": "{{count}} selecionada(s)",
       "modal": {
         "title": "Gerar Relatório Manual",
         "reportNameLabel": "Nome do Relatório",
@@ -191,6 +191,11 @@
         "confirm": "Gerar Relatório",
         "cancel": "Cancelar"
       }
+    },
+    "errors": {
+      "noImagesSelected": "Selecione pelo menos uma imagem para análise.",
+      "executionFailed": "Erro ao executar inferência.",
+      "historyLoadFailed": "Erro ao carregar inferência do histórico."
     }
   },
   "toast": {
@@ -229,13 +234,13 @@
         "added": "E-mail adicionado. Verifique a caixa de entrada para confirmar.",
         "removed": "E-mail removido com sucesso.",
         "error": "Erro ao processar a solicitação."
-      }
+      },
+      "removeAriaLabel": "Remover destinatário {{email}}"
     },
     "schedules": {
       "title": "Agendamentos Automáticos",
       "subtitle": "Controle a geração automática de relatórios.",
       "save": "Salvar Configurações",
-      "noChanges": "Nenhuma alteração para salvar.",
       "daily": {
         "label": "Relatório Diário",
         "description": "Gerado automaticamente todos os dias às 00:00 UTC"
@@ -253,7 +258,14 @@
         "error": "Erro ao atualizar agendamentos."
       }
     },
-    "loading": "Carregando configurações..."
+    "loading": "Carregando configurações...",
+    "errors": {
+      "fetchEmailsFailed": "Falha ao buscar destinatários de e-mail.",
+      "fetchSchedulesFailed": "Falha ao buscar agendamentos automáticos.",
+      "addEmailFailed": "Falha ao adicionar destinatário de e-mail.",
+      "removeEmailFailed": "Falha ao remover destinatário de e-mail.",
+      "updateSchedulesFailed": "Falha ao atualizar agendamentos automáticos."
+    }
   },
   "models": {
     "page": {
@@ -262,7 +274,8 @@
     },
     "intro": {
       "title": "Visão Geral do Problema",
-      "description": "A detecção de defeitos em placas de circuito impresso (PCBs) é altamente desafiadora na indústria: defeitos microscópicos representam menos de 1% da imagem (desbalanceamento extremo de classes), variam enormemente de tamanho e exigem decisões em milissegundos para esteiras de produção em tempo real. Desenvolvemos e avaliamos 4 diferentes arquiteturas de Visão Computacional para cobrir todas essas necessidades com máxima robustez."
+      "description": "A detecção de defeitos em placas de circuito impresso (PCBs) é altamente desafiadora na indústria: defeitos microscópicos representam menos de 1% da imagem (desbalanceamento extremo de classes), variam enormemente de tamanho e exigem decisões em milissegundos para esteiras de produção em tempo real. Desenvolvemos e avaliamos 4 diferentes arquiteturas de Visão Computacional para cobrir todas essas necessidades com máxima robustez.",
+      "chartAlt": "Gráfico de distribuição de classes de defeitos"
     },
     "metrics": {
       "title": "Comparativo de Performance",
@@ -281,7 +294,8 @@
         "bestRecall": "Melhor Recall",
         "bestBackground": "Melhor Supressão de Fundo",
         "bestInnovation": "Inovação Real-Time"
-      }
+      },
+      "helpAriaLabel": "Explicar métrica"
     },
     "conclusions": {
       "title": "Conclusões Práticas para a Indústria",
@@ -296,8 +310,9 @@
       "expectative": "Expectativa vs. Obtido",
       "trainingCurves": "Curva de Aprendizado",
       "predictions": "Exemplo de Inspeção",
-      "confusionMatrix": "Matriz de Confusão",
-      "clickToZoom": "Clique para ampliar"
+      "clickToZoom": "Clique para ampliar",
+      "trainingCurvesAlt": "Curvas de aprendizado do modelo {{model}}",
+      "predictionsAlt": "Exemplo de predição do modelo {{model}}"
     },
     "architectures": {
       "yolo": {
@@ -305,28 +320,32 @@
         "highlight": "Melhor mAP & Velocidade",
         "howItWorks": "O YOLOv11 processa a imagem inteira em uma única passagem de rede convolucional (Single-stage). Ele prevê diretamente as caixas delimitadoras e as classes sem a necessidade de âncoras predefinidas, eliminando complexidades computacionais.",
         "pcbContext": "A grande vantagem na indústria é a sua velocidade absurda (FPS alto). Graças ao PANet Neck, ele funde características em diferentes escalas, impedindo que pequenos defeitos passem despercebidos na esteira.",
-        "expectative": "Esperava-se excelente tempo de resposta e boa precisão. O resultado prático foi excepcional: mAP@50 de 0.9836 e F1-Score Máximo de 0.9884, consagrando-se a melhor performance global."
+        "expectative": "Esperava-se excelente tempo de resposta e boa precisão. O resultado prático foi excepcional: mAP@50 de 0.9836 e F1-Score Máximo de 0.9884, consagrando-se a melhor performance global.",
+        "name": "YOLOv11"
       },
       "fasterrcnn": {
         "category": "Dois Estágios (Two-stage) / ResNet-50-FPN V2",
         "highlight": "Maior Recall (Recuperação)",
         "howItWorks": "Utiliza um módulo dedicado chamado RPN (Region Proposal Network) para rastrear primeiro possíveis regiões candidatas a conter defeitos (Estágio 1). Depois, um classificador profundo analisa minuciosamente essas regiões para enquadrar a falha (Estágio 2).",
         "pcbContext": "Funciona essencialmente como uma lupa digital na placa. Ao adotarmos o backbone profundo ResNet-50-FPN V2 no lugar de modelos mais leves, a capacidade de identificar pequenas quebras de trilhas ou furos ausentes saltou drasticamente.",
-        "expectative": "Esperava-se precisão cirúrgica ao custo de processamento mais lento. Obteve o maior Recall do estudo (97.65%), consolidando sua eficácia absoluta contra falsos negativos (escape de defeitos)."
+        "expectative": "Esperava-se precisão cirúrgica ao custo de processamento mais lento. Obteve o maior Recall do estudo (97.65%), consolidando sua eficácia absoluta contra falsos negativos (escape de defeitos).",
+        "name": "Faster R-CNN"
       },
       "retinanet": {
         "category": "Estágio Único Baseado em Âncoras / ResNet-50-FPN",
         "highlight": "Combate a Falsos Positivos",
         "howItWorks": "Embora seja um detector de estágio único rápido, ele implementa a função Focal Loss. Essa matemática penaliza drasticamente o erro nas classes difíceis de defeitos e ignora a perda gerada pelas grandes áreas normais (placa vazia).",
         "pcbContext": "Numa PCB onde 99% da imagem representa fundo sem falhas, as milhares de âncoras da rede gerariam falsos positivos contínuos. A Focal Loss força a atenção da rede a focar puramente nas irregularidades do cobre e furos.",
-        "expectative": "Esperava-se precisão comparável ao Faster R-CNN com velocidade superior. Obteve mAP@50 de 0.9745 e excelente supressão de falsos positivos no fundo da placa, validando o backbone ResNet50."
+        "expectative": "Esperava-se precisão comparável ao Faster R-CNN com velocidade superior. Obteve mAP@50 de 0.9745 e excelente supressão de falsos positivos no fundo da placa, validando o backbone ResNet50.",
+        "name": "RetinaNet"
       },
       "rtdetr": {
         "category": "Detector Baseado em Vision Transformers (VIT)",
         "highlight": "Velocidade Constante",
         "howItWorks": "Usa CNNs apenas para a extração inicial e repassa as imagens a um Transformer Encoder-Decoder. Os mecanismos de Self-Attention observam o contexto da placa inteira de uma só vez, eliminando o algoritmo NMS de pós-processamento.",
         "pcbContext": "Defeitos como trilhas abertas têm pistas visuais espalhadas pela placa. A atenção global conecta essas regiões distantes. Além disso, a ausência de NMS garante que o tempo de análise não suba caso a placa tenha muitas falhas.",
-        "expectative": "Esperava-se inovação de ponta, porém com treinamento difícil. Entregou mAP@50 de 0.9657 e F1 de 0.9690, mostrando que Transformers podem sim rodar em tempo real na indústria."
+        "expectative": "Esperava-se inovação de ponta, porém com treinamento difícil. Entregou mAP@50 de 0.9657 e F1 de 0.9690, mostrando que Transformers podem sim rodar em tempo real na indústria.",
+        "name": "RT-DETR"
       }
     },
     "glossary": {
@@ -381,5 +400,44 @@
         }
       }
     }
+  },
+  "dropzone": {
+    "title": "Arraste e solte suas imagens aqui ou clique para selecionar",
+    "hint": "Suporta JPG, PNG ou JPEG. Máximo de {{count}} arquivos de até 10MB.",
+    "maxFiles": "Máx. {{count}} arquivo(s)",
+    "ariaLabel": "Área de upload de imagens"
+  },
+  "pagination": {
+    "showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "ariaLabel": "Paginação",
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "rowsPerPage": "Linhas por página:"
+  },
+  "navbar": {
+    "logoAlt": "Detecção de Defeitos em PCB",
+    "language": "Idioma",
+    "selectLanguage": "Selecione o idioma",
+    "help": "Ajuda",
+    "notifications": "Notificações"
+  },
+  "modal": {
+    "dialog": "Janela de diálogo",
+    "close": "Fechar"
+  },
+  "tabs": {
+    "navigation": "Navegação principal"
+  },
+  "statCard": {
+    "group": "Estatística de {{label}}"
+  },
+  "table": {
+    "emptyMessage": "Nenhum registro encontrado"
+  },
+  "dateRangePicker": {
+    "placeholder": "Selecione o período..."
   }
 }

@@ -1,0 +1,83 @@
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 24px;
+  background-color: var(--color-bg, #ffffff);
+  color: var(--color-text, #111827);
+  font-family: inherit;
+}
+
+.error-boundary__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  padding: 32px;
+  background-color: var(--color-bg-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,0.1));
+}
+
+.error-boundary__icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.error-boundary__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.error-boundary__message {
+  font-size: 14px;
+  color: var(--color-text-secondary, #4b5563);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.error-boundary__details {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background-color: #1e1e24;
+  color: #f4f4f9;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  font-size: 12px;
+  border-radius: var(--radius-md, 8px);
+  overflow-x: auto;
+  margin: 0 0 24px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+}
+
+.error-boundary__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: var(--color-primary, #16a34a);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+.error-boundary__button:hover {
+  background-color: #15803d;
+}
+
+.error-boundary__button:active {
+  transform: scale(0.98);
+}

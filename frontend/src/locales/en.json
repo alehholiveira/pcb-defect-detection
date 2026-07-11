@@ -22,7 +22,6 @@
     "monthly": "Monthly",
     "clearFilters": "Reset",
     "applyFilters": "Apply",
-    "filters": "Filters",
     "refresh": "Refresh",
     "columns": {
       "reportName": "Report Name",
@@ -39,7 +38,12 @@
     "generatedByManual": "Manual",
     "download": "Download",
     "empty": "No reports found",
-    "emptyDesc": "Reports will appear here once generated automatically or manually."
+    "emptyDesc": "Reports will appear here once generated automatically or manually.",
+    "search": "Search reports...",
+    "errors": {
+      "fetchFailed": "Failed to fetch reports.",
+      "downloadUrlUnavailable": "Download URL not available."
+    }
   },
   "defects": {
     "missing_hole": "Missing Hole",
@@ -49,11 +53,6 @@
     "spur": "Spur",
     "spurious_copper": "Spurious Copper",
     "others": "Others"
-  },
-  "placeholders": {
-    "comingSoon": "Coming Soon",
-    "modelsDescription": "AI model management will be available here.",
-    "settingsDescription": "System settings will be available here."
   },
   "metrics": {
     "page": {
@@ -79,7 +78,9 @@
       "weekly": "Weekly",
       "monthly": "Monthly",
       "allModels": "All Models",
-      "clear": "Clear Filters"
+      "clear": "Clear Filters",
+      "apply": "Apply Filters",
+      "toggleAriaLabel": "Toggle filters"
     },
     "charts": {
       "inferencesTime": "Inferences Over Time",
@@ -90,6 +91,9 @@
       "reportsByType": "Generated Reports",
       "maxConfidence": "Max",
       "avgConfidence": "Avg"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch metrics data."
     }
   },
   "common": {
@@ -110,12 +114,11 @@
       "subtitle": "Run defect detection models on PCB images"
     },
     "controls": {
-      "title": "Inference Configuration",
-      "subtitle": "Select model, add images and run analysis",
       "model": "Detection Model",
-      "uploadLabel": "PCB Image Upload",
       "run": "Run Inference",
-      "fileCount": "{{count}} image(s) selected"
+      "fileCount": "{{count}} image(s) selected",
+      "selectModel": "Select model...",
+      "clearFiles": "Clear images"
     },
     "preview": {
       "title": "Selected Images",
@@ -124,7 +127,8 @@
       "more": "more"
     },
     "loading": {
-      "title": "Analyzing PCB defects..."
+      "title": "Analyzing PCB defects...",
+      "description": "The artificial intelligence model is processing the images..."
     },
     "results": {
       "title": "Inference Results",
@@ -149,14 +153,11 @@
     "history": {
       "title": "Inference History",
       "subtitle": "View and manage past inferences",
-      "search": "Search...",
-      "filters": "Filters",
       "refresh": "Refresh",
       "filter": {
         "allModels": "All Models",
         "period": "Period",
         "model": "Model",
-        "clear": "Clear",
         "reset": "Reset",
         "apply": "Apply"
       },
@@ -181,7 +182,6 @@
       "emptyDesc": "Run an inference to see results here.",
       "selectAll": "Select All",
       "generateReport": "Generate Report",
-      "selectedCount": "{{count}} selected",
       "modal": {
         "title": "Generate Manual Report",
         "reportNameLabel": "Report Name",
@@ -191,6 +191,11 @@
         "confirm": "Generate Report",
         "cancel": "Cancel"
       }
+    },
+    "errors": {
+      "noImagesSelected": "Select at least one image for analysis.",
+      "executionFailed": "Error running inference.",
+      "historyLoadFailed": "Error loading inference from history."
     }
   },
   "toast": {
@@ -229,13 +234,13 @@
         "added": "Email added. Please check inbox to verify.",
         "removed": "Email removed successfully.",
         "error": "Error processing request."
-      }
+      },
+      "removeAriaLabel": "Remove recipient {{email}}"
     },
     "schedules": {
       "title": "Automated Schedules",
       "subtitle": "Control automated report generation.",
       "save": "Save Settings",
-      "noChanges": "No changes to save.",
       "daily": {
         "label": "Daily Report",
         "description": "Automatically generated every day at 00:00 UTC"
@@ -253,7 +258,14 @@
         "error": "Error updating schedules."
       }
     },
-    "loading": "Loading settings..."
+    "loading": "Loading settings...",
+    "errors": {
+      "fetchEmailsFailed": "Failed to fetch email recipients.",
+      "fetchSchedulesFailed": "Failed to fetch automated schedules.",
+      "addEmailFailed": "Failed to add email recipient.",
+      "removeEmailFailed": "Failed to remove email recipient.",
+      "updateSchedulesFailed": "Failed to update automated schedules."
+    }
   },
   "models": {
     "page": {
@@ -262,7 +274,8 @@
     },
     "intro": {
       "title": "Problem Overview",
-      "description": "Defect detection on Printed Circuit Boards (PCBs) is highly challenging in the manufacturing industry: microscopic defects occupy less than 1% of the image (extreme class imbalance), vary widely in scale, and require decisions in milliseconds for real-time assembly lines. We developed and evaluated 4 different Computer Vision architectures to cover all these industrial needs with maximum robustness."
+      "description": "Defect detection on Printed Circuit Boards (PCBs) is highly challenging in the manufacturing industry: microscopic defects occupy less than 1% of the image (extreme class imbalance), vary widely in scale, and require decisions in milliseconds for real-time assembly lines. We developed and evaluated 4 different Computer Vision architectures to cover all these industrial needs with maximum robustness.",
+      "chartAlt": "Defect class distribution chart"
     },
     "metrics": {
       "title": "Performance Comparison",
@@ -281,7 +294,8 @@
         "bestRecall": "Best Recall",
         "bestBackground": "Best Background Suppression",
         "bestInnovation": "Real-Time Innovation"
-      }
+      },
+      "helpAriaLabel": "Explain metric"
     },
     "conclusions": {
       "title": "Practical Industrial Conclusions",
@@ -296,8 +310,9 @@
       "expectative": "Expectation vs. Obtained",
       "trainingCurves": "Learning Curve",
       "predictions": "Inspection Example",
-      "confusionMatrix": "Confusion Matrix",
-      "clickToZoom": "Click to zoom"
+      "clickToZoom": "Click to zoom",
+      "trainingCurvesAlt": "Learning curves of model {{model}}",
+      "predictionsAlt": "Prediction example of model {{model}}"
     },
     "architectures": {
       "yolo": {
@@ -305,28 +320,32 @@
         "highlight": "Best mAP & Speed",
         "howItWorks": "YOLOv11 processes the entire image in a single neural network pass (Single-stage). It predicts bounding boxes and class probabilities directly without using pre-defined anchors, reducing computing complexity.",
         "pcbContext": "The main benefit in production is its incredible processing speed (high FPS). With the PANet Neck, it fuses features across scales, preventing tiny defects from slipping through on the conveyor belt.",
-        "expectative": "Expected high throughput and decent accuracy. The actual results were exceptional: mAP@50 of 0.9836 and maximum F1-Score of 0.9884, achieving the best overall performance."
+        "expectative": "Expected high throughput and decent accuracy. The actual results were exceptional: mAP@50 of 0.9836 and maximum F1-Score of 0.9884, achieving the best overall performance.",
+        "name": "YOLOv11"
       },
       "fasterrcnn": {
         "category": "Two-stage / ResNet-50-FPN V2",
         "highlight": "Highest Recall (Recovery)",
         "howItWorks": "Uses a dedicated module called RPN (Region Proposal Network) to first propose potential regions likely to contain defects (Stage 1). Then, a deep classifier meticulously inspects these proposals to frame the final defect (Stage 2).",
         "pcbContext": "Acts essentially like a digital magnifying glass on the board. By adopting the deep ResNet-50-FPN V2 backbone instead of lighter networks, the ability to find microscopic track breaks or missing holes jumped drastically.",
-        "expectative": "Expected high precision at the expense of slower processing. Achieved the highest Recall of the study (97.65%), proving its absolute robustness against false negatives (escaped defects)."
+        "expectative": "Expected high precision at the expense of slower processing. Achieved the highest Recall of the study (97.65%), proving its absolute robustness against false negatives (escaped defects).",
+        "name": "Faster R-CNN"
       },
       "retinanet": {
         "category": "Single-stage Anchor-based / ResNet-50-FPN",
         "highlight": "False Positive Control",
         "howItWorks": "Although a fast single-stage detector, it implements the Focal Loss function. This math penalizes network errors heavily on hard defect classes and downweights the loss generated by normal board regions (background).",
         "pcbContext": "On a PCB where 99% of the image represents defect-free background, standard anchors would generate continuous false positives. Focal Loss forces the network's attention purely onto track anomalies and missing holes.",
-        "expectative": "Expected precision close to Faster R-CNN with higher speed. Achieved a mAP@50 of 0.9745 and excellent background suppression, validating the ResNet50 baseline."
+        "expectative": "Expected precision close to Faster R-CNN with higher speed. Achieved a mAP@50 of 0.9745 and excellent background suppression, validating the ResNet50 baseline.",
+        "name": "RetinaNet"
       },
       "rtdetr": {
         "category": "Vision Transformer (VIT) Based Detector",
         "highlight": "Constant Inference Time",
         "howItWorks": "Uses CNNs only for initial feature extraction and passes them to a Transformer Encoder-Decoder. Self-Attention mechanisms analyze the entire board context at once, predicting boxes directly and eliminating NMS post-processing.",
         "pcbContext": "Defects like open circuits have visual cues spread across the tracks. Global attention connects these distant regions. Also, the absence of NMS ensures inference time remains constant regardless of how many defects are on the board.",
-        "expectative": "Expected state-of-the-art transformer capabilities but hard to train. It successfully delivered a mAP@50 of 0.9657 and F1 of 0.9690, proving Transformers can run in real-time in industrial setups."
+        "expectative": "Expected state-of-the-art transformer capabilities but hard to train. It successfully delivered a mAP@50 of 0.9657 and F1 of 0.9690, proving Transformers can run in real-time in industrial setups.",
+        "name": "RT-DETR"
       }
     },
     "glossary": {
@@ -381,5 +400,44 @@
         }
       }
     }
+  },
+  "dropzone": {
+    "title": "Drag and drop your images here or click to select",
+    "hint": "Supports JPG, PNG or JPEG. Maximum {{count}} files up to 10MB.",
+    "maxFiles": "Max {{count}} file(s)",
+    "ariaLabel": "File upload area"
+  },
+  "pagination": {
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "results",
+    "ariaLabel": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "rowsPerPage": "Rows per page:"
+  },
+  "navbar": {
+    "logoAlt": "PCB Defect Detection",
+    "language": "Language",
+    "selectLanguage": "Select language",
+    "help": "Help",
+    "notifications": "Notifications"
+  },
+  "modal": {
+    "dialog": "Dialog window",
+    "close": "Close"
+  },
+  "tabs": {
+    "navigation": "Main navigation"
+  },
+  "statCard": {
+    "group": "{{label}} statistic"
+  },
+  "table": {
+    "emptyMessage": "No records found"
+  },
+  "dateRangePicker": {
+    "placeholder": "Select range..."
   }
 }

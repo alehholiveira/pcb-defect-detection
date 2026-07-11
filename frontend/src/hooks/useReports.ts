@@ -1,16 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
-import { getReports, type ReportFilters, type PaginatedReports } from '../services/reportService';
+import { useTranslation } from 'react-i18next';
+import { getReports } from '../services/reportService';
+import type { ReportFilters, PaginatedReports } from '../types/report';
+import { parseApiError } from '../utils/apiError';
 
 export interface UseReportsReturn {
   reportsData: PaginatedReports | null;
   filters: ReportFilters;
   loading: boolean;
-  error: Error | null;
+  error: string | null;
   setFilters: (filters: Partial<ReportFilters>) => void;
   fetchReports: () => Promise<void>;
 }
 
 export function useReports(initialFilters: ReportFilters = {}): UseReportsReturn {
+  const { t } = useTranslation();
   const [reportsData, setReportsData] = useState<PaginatedReports | null>(null);
   const [filters, setFiltersState] = useState<ReportFilters>({
     page: 1,
@@ -18,28 +22,40 @@ export function useReports(initialFilters: ReportFilters = {}): UseReportsReturn
     ...initialFilters,
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const setFilters = useCallback((newFilters: Partial<ReportFilters>) => {
-    setFiltersState((prev) => ({ ...prev, ...newFilters }));
+    setFiltersState((prev: ReportFilters) => ({ ...prev, ...newFilters, page: 1 }));
   }, []);
 
-  const fetchReports = useCallback(async () => {
+  const fetchReports = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getReports(filters);
+      const data = await getReports(filters, { signal });
       setReportsData(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch reports'));
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'CanceledError') {
+        return;
+      }
       console.error('Error fetching reports:', err);
+      const apiMsg = parseApiError(err);
+      setError(apiMsg === 'An unexpected error occurred' ? t('reports.errors.fetchFailed') : apiMsg);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, t]);
 
   useEffect(() => {
-    fetchReports();
+    const controller = new AbortController();
+    fetchReports(controller.signal);
+    return () => {
+      controller.abort();
+    };
+  }, [fetchReports]);
+
+  const refreshReports = useCallback(async () => {
+    await fetchReports();
   }, [fetchReports]);
 
   return {
@@ -48,6 +64,7 @@ export function useReports(initialFilters: ReportFilters = {}): UseReportsReturn
     loading,
     error,
     setFilters,
-    fetchReports,
+    fetchReports: refreshReports,
   };
 }
+

@@ -243,6 +243,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
+  margin-top: 8px;
+}
+
+.inference-history__page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .inference-history__page-header {

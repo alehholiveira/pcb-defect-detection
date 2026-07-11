@@ -8,6 +8,7 @@ import { Metrics } from './pages/Metrics';
 import { Models } from './pages/Models';
 import { Settings } from './pages/Settings';
 import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './App.css';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -28,7 +29,9 @@ function Layout() {
       <Navbar title={t(titleKey)} />
       <TabNav />
       <main className="app-content">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );
