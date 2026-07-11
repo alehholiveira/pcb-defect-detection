@@ -33,7 +33,7 @@ export function Navbar({ title }: NavbarProps) {
   return (
     <header className="navbar">
       <div className="navbar__left">
-        <img src={logo} alt={t('navbar.logoAlt', 'PCB Defect Detection')} className="navbar__logo" />
+        <img src={logo} alt={t('navbar.logoAlt')} className="navbar__logo" />
         {title && <h1 className="navbar__title">{title}</h1>}
       </div>
 
@@ -42,14 +42,14 @@ export function Navbar({ title }: NavbarProps) {
           <button
             className="navbar__icon-btn"
             onClick={() => setLangOpen(!langOpen)}
-            aria-label={t('navbar.language', 'Language')}
+            aria-label={t('navbar.language')}
             aria-expanded={langOpen}
             aria-haspopup="listbox"
           >
             <Globe size={20} />
           </button>
           {langOpen && (
-            <ul className="navbar__lang-dropdown" role="listbox" aria-label={t('navbar.selectLanguage', 'Select language')}>
+            <ul className="navbar__lang-dropdown" role="listbox" aria-label={t('navbar.selectLanguage')}>
               {LANGUAGES.map((lang) => (
                 <li
                   key={lang.code}
@@ -71,14 +71,14 @@ export function Navbar({ title }: NavbarProps) {
 
         <button
           className="navbar__icon-btn"
-          aria-label={t('navbar.help', 'Help')}
+          aria-label={t('navbar.help')}
         >
           <HelpCircle size={20} />
         </button>
 
         <button
           className="navbar__icon-btn"
-          aria-label={t('navbar.notifications', 'Notifications')}
+          aria-label={t('navbar.notifications')}
         >
           <Bell size={20} />
         </button>

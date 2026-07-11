@@ -106,7 +106,8 @@
     "view": "View",
     "download": "Download",
     "close": "Close",
-    "language": "Language"
+    "language": "Language",
+    "comingSoon": "Feature coming soon!"
   },
   "inference": {
     "page": {
@@ -116,7 +117,7 @@
     "controls": {
       "model": "Detection Model",
       "run": "Run Inference",
-      "fileCount": "{{count}} image(s) selected",
+      "fileCount": "{{total}} image(s) selected",
       "selectModel": "Select model...",
       "clearFiles": "Clear images"
     },
@@ -133,10 +134,10 @@
     "results": {
       "title": "Inference Results",
       "completed": "Completed",
-      "processed": "{{count}} image(s) processed in {{time}}s",
+      "processed": "{{total}} image(s) processed in {{time}}s",
       "original": "Original Image",
       "annotated": "Detections",
-      "detectionsCount": "{{count}} detection(s)",
+      "detectionsCount": "{{total}} detection(s)",
       "summary": "Detection Summary",
       "noDefects": "No defects detected",
       "total": "Total",
@@ -182,12 +183,13 @@
       "emptyDesc": "Run an inference to see results here.",
       "selectAll": "Select All",
       "generateReport": "Generate Report",
+      "selectRow": "Select row {{id}}",
       "modal": {
         "title": "Generate Manual Report",
         "reportNameLabel": "Report Name",
         "reportNamePlaceholder": "E.g.: Inspection Batch #42",
-        "inferencesIncluded": "{{count}} inference(s) will be included in the report.",
-        "allInferencesIncluded": "All {{count}} inference(s) matching the current filters will be included.",
+        "inferencesIncluded": "{{total}} inference(s) will be included in the report.",
+        "allInferencesIncluded": "All {{total}} inference(s) matching the current filters will be included.",
         "confirm": "Generate Report",
         "cancel": "Cancel"
       }
@@ -233,7 +235,8 @@
       "toast": {
         "added": "Email added. Please check inbox to verify.",
         "removed": "Email removed successfully.",
-        "error": "Error processing request."
+        "error": "Error processing request.",
+        "invalidFormat": "Invalid email"
       },
       "removeAriaLabel": "Remove recipient {{email}}"
     },
@@ -403,8 +406,8 @@
   },
   "dropzone": {
     "title": "Drag and drop your images here or click to select",
-    "hint": "Supports JPG, PNG or JPEG. Maximum {{count}} files up to 10MB.",
-    "maxFiles": "Max {{count}} file(s)",
+    "hint": "Accepted formats: {{formats}} — Max. {{maxSize}}",
+    "maxFiles": "Max {{total}} file(s)",
     "ariaLabel": "File upload area"
   },
   "pagination": {

@@ -34,31 +34,31 @@ export function ResultSummary({ predictionResult }: ResultSummaryProps) {
     <div className="result-summary">
       <StatCard
         icon={<Images size={20} />}
-        label={t('inference.summary.imagesProcessed', 'Imagens Processadas')}
+        label={t('inference.summary.imagesProcessed')}
         value={stats.totalImages}
         color="green"
       />
       <StatCard
         icon={<AlertTriangle size={20} />}
-        label={t('inference.summary.detectedDefects', 'Defeitos Detectados')}
+        label={t('inference.summary.detectedDefects')}
         value={stats.totalDefects}
         color="red"
       />
       <StatCard
         icon={<TrendingUp size={20} />}
-        label={t('inference.summary.avgConfidence', 'Confiança Média')}
+        label={t('inference.summary.avgConfidence')}
         value={`${(stats.avgConfidence * 100).toFixed(1)}%`}
         color="blue"
       />
       <StatCard
         icon={<Cpu size={20} />}
-        label={t('inference.summary.modelUsed', 'Modelo Utilizado')}
+        label={t('inference.summary.modelUsed')}
         value={stats.modelName}
         color="gray"
       />
       <StatCard
         icon={<Clock size={20} />}
-        label={t('inference.summary.executionTime', 'Tempo de Execução')}
+        label={t('inference.summary.executionTime')}
         value={`${stats.executionTime}s`}
         color="orange"
       />

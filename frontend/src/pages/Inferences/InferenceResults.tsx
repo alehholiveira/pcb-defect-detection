@@ -143,15 +143,15 @@ export function InferenceResults({
       <div className="inference-results__header">
         <div className="inference-results__header-left">
           <h2 className="inference-results__title">
-            {t('inference.results.title', 'Resultados da Inferência')}
+            {t('inference.results.title')}
           </h2>
           <Badge variant="success" dot>
-            {t('inference.results.completed', 'Concluído')}
+            {t('inference.results.completed')}
           </Badge>
         </div>
         <span className="inference-results__processed">
-          {t('inference.results.processed', '{{count}} imagem(ns) processada(s)', {
-            count: total,
+          {t('inference.results.processed', {
+            total: total,
             time: totalTime
           })}
         </span>
@@ -162,7 +162,7 @@ export function InferenceResults({
           {/* Left: Original image */}
           <div className="inference-results__panel">
             <h4 className="inference-results__panel-title">
-              {t('inference.results.original', 'Imagem Original')}
+              {t('inference.results.original')}
             </h4>
             <div className="inference-results__image-wrapper">
               <img
@@ -180,7 +180,7 @@ export function InferenceResults({
           {/* Center: Annotated image */}
           <div className="inference-results__panel">
             <h4 className="inference-results__panel-title">
-              {t('inference.results.annotated', 'Detecções')}
+              {t('inference.results.annotated')}
             </h4>
             <div className="inference-results__image-wrapper">
               {/* Hidden image used as source for canvas drawing */}
@@ -198,8 +198,8 @@ export function InferenceResults({
               />
             </div>
             <span className="inference-results__image-name">
-              {t('inference.results.detectionsCount', '{{count}} detecção(ões)', {
-                count: totalDetections,
+              {t('inference.results.detectionsCount', {
+                total: totalDetections,
               })}
             </span>
           </div>
@@ -207,7 +207,7 @@ export function InferenceResults({
           {/* Right: Detection Summary */}
           <div className="inference-results__panel inference-results__panel--summary">
             <h4 className="inference-results__panel-title">
-              {t('inference.results.summary', 'Resumo das Detecções')}
+              {t('inference.results.summary')}
             </h4>
             <ul className="inference-results__defect-list">
               {detectionSummary.map(([className, count]) => (
@@ -220,7 +220,7 @@ export function InferenceResults({
                     }}
                   />
                   <span className="inference-results__defect-name">
-                    {t(`defects.${className}`, DEFECT_LABEL_MAP[className] ?? className)}
+                    {t(`defects.${className}`)}
                   </span>
                   <span className="inference-results__defect-count">
                     {count}
@@ -229,12 +229,12 @@ export function InferenceResults({
               ))}
               {detectionSummary.length === 0 && (
                 <li className="inference-results__defect-item inference-results__defect-item--empty">
-                  {t('inference.results.noDefects', 'Nenhum defeito detectado')}
+                  {t('inference.results.noDefects')}
                 </li>
               )}
             </ul>
             <div className="inference-results__defect-total">
-              <span>{t('inference.results.total', 'Total')}</span>
+              <span>{t('inference.results.total')}</span>
               <span className="inference-results__defect-total-value">
                 {totalDetections}
               </span>
@@ -248,7 +248,7 @@ export function InferenceResults({
             <button
               className="inference-results__nav-btn"
               onClick={handlePrev}
-              aria-label={t('inference.results.previous', 'Imagem anterior')}
+              aria-label={t('inference.results.previous')}
             >
               <ChevronLeft size={20} />
             </button>
@@ -258,7 +258,7 @@ export function InferenceResults({
             <button
               className="inference-results__nav-btn"
               onClick={handleNext}
-              aria-label={t('inference.results.next', 'Próxima imagem')}
+              aria-label={t('inference.results.next')}
             >
               <ChevronRight size={20} />
             </button>

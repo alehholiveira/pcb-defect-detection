@@ -31,14 +31,14 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
   ].filter(Boolean).length;
 
   const modelOptions = [
-    { value: '', label: t('metrics.filters.allModels', 'All Models') },
+    { value: '', label: t('metrics.filters.allModels') },
     ...AVAILABLE_MODELS.map(m => ({ value: m.value, label: m.label }))
   ];
 
   const granularityOptions = [
-    { value: 'daily', label: t('metrics.filters.daily', 'Daily') },
-    { value: 'weekly', label: t('metrics.filters.weekly', 'Weekly') },
-    { value: 'monthly', label: t('metrics.filters.monthly', 'Monthly') },
+    { value: 'daily', label: t('metrics.filters.daily') },
+    { value: 'weekly', label: t('metrics.filters.weekly') },
+    { value: 'monthly', label: t('metrics.filters.monthly') },
   ];
 
   const handleApply = () => {
@@ -66,12 +66,12 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
       >
         <div className="metrics-filters__title">
           <Filter size={18} />
-          <span>{t('metrics.filters.title', 'Filters')}</span>
+          <span>{t('metrics.filters.title')}</span>
           {activeFiltersCount > 0 && (
             <span className="metrics-filters__badge">{activeFiltersCount}</span>
           )}
         </div>
-        <button className="metrics-filters__toggle" aria-label={t('metrics.filters.toggleAriaLabel', 'Toggle filters')} tabIndex={-1}>
+        <button className="metrics-filters__toggle" aria-label={t('metrics.filters.toggleAriaLabel')} tabIndex={-1}>
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       </div>
@@ -80,7 +80,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
         <div className="metrics-filters__body">
           <div className="metrics-filters__grid">
             <div className="metrics-filters__field">
-              <label>{t('metrics.filters.period', 'Period')}</label>
+              <label>{t('metrics.filters.period')}</label>
               <DateRangePicker
                 startDate={draftFilters.startDate || ''}
                 endDate={draftFilters.endDate || ''}
@@ -90,7 +90,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
             </div>
 
             <div className="metrics-filters__field">
-              <label>{t('metrics.filters.granularity', 'Granularity')}</label>
+              <label>{t('metrics.filters.granularity')}</label>
               <Select
                 value={draftFilters.granularity || 'daily'}
                 onChange={(val) => setDraftFilters(prev => ({ ...prev, granularity: val as FilterTypes['granularity'] }))}
@@ -99,7 +99,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
             </div>
 
             <div className="metrics-filters__field">
-              <label>{t('metrics.filters.model', 'Model')}</label>
+              <label>{t('metrics.filters.model')}</label>
               <Select
                 value={draftFilters.modelName || ''}
                 onChange={(val) => setDraftFilters(prev => ({ ...prev, modelName: val || undefined }))}
@@ -115,7 +115,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
               disabled={activeFiltersCount === 0}
               icon={<X size={16} />}
             >
-              {t('metrics.filters.clear', 'Clear Filters')}
+              {t('metrics.filters.clear')}
             </Button>
             <Button
               variant="primary"
@@ -123,7 +123,7 @@ export function MetricsFilters({ filters, onUpdateFilters, onClearFilters }: Met
               icon={<Search size={16} />}
               className="metrics-filters__apply"
             >
-              {t('metrics.filters.apply', 'Apply')}
+              {t('metrics.filters.apply')}
             </Button>
           </div>
         </div>

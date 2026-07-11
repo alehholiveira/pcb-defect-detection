@@ -89,7 +89,7 @@ export function Table<T extends Record<string, any>>({
       <td colSpan={columns.length} className="table__cell table__empty-cell">
         <div className="table__empty">
           <p className="table__empty-message">
-            {emptyMessage ?? t('table.emptyMessage', 'Nenhum registro encontrado')}
+            {emptyMessage ?? t('table.emptyMessage')}
           </p>
           {emptyDescription && (
             <p className="table__empty-description">{emptyDescription}</p>

@@ -65,7 +65,7 @@ export function Modal({
       className={`modal modal--${size}`}
       onClick={handleBackdropClick}
       onCancel={handleCancel}
-      aria-label={title ?? t('modal.dialog', 'Dialog')}
+      aria-label={title ?? t('modal.dialog')}
     >
       <div className="modal__card">
         <div className="modal__header">
@@ -74,7 +74,7 @@ export function Modal({
             type="button"
             className="modal__close"
             onClick={onClose}
-            aria-label={t('modal.close', 'Close')}
+            aria-label={t('modal.close')}
           >
             <X size={20} />
           </button>

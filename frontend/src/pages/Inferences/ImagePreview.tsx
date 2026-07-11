@@ -43,11 +43,11 @@ export function ImagePreview({
     <div className="image-preview">
       <div className="image-preview__header">
         <span className="image-preview__title">
-          {t('inference.preview.title', 'Imagens Selecionadas')}
+          {t('inference.preview.title')}
           <span className="image-preview__count">{filePreviews.length}</span>
         </span>
         <button className="image-preview__clear" onClick={onClearAll}>
-          {t('inference.preview.clearAll', 'Limpar tudo')}
+          {t('inference.preview.clearAll')}
         </button>
       </div>
 
@@ -65,7 +65,7 @@ export function ImagePreview({
             <button
               className="image-preview__remove"
               onClick={() => onRemoveFile(index)}
-              aria-label={t('inference.preview.remove', 'Remover imagem')}
+              aria-label={t('inference.preview.remove')}
             >
               <X />
             </button>
@@ -77,7 +77,7 @@ export function ImagePreview({
             <div className="image-preview__more-inner">
               <div className="image-preview__more-text">+{extraCount}</div>
               <div className="image-preview__more-label">
-                {t('inference.preview.more', 'mais')}
+                {t('inference.preview.more')}
               </div>
             </div>
           </div>

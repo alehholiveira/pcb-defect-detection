@@ -14,9 +14,9 @@ export function Metrics() {
     <div className="metrics-page">
       <div className="metrics-page__header">
         <div>
-          <h1 className="metrics-page__title">{t('metrics.page.title', 'Metrics Dashboard')}</h1>
+          <h1 className="metrics-page__title">{t('metrics.page.title')}</h1>
           <p className="metrics-page__subtitle">
-            {t('metrics.page.subtitle', 'Analyze system performance, defect distribution, and model efficiency.')}
+            {t('metrics.page.subtitle')}
           </p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export function Metrics() {
       {loading && !metrics && (
         <div className="metrics-page__loading">
           <Loader2 size={32} className="animate-spin" />
-          <p>{t('metrics.loading', 'Loading metrics data...')}</p>
+          <p>{t('metrics.loading')}</p>
         </div>
       )}
 

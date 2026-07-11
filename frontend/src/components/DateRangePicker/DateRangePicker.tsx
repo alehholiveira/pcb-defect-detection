@@ -70,7 +70,7 @@ export function DateRangePicker({
           endDate={dateRange[1]}
           onChange={onChange}
           isClearable={true}
-          placeholderText={t('dateRangePicker.placeholder', 'Selecione o período...')}
+          placeholderText={t('dateRangePicker.placeholder')}
           className="date-range-picker__input"
           dateFormat={i18n.language.startsWith('pt') ? 'dd/MM/yyyy' : 'MM/dd/yyyy'}
         />

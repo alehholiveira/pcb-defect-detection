@@ -65,7 +65,7 @@ export function Settings() {
     if (!trimmedEmail) return;
 
     if (!isValidEmail(trimmedEmail)) {
-      addToast(t('settings.emails.toast.invalidFormat', 'E-mail inválido'), 'error');
+      addToast(t('settings.emails.toast.invalidFormat'), 'error');
       return;
     }
 
@@ -183,7 +183,7 @@ export function Settings() {
                         className="settings-emails__delete-btn"
                         onClick={() => handleRemoveEmail(email.id)}
                         disabled={emailsLoading}
-                        aria-label={t('settings.emails.removeAriaLabel', 'Remove recipient {{email}}', { email: email.email })}
+                        aria-label={t('settings.emails.removeAriaLabel', { email: email.email })}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -263,7 +263,7 @@ export function Settings() {
               size="sm"
               onClick={() => { setIsModalOpen(false); setNewEmail(''); }}
             >
-              {t('common.cancel', 'Cancelar')}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"

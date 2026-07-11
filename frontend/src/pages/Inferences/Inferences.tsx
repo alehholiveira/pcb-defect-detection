@@ -40,13 +40,10 @@ export function Inferences() {
       <div className="inferences-page__header">
         <div>
           <h1 className="inferences-page__title">
-            {t('inference.page.title', 'Inferência')}
+            {t('inference.page.title')}
           </h1>
           <p className="inferences-page__subtitle">
-            {t(
-              'inference.page.subtitle',
-              'Execute modelos de detecção de defeitos em imagens de PCB'
-            )}
+            {t('inference.page.subtitle')}
           </p>
         </div>
       </div>

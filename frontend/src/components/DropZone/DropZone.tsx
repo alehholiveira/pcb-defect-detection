@@ -161,7 +161,7 @@ export function DropZone({
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={disabled ? -1 : 0}
-      aria-label={t('dropzone.ariaLabel', 'Área de upload de arquivos')}
+      aria-label={t('dropzone.ariaLabel')}
       aria-disabled={disabled}
     >
       <input
@@ -181,19 +181,16 @@ export function DropZone({
         </div>
         <div className="dropzone__text-content">
           <p className="dropzone__title">
-            {t(
-              'dropzone.title',
-              'Arraste e solte seus arquivos aqui ou clique para selecionar',
-            )}
+            {t('dropzone.title', )}
           </p>
           <p className="dropzone__hint">
-            {t('dropzone.hint', 'Formatos aceitos: {{formats}} — Máx. {{maxSize}}', {
+            {t('dropzone.hint', {
               formats: formatAcceptedTypes(),
               maxSize: formatMaxSize(),
             })}
             {maxFiles &&
-              ` — ${t('dropzone.maxFiles', 'Máx. {{count}} arquivo(s)', {
-                count: maxFiles,
+              ` — ${t('dropzone.maxFiles', {
+                total: maxFiles,
               })}`}
           </p>
         </div>

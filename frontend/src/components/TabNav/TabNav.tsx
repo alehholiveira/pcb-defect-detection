@@ -22,7 +22,7 @@ export function TabNav() {
   const { t } = useTranslation();
 
   return (
-    <nav className="tab-nav" aria-label={t('tabs.navigation', 'Main navigation')}>
+    <nav className="tab-nav" aria-label={t('tabs.navigation')}>
       <ul className="tab-nav__list">
         {TABS.map((tab) => (
           <li key={tab.path} className="tab-nav__item">

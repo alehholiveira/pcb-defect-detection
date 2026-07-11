@@ -44,7 +44,7 @@ export function Toast({ id, message, variant, duration = 5000, onClose }: ToastP
         type="button" 
         className="toast__close" 
         onClick={() => onClose(id)}
-        aria-label={t('common.close', 'Close')}
+        aria-label={t('common.close')}
       >
         <X size={16} />
       </button>

@@ -51,7 +51,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
     <div className="metrics-charts">
       {/* TIME SERIES */}
       <div className="metrics-charts__row">
-        <Card title={t('metrics.charts.inferencesTime', 'Inferences Over Time')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.inferencesTime')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={metrics.timeSeries.inferencesOverTime}>
@@ -65,13 +65,13 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 <XAxis dataKey="date" tickFormatter={formatDateString} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
-                <Area type="monotone" name={t('metrics.summary.totalInferences', 'Inferences')} dataKey="count" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorInferences)" />
+                <Area type="monotone" name={t('metrics.summary.totalInferences')} dataKey="count" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorInferences)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card title={t('metrics.charts.defectsTime', 'Defects Over Time')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.defectsTime')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={metrics.timeSeries.defectsOverTime}>
@@ -85,7 +85,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 <XAxis dataKey="date" tickFormatter={formatDateString} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
-                <Area type="monotone" name={t('metrics.summary.totalDefects', 'Defects')} dataKey="count" stroke="#DC2626" strokeWidth={2} fillOpacity={1} fill="url(#colorDefects)" />
+                <Area type="monotone" name={t('metrics.summary.totalDefects')} dataKey="count" stroke="#DC2626" strokeWidth={2} fillOpacity={1} fill="url(#colorDefects)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -94,7 +94,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
 
       {/* DISTRIBUTION & MODELS */}
       <div className="metrics-charts__row">
-        <Card title={t('metrics.charts.defectDistribution', 'Defect Distribution')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.defectDistribution')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -119,7 +119,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
           </div>
         </Card>
 
-        <Card title={t('metrics.charts.modelUsage', 'Model Usage')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.modelUsage')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metrics.modelUsage} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -127,7 +127,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 <XAxis type="number" tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis dataKey="modelName" type="category" width={100} tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
-                <Bar dataKey="totalInferences" name={t('metrics.summary.totalInferences', 'Inferences')} fill="#16A34A" radius={[0, 4, 4, 0]} barSize={32} />
+                <Bar dataKey="totalInferences" name={t('metrics.summary.totalInferences')} fill="#16A34A" radius={[0, 4, 4, 0]} barSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -136,7 +136,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
 
       {/* CONFIDENCE & REPORTS */}
       <div className="metrics-charts__row">
-        <Card title={t('metrics.charts.confidenceByType', 'Confidence by Defect Type')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.confidenceByType')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={metrics.confidenceByDefectType} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
@@ -148,7 +148,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 {/* Min to Max Range */}
                 <Bar 
                   dataKey="maxConfidence" 
-                  name={t('metrics.charts.maxConfidence', 'Max Confidence')}
+                  name={t('metrics.charts.maxConfidence')}
                   fill="#14B8A6" 
                   barSize={40} 
                   radius={[4, 4, 0, 0]}
@@ -156,7 +156,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 {/* Average */}
                 <Bar 
                   dataKey="avgConfidence" 
-                  name={t('metrics.charts.avgConfidence', 'Avg Confidence')}
+                  name={t('metrics.charts.avgConfidence')}
                   fill="#0F766E" 
                   barSize={40} 
                   radius={[4, 4, 0, 0]}
@@ -167,7 +167,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
           </div>
         </Card>
 
-        <Card title={t('metrics.charts.reportsByType', 'Generated Reports')} className="metrics-charts__card">
+        <Card title={t('metrics.charts.reportsByType')} className="metrics-charts__card">
           <div className="metrics-charts__chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metrics.reports.byType} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -175,7 +175,7 @@ export function MetricsCharts({ metrics }: MetricsChartsProps) {
                 <XAxis dataKey="type" tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <YAxis tick={{fontSize: 12, fill: '#6B7280'}} tickLine={false} axisLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" name={t('nav.reports', 'Reports')} fill="#8B5CF6" radius={[4, 4, 0, 0]} barSize={48} />
+                <Bar dataKey="count" name={t('nav.reports')} fill="#8B5CF6" radius={[4, 4, 0, 0]} barSize={48} />
               </BarChart>
             </ResponsiveContainer>
           </div>

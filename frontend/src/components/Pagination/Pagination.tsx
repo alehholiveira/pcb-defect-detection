@@ -67,23 +67,23 @@ export function Pagination({
     <div className={`pagination ${className}`}>
       {/* Left: Result count */}
       <span className="pagination__info">
-        {t('pagination.showing', 'Mostrando')}{' '}
+        {t('pagination.showing')}{' '}
         <strong>{startItem}</strong>{' '}
-        {t('pagination.to', 'a')}{' '}
+        {t('pagination.to')}{' '}
         <strong>{endItem}</strong>{' '}
-        {t('pagination.of', 'de')}{' '}
+        {t('pagination.of')}{' '}
         <strong>{totalItems}</strong>{' '}
-        {t('pagination.results', 'resultados')}
+        {t('pagination.results')}
       </span>
 
       {/* Center: Page buttons */}
-      <nav className="pagination__nav" aria-label={t('pagination.ariaLabel', 'Paginação')}>
+      <nav className="pagination__nav" aria-label={t('pagination.ariaLabel')}>
         <button
           type="button"
           className="pagination__btn pagination__btn--arrow"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
-          aria-label={t('pagination.previous', 'Página anterior')}
+          aria-label={t('pagination.previous')}
         >
           <ChevronLeft size={16} />
         </button>
@@ -113,7 +113,7 @@ export function Pagination({
           className="pagination__btn pagination__btn--arrow"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
-          aria-label={t('pagination.next', 'Próxima página')}
+          aria-label={t('pagination.next')}
         >
           <ChevronRight size={16} />
         </button>
@@ -123,7 +123,7 @@ export function Pagination({
       {onItemsPerPageChange && (
         <div className="pagination__per-page">
           <label htmlFor="pagination-per-page" className="pagination__per-page-label">
-            {t('pagination.rowsPerPage', 'Linhas por página:')}
+            {t('pagination.rowsPerPage')}
           </label>
           <select
             id="pagination-per-page"

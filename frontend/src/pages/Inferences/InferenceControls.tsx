@@ -37,14 +37,11 @@ export function InferenceControls({
       <div className="inference-controls">
         <div className="inference-controls__model">
           <Select
-            label={t('inference.controls.model', 'Modelo de Detecção')}
+            label={t('inference.controls.model')}
             options={modelOptions}
             value={selectedModel}
             onChange={onModelChange}
-            placeholder={t(
-              'inference.controls.selectModel',
-              'Selecionar modelo...'
-            )}
+            placeholder={t('inference.controls.selectModel')}
           />
         </div>
 
@@ -66,21 +63,21 @@ export function InferenceControls({
             disabled={fileCount === 0 || isLoading}
           >
             <Play />
-            {t('inference.controls.run', 'Executar Inferência')}
+            {t('inference.controls.run')}
           </button>
           {fileCount > 0 && (
             <div className="inference-controls__file-info">
               <span className="inference-controls__file-count">
-                {t('inference.controls.fileCount', '{{count}} imagem(ns) selecionada(s)', {
-                  count: fileCount,
+                {t('inference.controls.fileCount', {
+                  total: fileCount,
                 })}
               </span>
               {onClearFiles && (
                 <button 
                   className="inference-controls__clear-btn" 
                   onClick={onClearFiles}
-                  title={t('inference.controls.clearFiles', 'Limpar imagens')}
-                  aria-label={t('inference.controls.clearFiles', 'Limpar imagens')}
+                  title={t('inference.controls.clearFiles')}
+                  aria-label={t('inference.controls.clearFiles')}
                 >
                   <X size={14} />
                 </button>

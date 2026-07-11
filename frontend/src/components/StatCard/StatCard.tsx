@@ -31,7 +31,7 @@ export function StatCard({
   const { fg, bg } = COLOR_MAP[color];
 
   return (
-    <div className="stat-card" role="group" aria-label={t('statCard.group', '{{label}} statistic', { label })}>
+    <div className="stat-card" role="group" aria-label={t('statCard.group', { label })}>
       <div
         className="stat-card__icon"
         style={{ backgroundColor: bg, color: fg }}

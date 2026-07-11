@@ -19,13 +19,10 @@ export function InferenceLoading({ isLoading }: InferenceLoadingProps) {
           <div className="inference-loading__ring" />
         </div>
         <h3 className="inference-loading__title">
-          {t('inference.loading.title', 'Analisando defeitos PCB...')}
+          {t('inference.loading.title')}
         </h3>
         <p className="inference-loading__description">
-          {t(
-            'inference.loading.description',
-            'O modelo de inteligência artificial está processando as imagens. Isso pode levar alguns segundos.'
-          )}
+          {t('inference.loading.description')}
         </p>
         <div className="inference-loading__progress">
           <div className="inference-loading__dots">

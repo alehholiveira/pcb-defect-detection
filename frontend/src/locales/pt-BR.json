@@ -106,7 +106,8 @@
     "view": "Visualizar",
     "download": "Baixar",
     "close": "Fechar",
-    "language": "Idioma"
+    "language": "Idioma",
+    "comingSoon": "Funcionalidade em breve!"
   },
   "inference": {
     "page": {
@@ -116,7 +117,7 @@
     "controls": {
       "model": "Modelo de Detecção",
       "run": "Executar Inferência",
-      "fileCount": "{{count}} imagem(ns) selecionada(s)",
+      "fileCount": "{{total}} imagem(ns) selecionada(s)",
       "selectModel": "Selecionar modelo...",
       "clearFiles": "Limpar imagens"
     },
@@ -133,10 +134,10 @@
     "results": {
       "title": "Resultados da Inferência",
       "completed": "Concluído",
-      "processed": "{{count}} imagem(ns) processada(s) em {{time}}s",
+      "processed": "{{total}} imagem(ns) processada(s) em {{time}}s",
       "original": "Imagem Original",
       "annotated": "Detecções",
-      "detectionsCount": "{{count}} detecção(ões)",
+      "detectionsCount": "{{total}} detecção(ões)",
       "summary": "Resumo das Detecções",
       "noDefects": "Nenhum defeito detectado",
       "total": "Total",
@@ -182,12 +183,13 @@
       "emptyDesc": "Execute uma inferência para ver os resultados aqui.",
       "selectAll": "Selecionar Todas",
       "generateReport": "Gerar Relatório",
+      "selectRow": "Selecionar linha {{id}}",
       "modal": {
         "title": "Gerar Relatório Manual",
         "reportNameLabel": "Nome do Relatório",
         "reportNamePlaceholder": "Ex.: Lote de Inspeção #42",
-        "inferencesIncluded": "{{count}} inferência(s) será(ão) incluída(s) no relatório.",
-        "allInferencesIncluded": "Todas as {{count}} inferência(s) que correspondem aos filtros atuais serão incluídas.",
+        "inferencesIncluded": "{{total}} inferência(s) será(ão) incluída(s) no relatório.",
+        "allInferencesIncluded": "Todas as {{total}} inferência(s) que correspondem aos filtros atuais serão incluídas.",
         "confirm": "Gerar Relatório",
         "cancel": "Cancelar"
       }
@@ -233,7 +235,8 @@
       "toast": {
         "added": "E-mail adicionado. Verifique a caixa de entrada para confirmar.",
         "removed": "E-mail removido com sucesso.",
-        "error": "Erro ao processar a solicitação."
+        "error": "Erro ao processar a solicitação.",
+        "invalidFormat": "E-mail inválido"
       },
       "removeAriaLabel": "Remover destinatário {{email}}"
     },
@@ -403,8 +406,8 @@
   },
   "dropzone": {
     "title": "Arraste e solte suas imagens aqui ou clique para selecionar",
-    "hint": "Suporta JPG, PNG ou JPEG. Máximo de {{count}} arquivos de até 10MB.",
-    "maxFiles": "Máx. {{count}} arquivo(s)",
+    "hint": "Formatos aceitos: {{formats}} — Máx. {{maxSize}}",
+    "maxFiles": "Máx. {{total}} arquivo(s)",
     "ariaLabel": "Área de upload de imagens"
   },
   "pagination": {

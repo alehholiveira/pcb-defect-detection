@@ -99,7 +99,7 @@ export function InferenceHistory({
   }, [isIndeterminate])
 
   const modelOptions = [
-    { value: '', label: t('inference.history.filter.allModels', 'Todos os Modelos') },
+    { value: '', label: t('inference.history.filter.allModels') },
     ...AVAILABLE_MODELS.map(m => ({ value: m.value, label: m.label }))
   ]
 
@@ -142,7 +142,7 @@ export function InferenceHistory({
 
   const submitGenerateReport = useCallback(async () => {
     if (!reportName.trim()) {
-      addToast(t('toast.reportNameRequired', 'Por favor, forneça um nome para o relatório.'), 'warning')
+      addToast(t('toast.reportNameRequired'), 'warning')
       return
     }
 
@@ -151,11 +151,11 @@ export function InferenceHistory({
       const payload = getRequestPayload(reportName.trim(), historyFilters)
       await generateReport(payload)
       
-      addToast(t('toast.reportRequested', 'Geração do relatório solicitada com sucesso!'), 'success')
+      addToast(t('toast.reportRequested'), 'success')
       setIsModalOpen(false)
       clearSelection()
     } catch (error) {
-      addToast(t('toast.reportRequestFailed', 'Falha ao solicitar a geração do relatório. Tente novamente.'), 'error')
+      addToast(t('toast.reportRequestFailed'), 'error')
       console.error(error)
     } finally {
       setIsSubmitting(false)
@@ -174,7 +174,7 @@ export function InferenceHistory({
               checked={isAllSelected}
               onChange={toggleSelectAll}
               className="inference-history__checkbox"
-              aria-label={t('inference.history.selectAll', 'Selecionar Todas')}
+              aria-label={t('inference.history.selectAll')}
             />
           </div>
         ),
@@ -186,14 +186,14 @@ export function InferenceHistory({
               checked={isSelected(row.id)}
               onChange={() => toggleSelect(row.id)}
               className="inference-history__checkbox"
-              aria-label={t('inference.history.selectRow', 'Select {{id}}', { id: row.id })}
+              aria-label={t('inference.history.selectRow', { id: row.id })}
             />
           </div>
         )
       },
       {
         key: 'id',
-        label: t('inference.history.columns.id', 'ID'),
+        label: t('inference.history.columns.id'),
         width: '100px',
         sortable: true,
         render: (_: number, row: Inference) => (
@@ -202,13 +202,13 @@ export function InferenceHistory({
       },
       {
         key: 'created_at',
-        label: t('inference.history.columns.date', 'Data'),
+        label: t('inference.history.columns.date'),
         sortable: true,
         render: (value: string) => formatDateTime(value),
       },
       {
         key: 'model_name',
-        label: t('inference.history.columns.model', 'Modelo'),
+        label: t('inference.history.columns.model'),
         sortable: true,
         render: (value: string) => (
           <span className="inference-history__model">{value}</span>
@@ -216,68 +216,68 @@ export function InferenceHistory({
       },
       {
         key: 'images',
-        label: t('inference.history.columns.images', 'Imagens'),
+        label: t('inference.history.columns.images'),
         width: '90px',
         sortable: true,
         render: (_: unknown, row: Inference) => row.images.length,
       },
       {
         key: 'total_detections',
-        label: t('inference.history.columns.defects', 'Defeitos'),
+        label: t('inference.history.columns.defects'),
         width: '90px',
         sortable: true,
       },
       {
         key: 'avg_confidence',
-        label: t('inference.history.columns.avgConfidence', 'Confiança Média'),
+        label: t('inference.history.columns.avgConfidence'),
         width: '140px',
         sortable: true,
         render: (_: unknown, row: Inference) => computeAvgConfidence(row),
       },
       {
         key: 'inference_time_ms',
-        label: t('inference.history.columns.execTime', 'Tempo'),
+        label: t('inference.history.columns.execTime'),
         width: '100px',
         sortable: true,
         render: (value: number) => `${(value / 1000).toFixed(2)}s`,
       },
       {
         key: 'status',
-        label: t('inference.history.columns.status', 'Status'),
+        label: t('inference.history.columns.status'),
         width: '110px',
         render: () => (
           <Badge variant="success" dot>
-            {t('inference.history.status.completed', 'Concluído')}
+            {t('inference.history.status.completed')}
           </Badge>
         ),
       },
       {
         key: 'actions',
-        label: t('inference.history.columns.actions', 'Ações'),
+        label: t('inference.history.columns.actions'),
         width: '120px',
         render: (_: unknown, row: Inference) => (
           <div className="inference-history__actions">
             <button
               className="inference-history__action-btn"
-              aria-label={t('inference.history.view', 'Visualizar')}
-              title={t('inference.history.view', 'Visualizar')}
+              aria-label={t('inference.history.view')}
+              title={t('inference.history.view')}
               onClick={() => onReplayInference && onReplayInference(row.id)}
             >
               <Eye size={16} />
             </button>
             <button
               className="inference-history__action-btn"
-              aria-label={t('inference.history.download', 'Baixar')}
-              title={t('inference.history.download', 'Baixar')}
-              onClick={() => addToast(t('common.comingSoon', 'Funcionalidade em breve!'), 'info')}
+              aria-label={t('inference.history.download')}
+              title={t('inference.history.download')}
+              onClick={() => addToast(t('common.comingSoon'), 'info')}
             >
               <Download size={16} />
             </button>
             <button
               className="inference-history__action-btn inference-history__action-btn--danger"
-              aria-label={t('inference.history.delete', 'Excluir')}
-              title={t('inference.history.delete', 'Excluir')}
-              onClick={() => addToast(t('common.comingSoon', 'Funcionalidade em breve!'), 'info')}
+              aria-label={t('inference.history.delete')}
+              title={t('inference.history.delete')}
+              onClick={() => addToast(t('common.comingSoon'), 'info')}
             >
               <Trash2 size={16} />
             </button>
@@ -328,21 +328,21 @@ export function InferenceHistory({
   return (
     <div className="inference-history__page-container">
       <div className="inference-history__page-header">
-        <h1 className="inference-history__page-title">{t('inference.history.title', 'Histórico de Inferências')}</h1>
-        <p className="inference-history__page-subtitle">{t('inference.history.subtitle', 'Visualize e gerencie inferências anteriores')}</p>
+        <h1 className="inference-history__page-title">{t('inference.history.title')}</h1>
+        <p className="inference-history__page-subtitle">{t('inference.history.subtitle')}</p>
       </div>
 
       <Card className="inference-history__filters-card">
         <div className="inference-history__filters-row">
           <DateRangePicker
-            label={t('inference.history.filter.period', 'Período')}
+            label={t('inference.history.filter.period')}
             startDate={localFilters.startDate ?? ''}
             endDate={localFilters.endDate ?? ''}
             onStartDateChange={(val) => setLocalFilters(prev => ({ ...prev, startDate: val || undefined }))}
             onEndDateChange={(val) => setLocalFilters(prev => ({ ...prev, endDate: val || undefined }))}
           />
           <Select
-            label={t('inference.history.filter.model', 'Modelo')}
+            label={t('inference.history.filter.model')}
             options={modelOptions}
             value={localFilters.modelName ?? ''}
             onChange={(val) => setLocalFilters(prev => ({ ...prev, modelName: val || undefined }))}
@@ -355,24 +355,21 @@ export function InferenceHistory({
             onClick={handleResetFilters}
             className="inference-history__filters-clear"
           >
-            {t('inference.history.filter.reset', 'Resetar')}
+            {t('inference.history.filter.reset')}
           </Button>
           <Button
             variant="primary"
             icon={<Filter size={16} />}
             onClick={handleApplyFilters}
           >
-            {t('inference.history.filter.apply', 'Aplicar')}
+            {t('inference.history.filter.apply')}
           </Button>
         </div>
       </Card>
 
       <Card
-        title={t('inference.history.title', 'Histórico de Inferências')}
-        subtitle={t(
-          'inference.history.subtitle',
-          'Visualize e gerencie inferências anteriores'
-        )}
+        title={t('inference.history.title')}
+        subtitle={t('inference.history.subtitle')}
         headerAction={
           <div className="inference-history__header-actions">
             <div className="inference-history__generate-btn">
@@ -382,9 +379,9 @@ export function InferenceHistory({
                 icon={<FileText size={16} />}
                 disabled={selectionMode === 'none'}
                 onClick={handleGenerateReportClick}
-                aria-label={t('inference.history.generateReport', 'Gerar Relatório')}
+                aria-label={t('inference.history.generateReport')}
               >
-                {t('inference.history.generateReport', 'Gerar Relatório')}
+                {t('inference.history.generateReport')}
               </Button>
               {selectionMode !== 'none' && (
                 <span className="inference-history__selection-badge">
@@ -397,9 +394,9 @@ export function InferenceHistory({
               size="sm"
               icon={<RefreshCcw size={16} />}
               onClick={() => { clearSelection(); onFetchHistory(); }}
-              aria-label={t('inference.history.refresh', 'Atualizar')}
+              aria-label={t('inference.history.refresh')}
             >
-              {t('inference.history.refresh', 'Atualizar')}
+              {t('inference.history.refresh')}
             </Button>
           </div>
         }
@@ -411,14 +408,8 @@ export function InferenceHistory({
           sortField={sortConfig.key}
           sortOrder={sortConfig.order}
           onSort={handleSort}
-          emptyMessage={t(
-            'inference.history.empty',
-            'Nenhuma inferência encontrada'
-          )}
-          emptyDescription={t(
-            'inference.history.emptyDesc',
-            'Execute uma inferência para ver os resultados aqui.'
-          )}
+          emptyMessage={t('inference.history.empty')}
+          emptyDescription={t('inference.history.emptyDesc')}
         />
 
         {meta && meta.totalPages > 0 && (
@@ -438,20 +429,20 @@ export function InferenceHistory({
       <Modal
         open={isModalOpen}
         onClose={() => !isSubmitting && setIsModalOpen(false)}
-        title={t('inference.history.modal.title', 'Gerar Relatório Manual')}
+        title={t('inference.history.modal.title')}
         size="md"
       >
         <div className="inference-history__modal-content">
           <p className="inference-history__modal-text">
             {selectionMode === 'all' 
-              ? t('inference.history.modal.allInferencesIncluded', 'Todas as {{count}} inferência(s) que correspondem aos filtros atuais serão incluídas.', { count: selectionCount })
-              : t('inference.history.modal.inferencesIncluded', '{{count}} inferência(s) será(ão) incluída(s) no relatório.', { count: selectionCount })
+              ? t('inference.history.modal.allInferencesIncluded', { total: selectionCount })
+              : t('inference.history.modal.inferencesIncluded', { total: selectionCount })
             }
           </p>
           
           <Input
-            label={t('inference.history.modal.reportNameLabel', 'Nome do Relatório')}
-            placeholder={t('inference.history.modal.reportNamePlaceholder', 'Ex.: Lote de Inspeção #42')}
+            label={t('inference.history.modal.reportNameLabel')}
+            placeholder={t('inference.history.modal.reportNamePlaceholder')}
             value={reportName}
             onChange={setReportName}
             disabled={isSubmitting}
@@ -464,7 +455,7 @@ export function InferenceHistory({
               onClick={() => setIsModalOpen(false)}
               disabled={isSubmitting}
             >
-              {t('inference.history.modal.cancel', 'Cancelar')}
+              {t('inference.history.modal.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -472,7 +463,7 @@ export function InferenceHistory({
               disabled={isSubmitting || !reportName.trim()}
               loading={isSubmitting}
             >
-              {t('inference.history.modal.confirm', 'Gerar Relatório')}
+              {t('inference.history.modal.confirm')}
             </Button>
           </div>
         </div>

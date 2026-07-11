@@ -70,7 +70,7 @@ export function ReportTable() {
     if (url) {
       window.open(url, '_blank');
     } else {
-      addToast(t('reports.errors.downloadUrlUnavailable', 'Download URL not available.'), 'error');
+      addToast(t('reports.errors.downloadUrlUnavailable'), 'error');
     }
   }, [addToast, t]);
 
@@ -78,7 +78,7 @@ export function ReportTable() {
     () => [
       {
         key: 'reportName',
-        label: t('reports.columns.reportName', 'Nome do Relatório'),
+        label: t('reports.columns.reportName'),
         sortable: true,
         render: (value: string, row: ReportMetadata) => (
           <div className="report-table__name-cell">
@@ -89,14 +89,14 @@ export function ReportTable() {
       },
       {
         key: 'generatedAt',
-        label: t('reports.columns.generationDate', 'Data de Geração'),
+        label: t('reports.columns.generationDate'),
         sortable: true,
         width: '160px',
         render: (value: string) => formatDateTime(value),
       },
       {
         key: 'period',
-        label: t('reports.columns.referencePeriod', 'Período de Referência'),
+        label: t('reports.columns.referencePeriod'),
         sortable: true,
         width: '200px',
         render: (_: unknown, row: ReportMetadata) => {
@@ -107,15 +107,15 @@ export function ReportTable() {
       },
       {
         key: 'reportType',
-        label: t('reports.columns.type', 'Tipo'),
+        label: t('reports.columns.type'),
         sortable: true,
         width: '120px',
         render: (value: string) => {
           const typeMap: Record<string, { label: string; variant: 'info' | 'success' | 'warning' | 'neutral' }> = {
-            daily: { label: t('reports.daily', 'Diário'), variant: 'success' },
-            weekly: { label: t('reports.weekly', 'Semanal'), variant: 'success' },
-            monthly: { label: t('reports.monthly', 'Mensal'), variant: 'success' },
-            manual: { label: t('reports.manual', 'Manual'), variant: 'neutral' },
+            daily: { label: t('reports.daily'), variant: 'success' },
+            weekly: { label: t('reports.weekly'), variant: 'success' },
+            monthly: { label: t('reports.monthly'), variant: 'success' },
+            manual: { label: t('reports.manual'), variant: 'neutral' },
           };
           const config = typeMap[value] || { label: value, variant: 'neutral' };
           return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -123,13 +123,13 @@ export function ReportTable() {
       },
       {
         key: 'totalInferences',
-        label: t('reports.columns.inspections', 'Inspeções'),
+        label: t('reports.columns.inspections'),
         sortable: true,
         width: '100px',
       },
       {
         key: 'totalDefects',
-        label: t('reports.columns.defects', 'Defeitos'),
+        label: t('reports.columns.defects'),
         sortable: true,
         width: '100px',
         render: (value: number) => (
@@ -138,7 +138,7 @@ export function ReportTable() {
       },
       {
         key: 'defectsByType',
-        label: t('reports.columns.defectsByType', 'Defeitos por Tipo'),
+        label: t('reports.columns.defectsByType'),
         width: '160px',
         render: (value: Record<string, number>) => {
           if (!value || Object.keys(value).length === 0) return '-';
@@ -170,25 +170,25 @@ export function ReportTable() {
       },
       {
         key: 'generatedBy',
-        label: t('reports.columns.generatedBy', 'Gerado Por'),
+        label: t('reports.columns.generatedBy'),
         sortable: true,
         width: '180px',
         render: (value: string) => {
-          if (value === 'system') return t('reports.generatedBySystem', 'Sistema (Automático)');
-          if (value === 'manual') return t('reports.generatedByManual', 'Manual');
+          if (value === 'system') return t('reports.generatedBySystem');
+          if (value === 'manual') return t('reports.generatedByManual');
           return value;
         },
       },
       {
         key: 'actions',
-        label: t('reports.columns.actions', 'Ações'),
+        label: t('reports.columns.actions'),
         width: '80px',
         render: (_: unknown, row: ReportMetadata) => (
           <div className="report-table__actions">
             <button
               className="report-table__action-btn"
-              aria-label={t('reports.download', 'Download')}
-              title={t('reports.download', 'Download')}
+              aria-label={t('reports.download')}
+              title={t('reports.download')}
               onClick={() => handleDownload(row.downloadUrl)}
             >
               <Download size={16} />
@@ -241,21 +241,21 @@ export function ReportTable() {
   return (
     <div className="report-table__page-container">
       <div className="report-table__page-header">
-        <h1 className="report-table__page-title">{t('reports.title', 'Relatórios')}</h1>
-        <p className="report-table__page-subtitle">{t('reports.subtitle', 'Visualize e gerencie todos os relatórios de inspeção gerados no sistema.')}</p>
+        <h1 className="report-table__page-title">{t('reports.title')}</h1>
+        <p className="report-table__page-subtitle">{t('reports.subtitle')}</p>
       </div>
 
       <Card className="report-table__filters-card">
         <div className="report-table__filters-row">
           <DateRangePicker
-            label={t('reports.period', 'Período')}
+            label={t('reports.period')}
             startDate={localFilters.startDate ?? ''}
             endDate={localFilters.endDate ?? ''}
             onStartDateChange={(val) => setLocalFilters((prev) => ({ ...prev, startDate: val || undefined }))}
             onEndDateChange={(val) => setLocalFilters((prev) => ({ ...prev, endDate: val || undefined }))}
           />
           <Select
-            label={t('reports.reportType', 'Tipo de Relatório')}
+            label={t('reports.reportType')}
             options={REPORT_TYPE_OPTIONS.map((opt) => ({ ...opt, label: t(opt.label) }))}
             value={localFilters.reportType || ''}
             onChange={(val) =>
@@ -269,17 +269,17 @@ export function ReportTable() {
 
         <div className="report-table__filters-actions">
           <Button variant="secondary" onClick={handleResetFilters}>
-            {t('reports.clearFilters', 'Limpar Filtros')}
+            {t('reports.clearFilters')}
           </Button>
           <Button variant="primary" icon={<Filter size={16} />} onClick={handleApplyFilters}>
-            {t('reports.applyFilters', 'Aplicar Filtros')}
+            {t('reports.applyFilters')}
           </Button>
         </div>
       </Card>
 
       <Card
-        title={t('reports.generated', 'Relatórios Gerados')}
-        subtitle={`${totalItems} ${t('reports.title', 'Relatórios').toLowerCase()}`}
+        title={t('reports.generated')}
+        subtitle={`${totalItems} ${t('reports.title').toLowerCase()}`}
         headerAction={
           <div className="report-table__header-actions">
             <Button
@@ -287,12 +287,12 @@ export function ReportTable() {
               size="sm"
               icon={<RefreshCcw size={16} />}
               onClick={fetchReports}
-              aria-label={t('reports.refresh', 'Atualizar')}
+              aria-label={t('reports.refresh')}
             >
-              {t('reports.refresh', 'Atualizar')}
+              {t('reports.refresh')}
             </Button>
             <Input
-              placeholder={t('reports.search', 'Buscar relatório...')}
+              placeholder={t('reports.search')}
               icon={<Search size={16} />}
               value={searchValue}
               onChange={(v) => setSearchValue(v)}
@@ -309,11 +309,8 @@ export function ReportTable() {
           sortField={sortConfig.key}
           sortOrder={sortConfig.order}
           onSort={handleSort}
-          emptyMessage={t('reports.empty', 'Nenhum relatório encontrado')}
-          emptyDescription={t(
-            'reports.emptyDesc',
-            'Os relatórios aparecerão aqui assim que forem gerados automática ou manualmente.'
-          )}
+          emptyMessage={t('reports.empty')}
+          emptyDescription={t('reports.emptyDesc')}
         />
 
         {meta && meta.totalPages > 0 && (
