@@ -70,9 +70,9 @@ export function ReportTable() {
     if (url) {
       window.open(url, '_blank');
     } else {
-      addToast(t('reports.errors.downloadUrlUnavailable'), 'error');
+      addToast('reports.errors.downloadUrlUnavailable', 'error');
     }
-  }, [addToast, t]);
+  }, [addToast]);
 
   const columns = useMemo(
     () => [

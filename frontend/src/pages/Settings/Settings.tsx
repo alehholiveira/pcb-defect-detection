@@ -65,13 +65,13 @@ export function Settings() {
     if (!trimmedEmail) return;
 
     if (!isValidEmail(trimmedEmail)) {
-      addToast(t('settings.emails.toast.invalidFormat'), 'error');
+      addToast('settings.emails.toast.invalidFormat', 'error');
       return;
     }
 
     try {
       await addEmail(trimmedEmail);
-      addToast(t('settings.emails.toast.added'), 'success');
+      addToast('settings.emails.toast.added', 'success');
       setNewEmail('');
       setIsModalOpen(false);
     } catch (err: unknown) {
@@ -84,9 +84,9 @@ export function Settings() {
     if (!window.confirm(t('settings.emails.deleteConfirm'))) return;
     try {
       await removeEmail(id);
-      addToast(t('settings.emails.toast.removed'), 'success');
+      addToast('settings.emails.toast.removed', 'success');
     } catch {
-      addToast(t('settings.emails.toast.error'), 'error');
+      addToast('settings.emails.toast.error', 'error');
     }
   };
 
@@ -102,9 +102,9 @@ export function Settings() {
     try {
       await saveSchedules(effectiveSchedules);
       setLocalSchedules(null);
-      addToast(t('settings.schedules.toast.saved'), 'success');
+      addToast('settings.schedules.toast.saved', 'success');
     } catch {
-      addToast(t('settings.schedules.toast.error'), 'error');
+      addToast('settings.schedules.toast.error', 'error');
     }
   };
 

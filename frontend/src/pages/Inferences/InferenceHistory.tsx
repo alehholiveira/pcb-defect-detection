@@ -143,7 +143,7 @@ export function InferenceHistory({
 
   const submitGenerateReport = useCallback(async () => {
     if (!reportName.trim()) {
-      addToast(t('toast.reportNameRequired'), 'warning')
+      addToast('toast.reportNameRequired', 'warning')
       return
     }
 
@@ -152,11 +152,11 @@ export function InferenceHistory({
       const payload = getRequestPayload(reportName.trim(), historyFilters)
       await generateReport(payload)
       
-      addToast(t('toast.reportRequested'), 'success')
+      addToast('toast.reportRequested', 'success')
       setIsModalOpen(false)
       clearSelection()
     } catch (error) {
-      addToast(t('toast.reportRequestFailed'), 'error')
+      addToast('toast.reportRequestFailed', 'error')
       console.error(error)
     } finally {
       setIsSubmitting(false)
@@ -168,12 +168,12 @@ export function InferenceHistory({
     setIsSubmitting(true)
     try {
       await deleteInference(inferenceToDelete)
-      addToast(t('toast.inferenceDeleted'), 'success')
+      addToast('toast.inferenceDeleted', 'success')
       setInferenceToDelete(null)
       clearSelection()
       await onFetchHistory()
     } catch (error) {
-      addToast(t('toast.inferenceDeleteFailed'), 'error')
+      addToast('toast.inferenceDeleteFailed', 'error')
       console.error(error)
     } finally {
       setIsSubmitting(false)

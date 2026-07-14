@@ -432,8 +432,13 @@
     "logoAlt": "PCB Defect Detection",
     "language": "Language",
     "selectLanguage": "Select language",
-    "help": "Help",
     "notifications": "Notifications"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "clearAll": "Clear all",
+    "justNow": "Just now"
   },
   "modal": {
     "dialog": "Dialog window",

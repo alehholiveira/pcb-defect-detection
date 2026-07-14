@@ -432,8 +432,13 @@
     "logoAlt": "Detecção de Defeitos em PCB",
     "language": "Idioma",
     "selectLanguage": "Selecione o idioma",
-    "help": "Ajuda",
     "notifications": "Notificações"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "empty": "Nenhuma notificação",
+    "clearAll": "Limpar tudo",
+    "justNow": "Agora mesmo"
   },
   "modal": {
     "dialog": "Janela de diálogo",

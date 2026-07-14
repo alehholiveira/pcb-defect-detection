@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, HelpCircle, Bell, Check } from 'lucide-react';
+import { Globe, Bell, Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotifications } from '../../contexts/NotificationContext';
+import { NotificationDropdown } from './NotificationDropdown';
 import logo from '../../assets/logo.png';
 import './Navbar.css';
 
@@ -17,8 +19,11 @@ const LANGUAGES = [
 export function Navbar({ title }: NavbarProps) {
   const { t } = useTranslation();
   const { language, changeLanguage } = useLanguage();
+  const { unreadCount, markAllAsRead } = useNotifications();
   const [langOpen, setLangOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -29,6 +34,23 @@ export function Navbar({ title }: NavbarProps) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleToggleNotifications = () => {
+    if (!notifOpen) {
+      markAllAsRead();
+    }
+    setNotifOpen(!notifOpen);
+  };
 
   return (
     <header className="navbar">
@@ -69,19 +91,22 @@ export function Navbar({ title }: NavbarProps) {
           )}
         </div>
 
-        <button
-          className="navbar__icon-btn"
-          aria-label={t('navbar.help')}
-        >
-          <HelpCircle size={20} />
-        </button>
-
-        <button
-          className="navbar__icon-btn"
-          aria-label={t('navbar.notifications')}
-        >
-          <Bell size={20} />
-        </button>
+        <div className="navbar__notif" ref={notifRef}>
+          <button
+            className="navbar__icon-btn navbar__icon-btn--notif"
+            onClick={handleToggleNotifications}
+            aria-label={t('navbar.notifications')}
+            aria-expanded={notifOpen}
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span className="navbar__badge">{unreadCount}</span>
+            )}
+          </button>
+          {notifOpen && (
+            <NotificationDropdown />
+          )}
+        </div>
       </div>
     </header>
   );

@@ -39,7 +39,7 @@ export function Toast({ id, message, variant, duration = 5000, onClose }: ToastP
   return (
     <div className={`toast toast--${variant}`} role="alert">
       {icons[variant]}
-      <p className="toast__message">{message}</p>
+      <p className="toast__message">{t(message)}</p>
       <button 
         type="button" 
         className="toast__close" 

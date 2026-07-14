@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import { Navbar } from './components/Navbar';
 import { TabNav } from './components/TabNav';
 import { Inferences } from './pages/Inferences';
@@ -41,16 +42,18 @@ export function App() {
   return (
     <BrowserRouter>
       <LanguageProvider>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Navigate to="/inferences" replace />} />
-            <Route path="/inferences" element={<Inferences />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/metrics" element={<Metrics />} />
-            <Route path="/models" element={<Models />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-        </Routes>
+        <NotificationProvider>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Navigate to="/inferences" replace />} />
+              <Route path="/inferences" element={<Inferences />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/metrics" element={<Metrics />} />
+              <Route path="/models" element={<Models />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </NotificationProvider>
       </LanguageProvider>
     </BrowserRouter>
   );
