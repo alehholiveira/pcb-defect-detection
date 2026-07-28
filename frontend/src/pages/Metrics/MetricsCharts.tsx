@@ -15,6 +15,14 @@ interface MetricsChartsProps {
 
 const COLORS = ['#16A34A', '#3B82F6', '#F59E0B', '#DC2626', '#8B5CF6', '#EC4899'];
 
+/**
+ * Renders interactive charts for metrics visualization.
+ * 
+ * Data Transformation Strategy:
+ * The backend API is designed to return data structures that are already optimized for Recharts.
+ * For example, time-series data is returned as an array of objects `{ date, count }`, which maps
+ * directly to the `<AreaChart data={...}>` without needing frontend-side grouping or reduction.
+ */
 export function MetricsCharts({ metrics }: MetricsChartsProps) {
   const { t } = useTranslation();
 

@@ -4,6 +4,10 @@ import { getRecipientEmails, addRecipientEmail, removeRecipientEmail, getSchedul
 import type { RecipientEmail, SchedulesMap } from '../types/settings';
 import { parseApiError } from '../utils/apiError';
 
+/**
+ * Custom hook to manage user settings, including recipient emails
+ * and notification schedules. Handles both reading and updating configurations.
+ */
 export function useSettings() {
   const { t } = useTranslation();
   const [emails, setEmails] = useState<RecipientEmail[]>([]);

@@ -28,23 +28,6 @@ from app.schemas.prediction import Detection, ImageResult, PredictionResponse
 
 logger = logging.getLogger(__name__)
 
-
-# ──────────────────────────────────────────────────────────────────────
-# Ultralytics inference (YOLO11, RT-DETR)
-# Reference: YOLOv11_inferencia.ipynb Cell 4, RT-DETR_inferencia.ipynb Cell 4
-#
-#   results = predict_model.predict(str(image_path), conf=conf,
-#                                   device=EVAL_DEVICE, verbose=False)
-#   for result in results:
-#       im_array = result.plot()
-#       im = Image.fromarray(im_array[..., ::-1])   # BGR → RGB
-#       for box in result.boxes:
-#           x1, y1, x2, y2 = box.xyxy[0].tolist()
-#           class_name = result.names[int(box.cls.item())]
-#           score = float(box.conf.item())
-# ──────────────────────────────────────────────────────────────────────
-
-
 def _infer_ultralytics(
     loaded: LoadedModel,
     image: Image.Image,
@@ -64,7 +47,9 @@ def _infer_ultralytics(
     detections: list[Detection] = []
 
     for result in results:
-        # Extract detections
+        # Extract detections. Ultralytics internally applies Non-Maximum Suppression (NMS)
+        # to remove overlapping detections of the same object based on an IoU threshold,
+        # keeping only the highest-confidence bounding box.
         for box in result.boxes:
             x1, y1, x2, y2 = box.xyxy[0].tolist()
             detections.append(
@@ -104,9 +89,16 @@ def _infer_pytorch(
 ) -> list[Detection]:
     """
     Run inference using a PyTorch/torchvision model (Faster R-CNN or RetinaNet).
-    Follows predict_single_image() from the notebooks.
+    
+    Images are preprocessed using `pil_to_tensor() / 255.0` to match expected inputs.
+    Note: Standard ImageNet normalization (mean=[0.485, 0.456, 0.406], 
+    std=[0.229, 0.224, 0.225]) is handled internally by torchvision models.
+    These values represent the statistical means and stds of the ImageNet training dataset,
+    which is required for models pretrained on ImageNet.
+    
+    Postprocessing extracts the bounding boxes and applies the confidence threshold.
     """
-    # load_image_tensor(): TF.pil_to_tensor(image).float() / 255.0
+    # Preprocess image: convert to tensor and scale to [0, 1]
     tensor = TF.pil_to_tensor(image).float() / 255.0
 
     with torch.no_grad():
@@ -232,6 +224,12 @@ async def run_batch_inference(
     4. Upload each original image to S3
     5. Build the PredictionResponse and upload result.json to S3
     6. Update image_url in DB with S3 public URLs and commit
+
+    Database Nested Creation Pattern:
+    This function uses a single transaction for data consistency. It creates the nested 
+    hierarchy (Inference -> InferenceImage -> Detection) by appending child objects to 
+    the parent's relationships before flushing. This ensures all related records are 
+    inserted together safely.
 
     If S3 upload fails at any point, session.rollback() is called
     to undo the flush and keep the database clean.

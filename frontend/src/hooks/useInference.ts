@@ -15,6 +15,21 @@ export interface FilePreview {
   name: string
 }
 
+/**
+ * Manages the inference lifecycle state machine and file handling.
+ * Lifecycle: idle → uploading (via FormData) → processing (polling backend) → completed/error.
+ * 
+ * Note on communication pattern: 
+ * We use a traditional HTTP polling mechanism (interval: 2s, max retries: 30, with automatic cleanup) 
+ * instead of WebSockets because inferences can take minutes. Polling is more resilient to network 
+ * drops, doesn't require maintaining a persistent connection, and integrates cleanly with the 
+ * stateless load balancers in our infrastructure.
+ * 
+ * Progress tracking relies on the backend returning intermediate states during the polling phase.
+ * An AbortController pattern is utilized to cancel any pending HTTP requests if the component 
+ * unmounts before the inference or history fetch completes, preventing state updates on 
+ * unmounted components.
+ */
 export interface UseInferenceReturn {
   selectedModel: string
   selectedFiles: File[]
@@ -190,6 +205,7 @@ export function useInference(): UseInferenceReturn {
   const fetchHistory = useCallback(async (signal?: AbortSignal) => {
     setHistoryLoading(true)
     try {
+      // AbortController is passed here to cancel requests on unmount
       const data = await getInferences(historyFilters, { signal })
       setHistoryData(data)
     } catch (err: unknown) {

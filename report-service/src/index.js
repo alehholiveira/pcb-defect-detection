@@ -2,19 +2,18 @@ import { validateEnv } from "./config/env.js";
 import { generateReport, generateManualReport } from "./services/reportService.js";
 import { LAMBDA_ERRORS } from "./utils/errors.js";
 
-/** Retorna a data de ontem formatada como YYYY-MM-DD */
+/** Returns yesterday's date formatted as YYYY-MM-DD */
 function getYesterdayStr() {
   const date = new Date();
   date.setDate(date.getDate() - 1);
   return date.toISOString().split("T")[0];
 }
 
-/** Retorna um array com as datas dos últimos 7 dias (Segunda a Domingo) formatadas como YYYY-MM-DD */
+/** Returns an array of dates for the last 7 days formatted as YYYY-MM-DD */
 function getLastWeekDaysStrs() {
   const dates = [];
   const today = new Date();
   
-  // Voltando 7 dias a partir de ontem
   for (let i = 7; i >= 1; i--) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
@@ -23,12 +22,13 @@ function getLastWeekDaysStrs() {
   return dates;
 }
 
-/** Retorna um array com todas as datas do mês anterior formatadas como YYYY-MM-DD */
+/** Returns an array of dates for the previous month formatted as YYYY-MM-DD */
 function getLastMonthDaysStrs() {
   const dates = [];
   const today = new Date();
   const year = today.getMonth() === 0 ? today.getFullYear() - 1 : today.getFullYear();
-  const month = today.getMonth() === 0 ? 11 : today.getMonth() - 1; // 0-indexed
+  // If January (0), roll back to December (11) of the previous year
+  const month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
   
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
   
@@ -39,19 +39,27 @@ function getLastMonthDaysStrs() {
   return dates;
 }
 
+/**
+ * Lambda handler supporting dual-trigger patterns:
+ * 1. SQS: Manual report requests. Invalid payloads (400) are swallowed to prevent DLQ loops.
+ * 2. EventBridge: Scheduled automated reports (daily, weekly, monthly).
+ * 
+ * Unexpected errors (500) are returned as HTTP responses. Depending on the event source mapping,
+ * throwing an error instead of returning it might be required for SQS to properly retry via DLQ.
+ * Currently, all errors are swallowed and returned as successful Lambda executions with error payloads.
+ */
 export const handler = async (event, context) => {
   console.log(`[index.js] handler - Init`, { requestId: context.awsRequestId, eventType: event.trigger_type || "SQS" });
   
   try {
     validateEnv();
 
-    // ── SQS Trigger (Relatório Manual) ──────────────────────────────────
+    // ── SQS Trigger (Manual Report) ──────────────────────────────────
     if ("Records" in event) {
       for (const record of event.Records) {
         console.log(`[index.js] handler - Processando mensagem SQS: ${record.messageId}`);
         const body = JSON.parse(record.body);
 
-        // Validação básica do payload
         if (!body.inferences || !Array.isArray(body.inferences) || body.inferences.length === 0) {
           throw LAMBDA_ERRORS.SQS_PAYLOAD_INVALID;
         }
@@ -69,7 +77,7 @@ export const handler = async (event, context) => {
       return { statusCode: 200, body: JSON.stringify({ message: "Relatórios manuais processados" }) };
     }
 
-    // ── EventBridge Trigger (Relatório Automático) ──────────────────────
+    // ── EventBridge Trigger (Scheduled Report) ──────────────────────
     if ("trigger_type" in event && event.trigger_type === "scheduled") {
       const reportType = event.report_type;
       console.log(`[index.js] handler - Processando relatório agendado via EventBridge. Tipo: ${reportType}`);
@@ -99,7 +107,7 @@ export const handler = async (event, context) => {
   } catch (error) {
     console.error(`[index.js] handler - Error`, error);
     
-    // Se for um erro já mapeado do nosso dicionário
+    // Return mapped errors directly
     if (error && error.code) {
       return {
         statusCode: error.statusCode,
@@ -107,7 +115,7 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Erro inesperado
+    // Return unexpected errors as 500
     return {
       statusCode: LAMBDA_ERRORS.INTERNAL_ERROR.statusCode,
       body: JSON.stringify({ ...LAMBDA_ERRORS.INTERNAL_ERROR, details: error.message }),

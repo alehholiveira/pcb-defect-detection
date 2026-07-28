@@ -12,6 +12,10 @@ interface LanguageProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Wraps the application to provide i18n language state and 
+ * translation toggling capabilities to all descendants.
+ */
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const { i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.language || 'pt-BR');

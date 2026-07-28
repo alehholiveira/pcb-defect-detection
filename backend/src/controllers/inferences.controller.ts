@@ -91,6 +91,14 @@ async function getInferenceByIdHandler(
   }
 }
 
+/**
+ * Deletes a single inference and its associated records by ID.
+ * 
+ * Note: We do NOT explicitly delete the associated image files from S3 here.
+ * Instead, S3 lifecycle rules are configured on the bucket to automatically
+ * clean up and expire objects after a designated period. This keeps the backend
+ * logic simpler and reduces the number of synchronous AWS API calls during deletion.
+ */
 async function deleteInferenceHandler(
   request: FastifyRequest,
   reply: FastifyReply

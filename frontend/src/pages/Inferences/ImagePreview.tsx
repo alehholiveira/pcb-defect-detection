@@ -10,6 +10,15 @@ interface ImagePreviewProps {
   onClearAll: () => void
 }
 
+/**
+ * Renders a grid of selected images prior to inference.
+ * 
+ * Note on rendering approach: 
+ * This component intentionally uses standard HTML `<img>` tags rather than a canvas-based 
+ * approach to maximize performance during the file selection phase. Heavy canvas operations 
+ * (like drawing bounding boxes) are deferred to the `InferenceResults` component.
+ * It uses a ResizeObserver to dynamically calculate how many thumbnails can fit.
+ */
 export function ImagePreview({
   filePreviews,
   onRemoveFile,

@@ -14,6 +14,10 @@ export interface UseMetricsReturn {
   refresh: () => Promise<void>;
 }
 
+/**
+ * Provides access to system metrics and statistics with built-in
+ * filtering capabilities and automatic data fetching on mount.
+ */
 export function useMetrics(initialFilters?: MetricsFilters): UseMetricsReturn {
   const { t } = useTranslation();
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);

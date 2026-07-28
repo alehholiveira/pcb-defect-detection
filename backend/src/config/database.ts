@@ -16,6 +16,12 @@ export const sequelize = new Sequelize({
     timestamps: true,
     underscored: true,
   },
+  /**
+   * Connection pool settings optimized to handle bursty traffic from inference operations.
+   * - max: Maximum 10 concurrent connections to avoid overwhelming the database.
+   * - acquire: Allows up to 30s to acquire a connection before throwing a timeout error.
+   * - idle: Closes connections that have been idle for 10s to free up resources.
+   */
   pool: {
     max: 10,
     min: 0,

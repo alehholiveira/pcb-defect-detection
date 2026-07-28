@@ -17,6 +17,18 @@ function buildInferenceWhere(filters: GetMetricsFilters) {
   return where;
 }
 
+/**
+ * Computes high-level summary statistics across inferences, images, and detections.
+ * 
+ * Aggregations:
+ * - `totalInferences`: COUNT of inference IDs.
+ * - `totalDefects`: SUM of total_detections from the Inference model.
+ * - `avgInferenceTimeMs`: Average inference_time_ms.
+ * - `avgConfidence`: Average confidence across all associated Detection records.
+ * 
+ * Note: We use `raw: true` in Sequelize to avoid the overhead of instantiating model
+ * instances since we only need the raw aggregated numerical results.
+ */
 export async function getSummaryMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getSummaryMetricsService - Init');
   const where = buildInferenceWhere(filters);
@@ -82,6 +94,15 @@ export async function getSummaryMetricsService(filters: GetMetricsFilters, logge
   };
 }
 
+/**
+ * Computes time-series data for inferences, defects, and confidence scores.
+ * 
+ * Usage of `literal()`:
+ * To achieve a dynamic GROUP BY based on granularity (daily, weekly, monthly), we use
+ * Sequelize's `literal()` to inject raw MySQL `DATE_FORMAT` and `DATE_SUB` expressions.
+ * This directly groups the dataset in the database engine rather than fetching all rows
+ * and grouping them in Node.js, which is significantly more memory efficient.
+ */
 export async function getTimeSeriesMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getTimeSeriesMetricsService - Init');
   const where = buildInferenceWhere(filters);
@@ -163,6 +184,13 @@ export async function getTimeSeriesMetricsService(filters: GetMetricsFilters, lo
   };
 }
 
+/**
+ * Computes the distribution of defects grouped by their classification type.
+ * 
+ * This uses Sequelize's `fn()` and `col()` to construct `COUNT(Detection.id)`.
+ * It groups the results by `class_name` and orders them in descending order to easily
+ * identify the most common defect types.
+ */
 export async function getDefectDistributionService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getDefectDistributionService - Init');
   const where = buildInferenceWhere(filters);
@@ -203,6 +231,9 @@ export async function getDefectDistributionService(filters: GetMetricsFilters, l
   });
 }
 
+/**
+ * Computes usage and average inference time statistics grouped by model name.
+ */
 export async function getModelUsageMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getModelUsageMetricsService - Init');
   const where = buildInferenceWhere(filters);
@@ -235,6 +266,10 @@ export async function getModelUsageMetricsService(filters: GetMetricsFilters, lo
   });
 }
 
+/**
+ * Computes average, minimum, and maximum confidence scores for each defect type.
+ * Acts as a model accuracy comparison across different classes.
+ */
 export async function getConfidenceByDefectTypeService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getConfidenceByDefectTypeService - Init');
   const where = buildInferenceWhere(filters);

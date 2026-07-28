@@ -5,7 +5,7 @@ import { LAMBDA_ERRORS } from "../utils/errors.js";
 
 const s3Client = new S3Client({ region: env.AWS_REGION });
 
-/** Converte o body do GetObjectCommand para um Buffer do Node */
+/** Converts the body of a GetObjectCommand to a Node Buffer */
 export async function streamToBuffer(stream) {
   const chunks = [];
   for await (const chunk of stream) {
@@ -14,7 +14,10 @@ export async function streamToBuffer(stream) {
   return Buffer.concat(chunks);
 }
 
-/** Retorna a lista de chaves JSON de inferência para uma determinada data/prefixo */
+/** 
+ * Returns the list of inference JSON keys for a given date/prefix.
+ * S3 key structure convention: {date}/{inferenceId}/result.json
+ */
 export async function listInferenceResultKeys(prefix) {
   console.log(`[s3Helper.js] listInferenceResultKeys - Init`, { prefix });
   try {
@@ -41,7 +44,11 @@ export async function listInferenceResultKeys(prefix) {
   }
 }
 
-/** Faz o download e parseia um arquivo JSON do S3 */
+/** 
+ * Downloads and parses a JSON file from S3.
+ * Error handling note: This function and getImageBufferFromS3 throw mapped LAMBDA_ERRORS,
+ * while other functions (e.g., list/upload) re-throw the original AWS SDK errors.
+ */
 export async function getJsonFromS3(key) {
   console.log(`[s3Helper.js] getJsonFromS3 - Init`, { key });
   try {
@@ -55,7 +62,7 @@ export async function getJsonFromS3(key) {
   }
 }
 
-/** Faz o download de uma imagem original do S3 */
+/** Downloads an original image from S3 and returns a Buffer */
 export async function getImageBufferFromS3(key) {
   console.log(`[s3Helper.js] getImageBufferFromS3 - Init`, { key });
   try {
@@ -69,7 +76,10 @@ export async function getImageBufferFromS3(key) {
   }
 }
 
-/** Faz upload de um Buffer de PPTX para o S3 e retorna a URL pública */
+/** 
+ * Uploads a PPTX Buffer to S3 and returns the public URL.
+ * Public URL construction assumes the bucket allows public access via: https://{bucket}.s3.amazonaws.com/{key}
+ */
 export async function uploadPptxToS3(key, buffer) {
   console.log(`[s3Helper.js] uploadPptxToS3 - Init`, { key, bufferSize: buffer.length });
   try {
@@ -88,7 +98,7 @@ export async function uploadPptxToS3(key, buffer) {
   }
 }
 
-/** Faz upload de um objeto JSON de metadados para o S3 */
+/** Uploads a JSON metadata object to S3 and returns the public URL */
 export async function uploadJsonToS3(key, data) {
   console.log(`[s3Helper.js] uploadJsonToS3 - Init`, { key });
   try {

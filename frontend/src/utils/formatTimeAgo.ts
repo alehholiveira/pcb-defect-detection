@@ -1,6 +1,12 @@
 /**
  * Format a Date object into a relative "time ago" string.
  * Uses native Intl.RelativeTimeFormat API for automatic locale support.
+ * 
+ * Threshold Logic:
+ * - < 60 seconds: Returns "just now" (avoiding "0 seconds ago")
+ * - < 60 minutes: Scales to minutes
+ * - < 24 hours: Scales to hours
+ * - >= 24 hours: Scales to days (we stop here as our data usually doesn't exceed a few days/weeks)
  */
 export function formatTimeAgo(date: Date, locale: string, t: (key: string) => string): string {
   const now = new Date();

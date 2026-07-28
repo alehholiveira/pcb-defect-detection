@@ -26,7 +26,12 @@ class Base(DeclarativeBase):
 
 
 class Inference(Base):
-    """Maps to the 'inferences' table."""
+    """
+    SQLAlchemy model representing an inference job.
+    
+    Maps to the 'inferences' table. Stores metadata about the entire batch inference,
+    including total time taken and aggregate detection count.
+    """
 
     __tablename__ = "inferences"
 
@@ -48,7 +53,12 @@ class Inference(Base):
 
 
 class InferenceImage(Base):
-    """Maps to the 'inference_images' table."""
+    """
+    SQLAlchemy model representing a single image processed during an inference job.
+    
+    Maps to the 'inference_images' table. Linked to an Inference record and contains
+    the S3 URL of the original image and total detections on this specific image.
+    """
 
     __tablename__ = "inference_images"
 
@@ -74,7 +84,12 @@ class InferenceImage(Base):
 
 
 class Detection(Base):
-    """Maps to the 'detections' table."""
+    """
+    SQLAlchemy model representing a single defect detected on an image.
+    
+    Maps to the 'detections' table. Stores the bounding box coordinates,
+    confidence score, and predicted class name for the defect.
+    """
 
     __tablename__ = "detections"
 

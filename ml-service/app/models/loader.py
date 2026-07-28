@@ -27,7 +27,12 @@ from ultralytics import YOLO, RTDETR
 
 
 class ModelName(str, Enum):
-    """Available model identifiers."""
+    """Available model identifiers.
+    
+    Supported models include:
+    - YOLO11 / RT-DETR (Ultralytics via .pt files)
+    - Faster R-CNN / RetinaNet (torchvision via pretrained backbones + custom weights)
+    """
 
     YOLO11 = "yolo11"
     FASTER_RCNN = "faster_rcnn"
@@ -73,10 +78,10 @@ def _detect_device() -> torch.device:
     """
     Detect the best available device for inference.
 
-    Mirrors pcb_utils.detect_device():
-    - CUDA → cuda:0
-    - MPS  → cpu (MPS can cause eval errors, notebooks use cpu for eval)
-    - else → cpu
+    Device selection logic:
+    - CUDA (cuda:0) is selected if available for optimal GPU performance.
+    - MPS (Apple Silicon) falls back to CPU due to compatibility issues during evaluation.
+    - CPU is the ultimate fallback for standard or unsupported hardware environments.
     """
     if torch.cuda.is_available():
         return torch.device("cuda:0")
@@ -137,7 +142,11 @@ def _load_faster_rcnn(
     device: torch.device,
     confidence_threshold: float,
 ) -> LoadedModel:
-    """Load Faster R-CNN following FasterRCNN_inferencia.ipynb."""
+    """Load Faster R-CNN from custom checkpoint.
+    
+    Requires loading the pretrained backbone first and then replacing the 
+    classification head to match the correct number of classes in the checkpoint.
+    """
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
 
     # Extract class mapping from checkpoint

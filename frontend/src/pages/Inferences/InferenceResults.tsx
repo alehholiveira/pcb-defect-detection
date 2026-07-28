@@ -46,6 +46,11 @@ function drawDetections(
 
   ctx.drawImage(img, 0, 0)
 
+  // The model API returns bounding box coordinates in absolute pixel values (x1, y1, x2, y2)
+  // relative to the original image dimensions.
+  // Because we draw the image onto the canvas at its natural (original) resolution,
+  // we do not need to apply any scaling transformations here. The CSS handles scaling
+  // the canvas down to fit the viewport, maintaining the correct aspect ratio.
   for (const det of detections) {
     const color = DEFECT_COLOR_MAP[det.class_name] ?? '#9CA3AF'
     const x = det.x1

@@ -18,6 +18,11 @@ export interface UseInferenceSelectionReturn {
   getRequestPayload: (reportName: string, filters: InferenceFilters) => GenerateReportRequest;
 }
 
+/**
+ * Manages complex selection state across paginated tables.
+ * Supports individual item selection as well as a "select all" mode
+ * that correctly accounts for explicitly excluded items.
+ */
 export function useInferenceSelection(totalInferencesFiltered: number): UseInferenceSelectionReturn {
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('none');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());

@@ -10,6 +10,17 @@ interface State {
   error: Error | null;
 }
 
+/**
+ * Catches unhandled JavaScript errors anywhere in the child component tree,
+ * logs them, and displays a fallback UI instead of crashing the whole app.
+ * 
+ * NOTE: Error Boundaries ONLY catch errors during React lifecycle methods 
+ * (render, componentDidMount, etc.). They DO NOT catch:
+ * - Asynchronous errors (e.g., failed `fetch` calls or setTimeout)
+ * - Event handler errors (e.g., clicking a button that throws)
+ * - Errors thrown in the error boundary itself
+ * For async/API errors, we use local state (`error` from hooks) and Axios interceptors.
+ */
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,

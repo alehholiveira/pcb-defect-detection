@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { LAMBDA_ERRORS } from "../utils/errors.js";
 
-// Tenta carregar do .env caso esteja rodando localmente ou empacotado no ZIP
+// Attempts to load from .env in case it's running locally or packaged in the ZIP
 dotenv.config();
 
 export const env = {

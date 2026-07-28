@@ -7,9 +7,11 @@ export const api = axios.create({
   },
 })
 
+// Intercepts all incoming responses to normalize error messages and structure.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Silently reject aborted requests (e.g. component unmount) without triggering global error handlers
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }

@@ -130,6 +130,14 @@ async function getSchedulesHandler(request: FastifyRequest, reply: FastifyReply)
   }
 }
 
+/**
+ * Updates the automated report schedules.
+ * 
+ * This handler performs a two-step synchronization:
+ * 1. Updates the schedule settings in the database.
+ * 2. Dynamically enables or disables the corresponding AWS EventBridge rules
+ *    to align the cloud infrastructure with the new database state.
+ */
 async function updateSchedulesHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const body = request.body as UpdateSchedulesBody;
   request.log.info({ body }, '[settings.controller.ts] updateSchedulesHandler - Init');

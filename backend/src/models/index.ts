@@ -6,6 +6,17 @@ import { Detection } from './Detection.js';
 import { SystemSetting } from './SystemSetting.js';
 import { RecipientEmail } from './RecipientEmail.js';
 
+/**
+ * Registers all Sequelize models and defines their relationships.
+ * 
+ * Association Graph:
+ * Inference (1) <---> (N) InferenceImage (1) <---> (N) Detection
+ * 
+ * Deletion Behavior:
+ * Both `InferenceImage` and `Detection` have `onDelete: 'CASCADE'` set in their migrations.
+ * This means deleting an `Inference` will automatically cascade and delete all associated
+ * `InferenceImage` records, which in turn cascades to all their associated `Detection` records.
+ */
 export function registerModels(): void {
   // --- Associations ---
 

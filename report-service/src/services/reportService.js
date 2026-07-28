@@ -4,6 +4,23 @@ import { PptxGenerator } from "../utils/pptxGenerator.js";
 import { sendReportEmail } from "../aws/sesHelper.js";
 import { LAMBDA_ERRORS } from "../utils/errors.js";
 
+/**
+ * Generates an automated report (daily/weekly/monthly).
+ * 
+ * Pipeline:
+ * 1. Fetch JSON metadata from S3 for target dates
+ * 2. Download original detection images from S3
+ * 3. Generate PPTX slides with bounding boxes
+ * 4. Upload PPTX and JSON metadata to S3
+ * 5. Send SES email notification
+ * 
+ * Expected JSON structure:
+ * { inferences: [ { images: [ { detections: [ { class_name, x1, y1, x2, y2, confidence } ] } ] } ] }
+ * 
+ * @param {string[]} targetDates - Array of dates in YYYY-MM-DD format
+ * @param {string} reportType - Type of report ('daily', 'weekly', 'monthly')
+ * @returns {Promise<string>} Success message
+ */
 export async function generateReport(targetDates, reportType) {
   console.log(`[reportService.js] generateReport - Init`, { targetDates, reportType });
   const allResults = [];
@@ -13,7 +30,7 @@ export async function generateReport(targetDates, reportType) {
   let totalDefects = 0;
 
   try {
-    // Busca inferências para TODAS as datas solicitadas
+    // Fetch inferences for ALL requested dates
     for (const date of targetDates) {
       const prefix = `${date}/`;
       const jsonKeys = await listInferenceResultKeys(prefix);
@@ -41,10 +58,10 @@ export async function generateReport(targetDates, reportType) {
     }
 
     if (allResults.length === 0) {
-      console.log(`[reportService.js] generateReport - Info (Nenhuma inferencia encontrada. Gerando relatorio zerado.)`);
+      console.log(`[reportService.js] generateReport - Info (No inferences found. Generating empty report.)`);
     }
 
-    // Formatar data de YYYY-MM-DD para DD/MM/YYYY
+    // Format date from YYYY-MM-DD to DD/MM/YYYY
     const formatPtBr = (dateStr) => {
       const [y, m, d] = dateStr.split('-');
       return `${d}/${m}/${y}`;
@@ -53,7 +70,6 @@ export async function generateReport(targetDates, reportType) {
     const oldest = targetDates[0];
     const newest = targetDates[targetDates.length - 1];
 
-    // Título e formatação da data dependem do tipo de relatório
     const reportTitle = reportType === 'daily' ? 'Relatório Diário' : 'Relatório Semanal';
     const periodLabel = reportType === 'daily' 
       ? formatPtBr(oldest) 
@@ -61,7 +77,6 @@ export async function generateReport(targetDates, reportType) {
 
     const pptxGen = new PptxGenerator(`${reportTitle} - ${periodLabel}`);
     
-    // Inserir logo da pasta assets
     const logoPath = "./src/assets/logo.png";
     pptxGen.addSummarySlide({ totalInferences, totalImages, totalDefects }, defectSummary, logoPath);
 
@@ -83,7 +98,7 @@ export async function generateReport(targetDates, reportType) {
     }
 
     const pptxBuffer = await pptxGen.generateBuffer();
-    // Cria um nome de arquivo que seja único por período
+    // Create a filename unique per period. Multi-day reports use newest_to_oldest format to easily identify the range in alphabetical sorting.
     const fileSuffix = reportType === 'daily' ? targetDates[0] : `${targetDates[targetDates.length - 1]}_to_${targetDates[0]}`;
     const filenameBase = `${reportType}_${fileSuffix}`;
     const reportKey = `reports/${filenameBase}.pptx`;
@@ -92,7 +107,7 @@ export async function generateReport(targetDates, reportType) {
     const reportUrl = await uploadPptxToS3(reportKey, pptxBuffer);
     console.log(`[reportService.js] generateReport - Relatório salvo no S3: ${reportUrl}`);
 
-    // Cria e salva o JSON de metadados
+    // Create and save JSON metadata
     const metadata = {
       reportName: `${reportTitle} - ${periodLabel}`,
       filename: `${filenameBase}.pptx`,
@@ -122,10 +137,11 @@ export async function generateReport(targetDates, reportType) {
 }
 
 /**
- * Gera um relatório manual a partir de uma lista de {id, date}.
- * @param {Array<{id: number, date: string}>} inferences - Pares id+data
- * @param {string} reportName - Título do relatório definido pelo usuário
- * @param {string} requestedBy - Quem solicitou ("manual")
+ * Generates a manual report from a list of {id, date}.
+ * @param {Array<{id: number, date: string}>} inferences - ID and date pairs
+ * @param {string} reportName - User-defined report title
+ * @param {string} requestedBy - Who requested the report (e.g. "manual")
+ * @returns {Promise<string>} Success message
  */
 export async function generateManualReport(inferences, reportName, requestedBy) {
   console.log(`[reportService.js] generateManualReport - Init`, { count: inferences.length, reportName, requestedBy });
@@ -172,13 +188,12 @@ export async function generateManualReport(inferences, reportName, requestedBy) 
     }
 
     if (allResults.length === 0) {
-      console.log(`[reportService.js] generateManualReport - Info (Nenhuma inferencia valida encontrada.)`);
+      console.log(`[reportService.js] generateManualReport - Info (No valid inferences found.)`);
       return "Nenhuma inferência processada";
     }
 
     const pptxGen = new PptxGenerator(reportName);
     
-    // Inserir logo
     const logoPath = "./src/assets/logo.png";
     pptxGen.addSummarySlide({ totalInferences, totalImages, totalDefects }, defectSummary, logoPath);
 
@@ -201,6 +216,7 @@ export async function generateManualReport(inferences, reportName, requestedBy) 
 
     const pptxBuffer = await pptxGen.generateBuffer();
     
+    // Replace colons and periods with hyphens to ensure S3/filesystem cross-compatibility for filenames
     const timestampIso = new Date().toISOString().replace(/[:.]/g, '-');
     const filenameBase = `manual_${timestampIso}`;
     const reportKey = `reports/${filenameBase}.pptx`;

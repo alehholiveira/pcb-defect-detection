@@ -42,6 +42,8 @@ export async function runInference(
 ): Promise<PredictionResponse> {
   validateSchema(InferenceRunSchema, { files, modelName, confidence })
 
+  // FormData is required here to properly encode the binary image data
+  // as multipart/form-data, which JSON cannot handle directly.
   const formData = new FormData()
   files.forEach((file) => {
     formData.append('files', file)

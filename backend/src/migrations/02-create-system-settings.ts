@@ -1,5 +1,10 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 
+/**
+ * Creates the system_settings table to store configuration flags
+ * such as enabling or disabling automated reports (daily, weekly, monthly).
+ * Also seeds the initial default settings.
+ */
 export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('system_settings', {
     id: {

@@ -15,7 +15,16 @@ from app.api.routes.router import api_router_ml_service
 
 
 def create_app() -> FastAPI:
-    """Application factory — creates and configures the FastAPI app."""
+    """Application factory — creates and configures the FastAPI app.
+
+    Uses the FastAPI lifespan context manager pattern to eagerly load ML models
+    during application startup. This avoids cold-start latency on the first request,
+    ensuring the API is fully responsive immediately after starting.
+
+    The loaded models are stored in `app.state.models` (the application state object),
+    which provides a global, thread-safe storage pattern accessible to all route handlers
+    without requiring global variables.
+    """
     settings = get_settings()
 
     app = FastAPI(

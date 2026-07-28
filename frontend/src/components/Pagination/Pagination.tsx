@@ -15,6 +15,17 @@ interface PaginationProps {
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
+/**
+ * Calculates the array of page buttons to render, inserting 'ellipsis' 
+ * where page gaps exist.
+ * 
+ * Algorithm:
+ * - If total pages <= 7, display all pages without ellipsis.
+ * - Otherwise, always show the first and last pages.
+ * - Calculate a dynamic sliding window `[current - 1, current + 1]`.
+ * - Insert 'ellipsis' if there's a gap between page 1 and the window start, 
+ *   or between the window end and the last page.
+ */
 function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1);

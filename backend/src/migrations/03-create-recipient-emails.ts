@@ -1,5 +1,9 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 
+/**
+ * Creates the recipient_emails table to store email addresses
+ * that are registered to receive automated defect reports.
+ */
 export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('recipient_emails', {
     id: {

@@ -36,7 +36,8 @@ async def init_db() -> bool:
             dsn,
             pool_size=5,
             max_overflow=10,
-            pool_pre_ping=True,  # Detect stale connections before use
+            pool_recycle=3600,  # Prevents stale connections when DB closes idle connections
+            pool_pre_ping=True,  # Tests connection health before using it from the pool
             echo=False,
         )
 
@@ -77,7 +78,11 @@ def get_session_factory() -> async_sessionmaker[AsyncSession] | None:
 async def get_db_session() -> AsyncSession:  # type: ignore[return]
     """
     FastAPI dependency that yields an AsyncSession per request.
-    The database is guaranteed to be available (init_db() is mandatory at startup).
+    
+    This implements the async SQLAlchemy transaction pattern. The `async with`
+    context manager ensures that the session is properly closed and returned 
+    to the connection pool after the request completes, preventing connection leaks.
+    It automatically commits on success or rolls back on exception.
     """
     factory = get_session_factory()
     if factory is None:

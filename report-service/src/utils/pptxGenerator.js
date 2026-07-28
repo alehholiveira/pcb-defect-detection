@@ -1,7 +1,11 @@
 import { createRequire } from "module";
+// Hack to import CommonJS 'pptxgenjs' module from within an ESM context
 const require = createRequire(import.meta.url);
 const pptxgen = require("pptxgenjs");
 
+/**
+ * Maps defect class names to their respective hex colors for slide styling (bounding boxes and text).
+ */
 const DEFECT_COLOR_MAP = {
   missing_hole: "EF4444",
   mouse_bite: "F97316",
@@ -11,7 +15,15 @@ const DEFECT_COLOR_MAP = {
   spurious_copper: "8B5CF6",
 };
 
+/**
+ * Generates PowerPoint (PPTX) reports for PCB defect inspections.
+ * Note: The PPTX coordinate system uses inches for all values (x, y, w, h).
+ */
 export class PptxGenerator {
+  /**
+   * Initializes a new PPTX presentation.
+   * @param {string} targetDate - The date or period string to use in titles
+   */
   constructor(targetDate) {
     console.log(`[pptxGenerator.js] constructor - Init`, { targetDate });
     this.targetDate = targetDate;
@@ -22,6 +34,12 @@ export class PptxGenerator {
     this.pres.layout = "LAYOUT_16x9";
   }
 
+  /**
+   * Adds the initial summary slide containing total counts and a defect breakdown table.
+   * @param {Object} stats - Totals for inferences, images, and defects
+   * @param {Object} defectSummary - Key-value map of defect types and their counts
+   * @param {string} [logoPath] - Path to the company logo image
+   */
   addSummarySlide(stats, defectSummary, logoPath) {
     console.log(`[pptxGenerator.js] addSummarySlide - Init`);
     const slideSum = this.pres.addSlide();
@@ -58,6 +76,17 @@ export class PptxGenerator {
     console.log(`[pptxGenerator.js] addSummarySlide - Success`);
   }
 
+  /**
+   * Adds a slide showing an image with drawn bounding boxes for each detection.
+   * Uses an aspect-ratio-preserving scaling algorithm to fit the image in a 9.0x4.3 inch area,
+   * then transforms pixel-space coordinates into PPTX inch-space using the computed scale factor.
+   * 
+   * @param {string} inferenceId - ID of the inference
+   * @param {string} imageName - Name of the image file
+   * @param {number} totalDetections - Number of defects in this image
+   * @param {Object} dimensions - Object with width, height, and base64Data
+   * @param {Array} detections - Array of defect detections with pixel coordinates
+   */
   addImageSlide(inferenceId, imageName, totalDetections, dimensions, detections) {
     const slide = this.pres.addSlide();
         
@@ -92,6 +121,7 @@ export class PptxGenerator {
       const rectW = (det.x2 - det.x1) * scale;
       const rectH = (det.y2 - det.y1) * scale;
 
+      // transparency: 100 means the rectangle fill is fully transparent (no background)
       slide.addShape(this.pres.ShapeType.rect, {
         x: rectX,
         y: rectY,
@@ -101,6 +131,7 @@ export class PptxGenerator {
         line: { color: color, width: 2 }
       });
 
+      // rectY - 0.2 places the label box 0.2 inches above the bounding box
       slide.addText(`${det.class_name} ${(det.confidence * 100).toFixed(0)}%`, {
         shape: this.pres.ShapeType.rect,
         x: rectX,
@@ -117,6 +148,10 @@ export class PptxGenerator {
     }
   }
 
+  /**
+   * Generates the final PPTX file buffer.
+   * @returns {Promise<Buffer>} The generated PPTX document as a buffer
+   */
   async generateBuffer() {
     console.log(`[pptxGenerator.js] generateBuffer - Init`);
     const buffer = await this.pres.write({ outputType: "nodebuffer" });

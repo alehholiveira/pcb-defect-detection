@@ -13,6 +13,16 @@ export interface UseReportsReturn {
   fetchReports: () => Promise<void>;
 }
 
+/**
+ * Manages the asynchronous report generation and retrieval flow.
+ * 
+ * Architecture Flow:
+ * 1. HTTP Request: Frontend sends report criteria.
+ * 2. SQS: API Gateway enqueues the request to an SQS queue.
+ * 3. Lambda: A worker Lambda processes the queue, aggregates data, and generates a PDF/CSV.
+ * 4. S3 Upload: The Lambda uploads the generated file to S3.
+ * 5. Result Available: Frontend polls/refreshes this hook to retrieve the finalized report URL.
+ */
 export function useReports(initialFilters: ReportFilters = {}): UseReportsReturn {
   const { t } = useTranslation();
   const [reportsData, setReportsData] = useState<PaginatedReports | null>(null);

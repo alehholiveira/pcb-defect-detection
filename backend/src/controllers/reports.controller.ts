@@ -75,6 +75,16 @@ async function getReportsHandler(
   }
 }
 
+/**
+ * Handles the generation of manual reports.
+ * 
+ * Architecture Flow:
+ * 1. HTTP request received with specific inference IDs or filters.
+ * 2. Backend queries the DB to resolve all matching inferences.
+ * 3. Backend sends an SQS message containing the inference references.
+ * 4. A separate AWS Lambda consumer polls the SQS queue, generates a PPTX report,
+ *    and uploads the final file to S3.
+ */
 async function generateReportHandler(
   request: FastifyRequest,
   reply: FastifyReply

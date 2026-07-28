@@ -30,6 +30,12 @@ export async function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   // --- Plugins ---
+  /**
+   * Plugin registration order is important in Fastify because plugins are encapsulated.
+   * CORS and multipart must be registered before routes so that all endpoints
+   * inherit the ability to handle cross-origin requests and file uploads.
+   * Swagger must also be registered before routes to successfully generate the OpenAPI schema.
+   */
   await app.register(cors, {
     origin: env.CORS_ORIGIN,
     credentials: true,

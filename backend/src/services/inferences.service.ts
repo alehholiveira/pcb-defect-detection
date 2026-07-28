@@ -3,6 +3,13 @@ import { Inference, InferenceImage, Detection } from '../models/index.js';
 import type { GetInferencesFilters } from '../controllers/inferences.controller.js';
 import type { FastifyBaseLogger } from 'fastify';
 
+/**
+ * Note on S3 Naming Convention:
+ * While this service queries the database for inference records, the underlying
+ * annotated images stored in S3 follow the naming convention:
+ * `inferences/{inference_id}/{timestamp}/{filename}`
+ * This structure helps avoid collisions and organizes objects logically by inference run.
+ */
 export async function getInferencesService(filters: GetInferencesFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[inferences.service.ts] getInferencesService - Init');
 

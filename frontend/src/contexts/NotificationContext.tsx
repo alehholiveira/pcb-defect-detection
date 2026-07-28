@@ -23,6 +23,11 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Provides a session-only, in-memory notification state.
+ * Notifications are destroyed when the user closes the tab or reloads,
+ * as they are not persisted to LocalStorage or any database.
+ */
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 

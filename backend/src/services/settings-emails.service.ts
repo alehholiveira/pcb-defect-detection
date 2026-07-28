@@ -27,6 +27,16 @@ export async function listRecipientEmailsService(logger: FastifyBaseLogger): Pro
   }));
 }
 
+/**
+ * Adds a new recipient email and triggers the AWS SES verification lifecycle.
+ * 
+ * Verification Lifecycle:
+ * 1. The email is saved to the local database (`RecipientEmail`).
+ * 2. An SES identity verification is triggered (`verifyEmailIdentity`).
+ * 3. AWS SES sends a verification link to the recipient.
+ * 4. Subsequent calls to `listRecipientEmailsService` poll SES for the latest
+ *    verification status (Pending, Success, Failed, etc.).
+ */
 export async function addRecipientEmailService(email: string, logger: FastifyBaseLogger): Promise<{ id: number; email: string; message: string }> {
   logger.info({ email }, '[settings-emails.service.ts] addRecipientEmailService - Init');
 

@@ -2,6 +2,14 @@ import { useState, useCallback } from 'react';
 import type { ToastData, ToastVariant } from '../components/Toast';
 import { useNotifications } from '../contexts/NotificationContext';
 
+/**
+ * Manages toast notifications with a dual-purpose architecture.
+ *
+ * When a toast is triggered, it creates a temporary visual overlay that automatically
+ * dismisses after a timeout. Simultaneously, it persists the notification data into
+ * the NotificationContext, allowing users to review past alerts (e.g., error logs or
+ * completion statuses) even after the visual toast has disappeared.
+ */
 export function useToast() {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const { addNotification } = useNotifications();

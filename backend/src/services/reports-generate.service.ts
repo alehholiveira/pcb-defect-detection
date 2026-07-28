@@ -5,6 +5,20 @@ import { sendReportRequest, type ReportQueuePayload, type InferenceReference } f
 import { API_ERRORS } from '../utils/errors.js';
 import type { GenerateReportBody } from '../controllers/reports.controller.js';
 
+/**
+ * Generates a manual report by dispatching a request to AWS SQS.
+ * 
+ * SQS Message Contract:
+ * The backend does NOT generate the report itself. It constructs a `ReportQueuePayload`
+ * which acts as the contract between the API and the Lambda consumer. The payload specifies:
+ * - trigger_type: 'manual'
+ * - report_type: 'manual'
+ * - report_name: The user-defined title
+ * - inferences: An array of matched { id, date } references
+ * 
+ * The Lambda uses this payload to download the necessary data, generate the PPTX, 
+ * and upload it to S3.
+ */
 export async function generateReportService(body: GenerateReportBody, logger: FastifyBaseLogger) {
   logger.info({ reportName: body.reportName }, '[reports-generate.service.ts] generateReportService - Init');
 

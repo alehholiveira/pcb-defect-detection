@@ -28,6 +28,15 @@ export async function getSchedulesService(logger: FastifyBaseLogger) {
   return map;
 }
 
+/**
+ * Updates the automation schedules by persisting to the DB and toggling EventBridge rules.
+ * 
+ * Note on EventBridge Cron Construction:
+ * If we were to construct dynamic cron schedules, we would use the AWS 6-field format:
+ * `cron(Minutes Hours Day-of-month Month Day-of-week Year)`
+ * Unlike standard Unix cron (5 fields, where '*' can be used for both day of month and week),
+ * EventBridge requires a Year field and forces the use of '?' for either Day-of-month or Day-of-week.
+ */
 export async function updateSchedulesService(schedules: { daily: boolean; weekly: boolean; monthly: boolean }, logger: FastifyBaseLogger) {
   logger.info({ schedules }, '[settings-schedules.service.ts] updateSchedulesService - Init');
 
