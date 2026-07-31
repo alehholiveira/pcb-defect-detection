@@ -62,6 +62,7 @@ Thumbs.db
 node_modules/
 dist/
 *.tsbuildinfo
+backend/coverage/
 
 # ==============================================================================
 # Environment Variables

@@ -8,19 +8,19 @@ import { API_ERRORS } from '../utils/errors.js';
 export const AddEmailBodySchema = z.object({ 
   email: z.string().email().describe('Endereço de e-mail do destinatário'),
 });
-export type AddEmailBody = z.infer<typeof AddEmailBodySchema>;
+type AddEmailBody = z.infer<typeof AddEmailBodySchema>;
 
 export const EmailIdParamSchema = z.object({ 
   id: z.coerce.number().int().positive().describe('ID do e-mail destinatário'),
 });
-export type EmailIdParam = z.infer<typeof EmailIdParamSchema>;
+type EmailIdParam = z.infer<typeof EmailIdParamSchema>;
 
 export const UpdateSchedulesBodySchema = z.object({
   daily: z.boolean().describe('Ativar ou desativar relatório diário'),
   weekly: z.boolean().describe('Ativar ou desativar relatório semanal'),
   monthly: z.boolean().describe('Ativar ou desativar relatório mensal'),
 });
-export type UpdateSchedulesBody = z.infer<typeof UpdateSchedulesBodySchema>;
+type UpdateSchedulesBody = z.infer<typeof UpdateSchedulesBodySchema>;
 
 export async function settingsController(app: FastifyTypedInstance): Promise<void> {
   // E-mails

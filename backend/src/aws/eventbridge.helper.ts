@@ -1,7 +1,7 @@
 import { EventBridgeClient, EnableRuleCommand, DisableRuleCommand } from '@aws-sdk/client-eventbridge';
 import { env } from '../config/index.js';
 
-export const eventBridgeClient = new EventBridgeClient({ region: env.AWS_REGION });
+const eventBridgeClient = new EventBridgeClient({ region: env.AWS_REGION });
 
 /**
  * Enables an AWS EventBridge scheduled rule.

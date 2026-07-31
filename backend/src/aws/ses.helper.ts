@@ -1,7 +1,7 @@
-import { SESClient, VerifyEmailIdentityCommand, DeleteIdentityCommand, GetIdentityVerificationAttributesCommand, ListIdentitiesCommand } from '@aws-sdk/client-ses';
+import { SESClient, VerifyEmailIdentityCommand, DeleteIdentityCommand, GetIdentityVerificationAttributesCommand } from '@aws-sdk/client-ses';
 import { env } from '../config/index.js';
 
-export const sesClient = new SESClient({ region: env.AWS_REGION });
+const sesClient = new SESClient({ region: env.AWS_REGION });
 
 export async function verifyEmailIdentity(email: string): Promise<void> {
   const command = new VerifyEmailIdentityCommand({ EmailAddress: email });

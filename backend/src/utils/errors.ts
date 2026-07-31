@@ -82,7 +82,7 @@ export const API_ERRORS = {
   },
 } as const;
 
-export type ApiErrorCode = keyof typeof API_ERRORS;
+type ApiErrorCode = keyof typeof API_ERRORS;
 
 export class AppError extends Error {
   public statusCode: number;

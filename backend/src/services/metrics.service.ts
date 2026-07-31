@@ -29,7 +29,7 @@ function buildInferenceWhere(filters: GetMetricsFilters) {
  * Note: We use `raw: true` in Sequelize to avoid the overhead of instantiating model
  * instances since we only need the raw aggregated numerical results.
  */
-export async function getSummaryMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getSummaryMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getSummaryMetricsService - Init');
   const where = buildInferenceWhere(filters);
   
@@ -103,7 +103,7 @@ export async function getSummaryMetricsService(filters: GetMetricsFilters, logge
  * This directly groups the dataset in the database engine rather than fetching all rows
  * and grouping them in Node.js, which is significantly more memory efficient.
  */
-export async function getTimeSeriesMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getTimeSeriesMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getTimeSeriesMetricsService - Init');
   const where = buildInferenceWhere(filters);
   const granularity = filters.granularity || 'daily';
@@ -191,7 +191,7 @@ export async function getTimeSeriesMetricsService(filters: GetMetricsFilters, lo
  * It groups the results by `class_name` and orders them in descending order to easily
  * identify the most common defect types.
  */
-export async function getDefectDistributionService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getDefectDistributionService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getDefectDistributionService - Init');
   const where = buildInferenceWhere(filters);
   
@@ -234,7 +234,7 @@ export async function getDefectDistributionService(filters: GetMetricsFilters, l
 /**
  * Computes usage and average inference time statistics grouped by model name.
  */
-export async function getModelUsageMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getModelUsageMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getModelUsageMetricsService - Init');
   const where = buildInferenceWhere(filters);
   
@@ -270,7 +270,7 @@ export async function getModelUsageMetricsService(filters: GetMetricsFilters, lo
  * Computes average, minimum, and maximum confidence scores for each defect type.
  * Acts as a model accuracy comparison across different classes.
  */
-export async function getConfidenceByDefectTypeService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getConfidenceByDefectTypeService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getConfidenceByDefectTypeService - Init');
   const where = buildInferenceWhere(filters);
   
@@ -307,7 +307,7 @@ export async function getConfidenceByDefectTypeService(filters: GetMetricsFilter
   }));
 }
 
-export async function getReportMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
+async function getReportMetricsService(filters: GetMetricsFilters, logger: FastifyBaseLogger) {
   logger.info({ filters }, '[metrics.service.ts] getReportMetricsService - Init');
   try {
     const reportsResponse = await getReportsService({ 

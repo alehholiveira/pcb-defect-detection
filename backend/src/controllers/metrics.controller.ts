@@ -4,7 +4,7 @@ import { getAllMetricsService } from '../services/metrics.service.js';
 import type { FastifyTypedInstance } from '../schemas/common.js';
 import { API_ERRORS } from '../utils/errors.js';
 
-export const GetMetricsQuerySchema = z.object({
+const GetMetricsQuerySchema = z.object({
   startDate: z.string().datetime().optional().describe('ISO 8601 Date (e.g., 2026-01-01T00:00:00.000Z)'),
   endDate: z.string().datetime().optional().describe('ISO 8601 Date'),
   granularity: z.enum(['daily', 'weekly', 'monthly']).default('daily').describe('Time series granularity'),
