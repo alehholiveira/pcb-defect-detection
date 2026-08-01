@@ -1,25 +1,25 @@
 # FastAPI & Server
-fastapi==0.115.12
-uvicorn[standard]==0.34.3
-python-multipart==0.0.20
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+python-multipart>=0.0.20
 
 # Configuration
-pydantic-settings==2.9.1
+pydantic-settings>=2.9.0
 
 # Image processing
-Pillow==11.2.1
-numpy==2.2.6
+Pillow>=11.0.0
+numpy>=2.0.0
 
-# ML - PyTorch (CPU version for smaller image)
-torch==2.5.1
-torchvision==0.20.1
+# ML - PyTorch
+torch>=2.5.0
+torchvision>=0.20.0
 
 # ML - Ultralytics (YOLO11, RT-DETR)
-ultralytics==8.4.48
+ultralytics>=8.3.0
 
 # Database (ORM + async MySQL driver)
-sqlalchemy[asyncio]==2.0.50
-aiomysql==0.3.2
+sqlalchemy[asyncio]>=2.0.0
+aiomysql>=0.3.0
 cryptography>=41.0.0
 
 # AWS (S3 uploads)

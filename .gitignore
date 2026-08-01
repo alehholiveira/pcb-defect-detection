@@ -20,6 +20,7 @@ neural-links-pcb-defect-detection/runs/detect/val*
 # ML Service — processed images output (temporary, will move to S3)
 # ==============================================================================
 ml-service/outputs/
+ml-service/.coverage
 
 # ==============================================================================
 # Ambiente virtual Python

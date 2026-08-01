@@ -3,8 +3,8 @@ Configuration module for the ML service.
 Uses Pydantic BaseSettings to automatically load and validate environment variables.
 """
 
-from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -37,10 +37,11 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET_NAME: str
     AWS_REGION: str = "us-east-1"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 @lru_cache()
