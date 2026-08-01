@@ -65,6 +65,7 @@ dist/
 *.tsbuildinfo
 backend/coverage/
 report-service/coverage/
+frontend/coverage/
 
 # ==============================================================================
 # Environment Variables
