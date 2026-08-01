@@ -1,5 +1,8 @@
 import type { FastifyBaseLogger } from 'fastify';
 import { listReportMetadataKeys, getJsonFromS3 } from '../aws/s3.helper.js';
+import { getVerifiedEmails, sendEmail } from '../aws/ses.helper.js';
+import { buildReportEmailHtml, emailTranslations, type SupportedLanguage } from '../utils/i18n.js';
+import { API_ERRORS } from '../utils/errors.js';
 import type { GetReportsFilters } from '../controllers/reports.controller.js';
 
 export interface ReportMetadata {
@@ -80,3 +83,48 @@ export async function getReportsService(filters: GetReportsFilters, logger: Fast
     },
   };
 }
+
+export async function sendReportEmailService(
+  filename: string,
+  language: SupportedLanguage,
+  recipients: string[],
+  logger: FastifyBaseLogger
+) {
+  logger.info({ filename, language, recipients }, '[reports.service.ts] sendReportEmailService - Init');
+
+  const s3Key = filename.startsWith('reports/')
+    ? (filename.endsWith('.json') ? filename : `${filename}.json`)
+    : `reports/${filename.endsWith('.json') ? filename : `${filename}.json`}`;
+
+  let reportMetadata: ReportMetadata;
+  try {
+    reportMetadata = await getJsonFromS3<ReportMetadata>(s3Key);
+  } catch (error) {
+    logger.error({ error, s3Key }, '[reports.service.ts] sendReportEmailService - Report Not Found');
+    throw API_ERRORS.REPORT_NOT_FOUND;
+  }
+
+  const verifiedIdentities = await getVerifiedEmails();
+  const validRecipients = recipients.filter((email) => verifiedIdentities.includes(email));
+
+  if (validRecipients.length === 0) {
+    logger.warn({ requested: recipients, verified: verifiedIdentities }, '[reports.service.ts] sendReportEmailService - No Verified Recipients');
+    throw API_ERRORS.NO_VERIFIED_RECIPIENTS;
+  }
+
+  const subject = `${emailTranslations[language]?.subjectPrefix || emailTranslations['pt-BR'].subjectPrefix} - ${reportMetadata.reportName || filename}`;
+  const htmlBody = buildReportEmailHtml(reportMetadata, language);
+
+  try {
+    await sendEmail(validRecipients, subject, htmlBody);
+    logger.info({ sentTo: validRecipients }, '[reports.service.ts] sendReportEmailService - Success');
+    return {
+      message: 'E-mail enviado com sucesso.',
+      sentTo: validRecipients,
+    };
+  } catch (error) {
+    logger.error({ error }, '[reports.service.ts] sendReportEmailService - Error sending email');
+    throw API_ERRORS.SEND_EMAIL_FAILED;
+  }
+}
+
