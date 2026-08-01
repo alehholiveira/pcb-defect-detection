@@ -43,8 +43,8 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
         .map(
           ([type, count]) => `
             <tr>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">${type}</td>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #0f172a;">${count}</td>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #E5E7EB; color: #6B7280;">${type}</td>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #E5E7EB; text-align: right; font-weight: 600; color: #111827;">${count}</td>
             </tr>`
         )
         .join('')
@@ -58,23 +58,23 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t.title}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #F9FAFB; color: #111827;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F9FAFB; padding: 40px 20px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" max-width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+        <table role="presentation" width="100%" max-width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); border: 1px solid #E5E7EB;">
           
           <!-- Header Banner -->
           <tr>
-            <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 32px; text-align: left;">
-              <span style="background-color: rgba(6, 182, 212, 0.15); color: #22d3ee; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(34, 211, 238, 0.3); display: inline-block; margin-bottom: 12px;">
+            <td style="background: linear-gradient(135deg, #16A34A 0%, #15803D 100%); padding: 32px 32px; text-align: left;">
+              <span style="background-color: rgba(255, 255, 255, 0.15); color: #F0FDF4; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); display: inline-block; margin-bottom: 12px;">
                 ${t.badgeText}
               </span>
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
                 ${report.reportName || t.title}
               </h1>
-              <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 14px;">
-                ${t.periodLabel}: <strong style="color: #cbd5e1;">${periodText}</strong>
+              <p style="margin: 8px 0 0 0; color: #DCFCE7; font-size: 14px;">
+                ${t.periodLabel}: <strong style="color: #ffffff;">${periodText}</strong>
               </p>
             </td>
           </tr>
@@ -82,26 +82,26 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
           <!-- Content Body -->
           <tr>
             <td style="padding: 32px;">
-              <h2 style="margin-top: 0; margin-bottom: 20px; color: #0f172a; font-size: 18px; font-weight: 600;">
+              <h2 style="margin-top: 0; margin-bottom: 20px; color: #111827; font-size: 18px; font-weight: 600;">
                 ${t.summaryTitle}
               </h2>
 
               <!-- Statistics Cards Grid -->
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 24px;">
                 <tr>
-                  <td width="32%" style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">${t.totalInferences}</div>
-                    <div style="font-size: 22px; font-weight: 700; color: #0284c7; margin-top: 4px;">${report.totalInferences}</div>
+                  <td width="32%" style="background-color: #F9FAFB; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #E5E7EB;">
+                    <div style="font-size: 12px; color: #6B7280; font-weight: 600; text-transform: uppercase;">${t.totalInferences}</div>
+                    <div style="font-size: 22px; font-weight: 700; color: #16A34A; margin-top: 4px;">${report.totalInferences}</div>
                   </td>
                   <td width="2%"></td>
-                  <td width="32%" style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">${t.totalImages}</div>
-                    <div style="font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 4px;">${report.totalImages}</div>
+                  <td width="32%" style="background-color: #F9FAFB; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #E5E7EB;">
+                    <div style="font-size: 12px; color: #6B7280; font-weight: 600; text-transform: uppercase;">${t.totalImages}</div>
+                    <div style="font-size: 22px; font-weight: 700; color: #111827; margin-top: 4px;">${report.totalImages}</div>
                   </td>
                   <td width="2%"></td>
-                  <td width="32%" style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">${t.totalDefects}</div>
-                    <div style="font-size: 22px; font-weight: 700; color: #e11d48; margin-top: 4px;">${report.totalDefects}</div>
+                  <td width="32%" style="background-color: #F9FAFB; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #E5E7EB;">
+                    <div style="font-size: 12px; color: #6B7280; font-weight: 600; text-transform: uppercase;">${t.totalDefects}</div>
+                    <div style="font-size: 22px; font-weight: 700; color: #DC2626; margin-top: 4px;">${report.totalDefects}</div>
                   </td>
                 </tr>
               </table>
@@ -110,7 +110,7 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
                 defectsRows
                   ? `
               <!-- Defects Breakdown Table -->
-              <h3 style="margin-top: 24px; margin-bottom: 12px; color: #334155; font-size: 15px; font-weight: 600;">
+              <h3 style="margin-top: 24px; margin-bottom: 12px; color: #111827; font-size: 15px; font-weight: 600;">
                 ${t.defectsBreakdown}
               </h3>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 28px; border-collapse: collapse;">
@@ -123,7 +123,7 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td align="center" style="padding-top: 8px; padding-bottom: 8px;">
-                    <a href="${report.downloadUrl}" target="_blank" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 28px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                    <a href="${report.downloadUrl}" target="_blank" style="background: linear-gradient(135deg, #16A34A 0%, #15803D 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 28px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);">
                       ${t.downloadButton}
                     </a>
                   </td>
@@ -135,8 +135,8 @@ export function buildReportEmailHtml(report: ReportMetadata, language: Supported
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #f8fafc; padding: 20px 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+            <td style="background-color: #F9FAFB; padding: 20px 32px; text-align: center; border-top: 1px solid #E5E7EB;">
+              <p style="margin: 0; color: #6B7280; font-size: 12px; line-height: 1.5;">
                 ${t.footerNotice}
               </p>
             </td>
