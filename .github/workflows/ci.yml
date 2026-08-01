@@ -1,0 +1,167 @@
+name: CI and Auto-PR Pipeline
+
+on:
+  push:
+    branches:
+      - 'frontend'
+      - 'backend'
+      - 'ml-service'
+      - 'report-service'
+      - 'devops'
+
+jobs:
+  test-ml-service:
+    name: Test ML Service (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'ml-service/requirements*.txt'
+
+      - name: Install system dependencies (OpenCV)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl1 libglib2.0-0
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml-service/requirements-dev.txt
+          pip install -r ml-service/requirements.txt
+
+      - name: Run Pytest
+        working-directory: ml-service
+        env:
+          CORS_ORIGIN: "http://localhost:5173"
+          MODELS_DIR: "./app/models"
+          CONFIDENCE_THRESHOLD: "0.25"
+          MAX_FILE_SIZE: "209715200"
+          DB_HOST: "127.0.0.1"
+          DB_PORT: "3306"
+          DB_NAME: "pcb_defect_db"
+          DB_USER: "pcb_user"
+          DB_PASSWORD: "pcb_password"
+          AWS_ACCESS_KEY_ID: "test"
+          AWS_SECRET_ACCESS_KEY: "test"
+          AWS_REGION: "us-east-1"
+          AWS_S3_BUCKET_NAME: "test-bucket"
+        run: |
+          python -m pytest
+
+  test-backend:
+    name: Test Backend (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm i
+
+      - name: Run Backend Tests
+        working-directory: backend
+        env:
+          NODE_ENV: "test"
+          S3_BUCKET_NAME: "test-bucket"
+          SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/123456789012/test-queue"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: "test"
+          AWS_SECRET_ACCESS_KEY: "test"
+          EVENTBRIDGE_DAILY_RULE_NAME: "test-daily-rule"
+          EVENTBRIDGE_WEEKLY_RULE_NAME: "test-weekly-rule"
+          EVENTBRIDGE_MONTHLY_RULE_NAME: "test-monthly-rule"
+        run: npm test
+
+  test-report-service:
+    name: Test Report Service (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'report-service/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: report-service
+        run: npm i
+
+      - name: Run Report Service Tests
+        working-directory: report-service
+        env:
+          S3_BUCKET_NAME: "test-bucket"
+          SENDER_EMAIL: "test@example.com"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: "test"
+          AWS_SECRET_ACCESS_KEY: "test"
+        run: npm test
+
+  test-frontend:
+    name: Test Frontend (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm i
+
+      - name: Run Frontend Tests
+        working-directory: frontend
+        run: npm test
+
+  auto-pr-merge:
+    name: Create & Auto-Merge PR to Development
+    needs: [test-ml-service, test-backend, test-report-service, test-frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create PR and Enable Auto-Merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          echo "All tests passed for branch $BRANCH_NAME!"
+          
+          # Create Pull Request targeting development
+          PR_URL=$(gh pr create \
+            --base development \
+            --head "$BRANCH_NAME" \
+            --title "Auto PR: $BRANCH_NAME -> development" \
+            --body "Automated Pull Request created by GitHub Actions CI pipeline after all service tests passed successfully." || true)
+          
+          echo "PR Status/URL: $PR_URL"
+
+          # Attempt immediate merge first, then fall back to auto-merge if rules exist
+          gh pr merge "$BRANCH_NAME" --merge || gh pr merge "$BRANCH_NAME" --auto --merge || true
