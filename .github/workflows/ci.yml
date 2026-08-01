@@ -81,6 +81,7 @@ jobs:
           AWS_REGION: "us-east-1"
           AWS_ACCESS_KEY_ID: "test"
           AWS_SECRET_ACCESS_KEY: "test"
+          SENDER_EMAIL: "test@example.com"
           EVENTBRIDGE_DAILY_RULE_NAME: "test-daily-rule"
           EVENTBRIDGE_WEEKLY_RULE_NAME: "test-weekly-rule"
           EVENTBRIDGE_MONTHLY_RULE_NAME: "test-monthly-rule"

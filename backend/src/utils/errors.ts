@@ -56,6 +56,24 @@ export const API_ERRORS = {
     description: 'Verifique os filtros e tente novamente.',
     statusCode: 404,
   },
+  REPORT_NOT_FOUND: {
+    code: 'ERR_REPORT_NOT_FOUND',
+    message: 'Relatório não encontrado.',
+    description: 'O relatório solicitado não foi localizado no armazenamento S3.',
+    statusCode: 404,
+  },
+  NO_VERIFIED_RECIPIENTS: {
+    code: 'ERR_NO_VERIFIED_RECIPIENTS',
+    message: 'Nenhum destinatário verificado foi informado.',
+    description: 'Os e-mails informados não estão verificados no AWS SES.',
+    statusCode: 400,
+  },
+  SEND_EMAIL_FAILED: {
+    code: 'ERR_SEND_EMAIL_FAILED',
+    message: 'Falha ao enviar o e-mail do relatório.',
+    description: 'Ocorreu um erro ao enviar a mensagem via AWS SES.',
+    statusCode: 500,
+  },
   INVALID_REPORT_REQUEST: {
     code: 'ERR_INVALID_REPORT_REQUEST',
     message: 'Requisição inválida para geração de relatório.',

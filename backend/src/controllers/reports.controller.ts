@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { getReportsService } from '../services/reports.service.js';
+import { getReportsService, sendReportEmailService } from '../services/reports.service.js';
 import { generateReportService } from '../services/reports-generate.service.js';
 import type { FastifyTypedInstance } from '../schemas/common.js';
 import { API_ERRORS } from '../utils/errors.js';
@@ -36,6 +36,18 @@ export const GenerateReportSchema = z.object({
 
 export type GenerateReportBody = z.infer<typeof GenerateReportSchema>;
 
+export const SendReportParamsSchema = z.object({
+  filename: z.string().min(1).describe('Nome do arquivo de metadados do relatório (ex: 2026-08-01-report.json)'),
+});
+
+export const SendReportBodySchema = z.object({
+  language: z.enum(['pt-BR', 'en']).default('pt-BR').describe('Idioma do conteúdo do e-mail'),
+  recipients: z.array(z.string().email()).min(1).max(50).describe('Lista de e-mails para envio'),
+});
+
+export type SendReportParams = z.infer<typeof SendReportParamsSchema>;
+export type SendReportBody = z.infer<typeof SendReportBodySchema>;
+
 export async function reportsController(app: FastifyTypedInstance): Promise<void> {
   app.get('/', {
     schema: {
@@ -55,6 +67,17 @@ export async function reportsController(app: FastifyTypedInstance): Promise<void
       body: GenerateReportSchema,
     },
     handler: generateReportHandler,
+  });
+
+  app.post('/:filename/send', {
+    schema: {
+      tags: ['Reports'],
+      summary: 'Send report via email',
+      description: 'Sends a specific report to verified recipients in the chosen language',
+      params: SendReportParamsSchema,
+      body: SendReportBodySchema,
+    },
+    handler: sendReportHandler,
   });
 }
 
@@ -112,3 +135,33 @@ async function generateReportHandler(
     reply.status(API_ERRORS.GENERATE_REPORT_FAILED.statusCode).send(API_ERRORS.GENERATE_REPORT_FAILED);
   }
 }
+
+async function sendReportHandler(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  const { filename } = request.params as SendReportParams;
+  const { language, recipients } = request.body as SendReportBody;
+  request.log.info({ filename, language, recipients }, '[reports.controller.ts] sendReportHandler - Init');
+
+  try {
+    const result = await sendReportEmailService(filename, language, recipients, request.log);
+    request.log.info('[reports.controller.ts] sendReportHandler - Success');
+    reply.status(200).send(result);
+  } catch (error: any) {
+    request.log.error({ error }, '[reports.controller.ts] sendReportHandler - Error');
+
+    if (error === API_ERRORS.REPORT_NOT_FOUND) {
+      reply.status(API_ERRORS.REPORT_NOT_FOUND.statusCode).send(API_ERRORS.REPORT_NOT_FOUND);
+      return;
+    }
+
+    if (error === API_ERRORS.NO_VERIFIED_RECIPIENTS) {
+      reply.status(API_ERRORS.NO_VERIFIED_RECIPIENTS.statusCode).send(API_ERRORS.NO_VERIFIED_RECIPIENTS);
+      return;
+    }
+
+    reply.status(API_ERRORS.SEND_EMAIL_FAILED.statusCode).send(API_ERRORS.SEND_EMAIL_FAILED);
+  }
+}
+
