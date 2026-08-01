@@ -78,7 +78,9 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture(autouse=True)
 def mock_s3_uploads():
     """Mock S3 upload functions to avoid network calls to AWS."""
-    with patch("app.core.s3_client.upload_image", return_value="https://test-bucket.s3.us-east-1.amazonaws.com/test_image.jpg"), \
+    with patch("app.services.inference.upload_image", return_value="https://test-bucket.s3.us-east-1.amazonaws.com/test_image.jpg"), \
+         patch("app.services.inference.upload_json", return_value="https://test-bucket.s3.us-east-1.amazonaws.com/test_results.json"), \
+         patch("app.core.s3_client.upload_image", return_value="https://test-bucket.s3.us-east-1.amazonaws.com/test_image.jpg"), \
          patch("app.core.s3_client.upload_json", return_value="https://test-bucket.s3.us-east-1.amazonaws.com/test_results.json"):
         yield
 
