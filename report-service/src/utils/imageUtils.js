@@ -11,11 +11,15 @@ import sizeOf from "image-size";
 export function processImageBuffer(imgBuffer, filename) {
   console.log(`[imageUtils.js] processImageBuffer - Init`, { filename, bufferSize: imgBuffer?.length });
 
-  const dimensions = sizeOf(imgBuffer);
-  // Fallback to 800x800 if sizeOf fails to parse the dimensions (e.g., corrupted header)
-  // to prevent the PPTX generator from crashing due to zero or NaN dimensions.
-  const width = dimensions.width || 800;
-  const height = dimensions.height || 800;
+  let width = 800;
+  let height = 800;
+  try {
+    const dimensions = sizeOf(imgBuffer);
+    width = dimensions.width || 800;
+    height = dimensions.height || 800;
+  } catch (err) {
+    console.warn(`[imageUtils.js] processImageBuffer - Warning: Could not parse image dimensions for ${filename}. Using 800x800 fallback.`);
+  }
 
   const extMatch = filename.match(/\.(png|jpe?g)$/i);
   // MIME type standard requires 'image/jpeg', not 'image/jpg', so we normalize it here
