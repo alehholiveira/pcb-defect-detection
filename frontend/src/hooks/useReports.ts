@@ -35,7 +35,7 @@ export function useReports(initialFilters: ReportFilters = {}): UseReportsReturn
   const [error, setError] = useState<string | null>(null);
 
   const setFilters = useCallback((newFilters: Partial<ReportFilters>) => {
-    setFiltersState((prev: ReportFilters) => ({ ...prev, ...newFilters, page: 1 }));
+    setFiltersState((prev: ReportFilters) => ({ ...prev, page: 1, ...newFilters }));
   }, []);
 
   const fetchReports = useCallback(async (signal?: AbortSignal) => {
