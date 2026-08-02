@@ -43,7 +43,15 @@
     "errors": {
       "fetchFailed": "Failed to fetch reports.",
       "downloadUrlUnavailable": "Download URL not available."
-    }
+    },
+    "sendEmail": "Send via Email",
+    "sendEmailTitle": "Send Report via Email",
+    "selectRecipients": "Select the recipients",
+    "noRecipientsFound": "No verified email found.",
+    "sendEmailSuccess": "Report sent successfully!",
+    "sendEmailError": "Error sending report. Please try again.",
+    "send": "Send",
+    "cancel": "Cancel"
   },
   "defects": {
     "missing_hole": "Missing Hole",

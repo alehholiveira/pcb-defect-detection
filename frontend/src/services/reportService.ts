@@ -41,4 +41,7 @@ export async function getReports(filters?: ReportFilters, config?: AxiosRequestC
   return response.data
 }
 
+export async function sendReportEmail(filename: string, recipients: string[], language: string): Promise<void> {
+  await api.post(`/api/v1/reports/${filename}/send`, { recipients, language })
+}
 

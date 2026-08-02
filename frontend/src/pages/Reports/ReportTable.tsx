@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Download, RefreshCcw, Filter, Search } from 'lucide-react';
+import { Download, RefreshCcw, Filter, Search, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next'
 import { Card } from '../../components/Card';
 import { Table } from '../../components/Table';
@@ -14,6 +14,7 @@ import { useReports } from '../../hooks/useReports';
 import type { ReportMetadata, ReportFilters } from '../../types/report';
 import { formatDateTime, formatDateOnly } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
+import { SendReportEmailModal } from './SendReportEmailModal';
 import './ReportTable.css';
 
 const REPORT_TYPE_OPTIONS = [
@@ -39,6 +40,9 @@ export function ReportTable() {
     reportType: filters.reportType || 'all',
   });
   const { toasts, addToast, removeToast } = useToast();
+  
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [selectedReportForEmail, setSelectedReportForEmail] = useState<string | null>(null);
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -73,6 +77,11 @@ export function ReportTable() {
       addToast('reports.errors.downloadUrlUnavailable', 'error');
     }
   }, [addToast]);
+
+  const handleOpenEmailModal = useCallback((filename: string) => {
+    setSelectedReportForEmail(filename);
+    setIsEmailModalOpen(true);
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -182,9 +191,17 @@ export function ReportTable() {
       {
         key: 'actions',
         label: t('reports.columns.actions'),
-        width: '80px',
+        width: '100px',
         render: (_: unknown, row: ReportMetadata) => (
           <div className="report-table__actions">
+            <button
+              className="report-table__action-btn"
+              aria-label={t('reports.sendEmail')}
+              title={t('reports.sendEmail')}
+              onClick={() => handleOpenEmailModal(row.filename.replace('.pptx', '.json'))}
+            >
+              <Mail size={16} />
+            </button>
             <button
               className="report-table__action-btn"
               aria-label={t('reports.download')}
@@ -197,7 +214,7 @@ export function ReportTable() {
         ),
       },
     ],
-    [t, handleDownload],
+    [t, handleDownload, handleOpenEmailModal],
   );
 
   const data = reportsData?.data || [];
@@ -326,6 +343,14 @@ export function ReportTable() {
           </div>
         )}
       </Card>
+      
+      <SendReportEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        filename={selectedReportForEmail}
+        addToast={addToast}
+      />
+      
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );

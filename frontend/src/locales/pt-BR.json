@@ -43,7 +43,15 @@
     "errors": {
       "fetchFailed": "Falha ao buscar relatórios.",
       "downloadUrlUnavailable": "URL de download não disponível."
-    }
+    },
+    "sendEmail": "Enviar por e-mail",
+    "sendEmailTitle": "Enviar Relatório por E-mail",
+    "selectRecipients": "Selecione os destinatários",
+    "noRecipientsFound": "Nenhum e-mail verificado encontrado.",
+    "sendEmailSuccess": "Relatório enviado com sucesso!",
+    "sendEmailError": "Erro ao enviar relatório. Tente novamente.",
+    "send": "Enviar",
+    "cancel": "Cancelar"
   },
   "defects": {
     "missing_hole": "Missing Hole",
