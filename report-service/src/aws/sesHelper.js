@@ -1,5 +1,6 @@
 import { SESClient, SendEmailCommand, ListIdentitiesCommand, GetIdentityVerificationAttributesCommand } from "@aws-sdk/client-ses";
 import { env } from "../config/env.js";
+import { buildReportEmailHtml, emailTranslations } from "../utils/i18n.js";
 
 const sesClient = new SESClient({ region: env.AWS_REGION });
 
@@ -38,13 +39,15 @@ async function getVerifiedEmails() {
 /**
  * Sends an HTML email with the report link and summary statistics to all verified recipients.
  * 
- * @param {string} periodLabel - Formatted date/period string (e.g. "10/10/2023 até 17/10/2023")
+ * @param {string} periodLabel - Formatted date/period string
  * @param {string} reportUrl - Public S3 URL for the generated PPTX report
  * @param {Object} stats - Object containing totalInferences, totalImages, totalDefects
  * @param {string} reportTitle - The title of the report (e.g. "Relatório Semanal")
+ * @param {Object} [defectsByType] - Defect count breakdown by type
+ * @param {string} [language] - Language code ('pt-BR' | 'en')
  */
-export async function sendReportEmail(periodLabel, reportUrl, stats, reportTitle) {
-  console.log(`[sesHelper.js] sendReportEmail - Init`, { periodLabel, reportUrl });
+export async function sendReportEmail(periodLabel, reportUrl, stats, reportTitle, defectsByType = {}, language = env.DEFAULT_LANGUAGE) {
+  console.log(`[sesHelper.js] sendReportEmail - Init`, { periodLabel, reportUrl, language });
   
   const recipients = await getVerifiedEmails();
   
@@ -53,28 +56,23 @@ export async function sendReportEmail(periodLabel, reportUrl, stats, reportTitle
     return;
   }
   
-  // HTML Template Structure: 
-  // 1. Header with title and period
-  // 2. Summary paragraph
-  // 3. Unordered list with statistics
-  // 4. Call-to-action link to download the PPTX
-  const emailHtml = `
-    <h2>${reportTitle} de Inspeção PCB (${periodLabel})</h2>
-    <p>O relatório foi gerado com sucesso.</p>
-    <ul>
-      <li><b>Total de Inferências:</b> ${stats.totalInferences}</li>
-      <li><b>Total de Imagens Analisadas:</b> ${stats.totalImages}</li>
-      <li><b>Total de Defeitos Encontrados:</b> ${stats.totalDefects}</li>
-    </ul>
-    <p><a href="${reportUrl}">Clique aqui para baixar o relatório em PowerPoint (PPTX)</a></p>
-  `;
+  const lang = (language === 'en' || language === 'pt-BR') ? language : env.DEFAULT_LANGUAGE;
+  const t = emailTranslations[lang];
+
+  const emailHtml = buildReportEmailHtml({
+    reportTitle,
+    periodLabel,
+    stats,
+    defectsByType,
+    downloadUrl: reportUrl,
+  }, lang);
 
   try {
     await sesClient.send(new SendEmailCommand({
       Source: env.SENDER_EMAIL,
       Destination: { ToAddresses: recipients },
       Message: {
-        Subject: { Data: `Relatório de Defeitos PCB - ${periodLabel}` },
+        Subject: { Data: `${t.subjectPrefix} - ${periodLabel}` },
         Body: { Html: { Data: emailHtml } }
       }
     }));
