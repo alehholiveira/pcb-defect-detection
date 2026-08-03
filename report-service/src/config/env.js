@@ -5,9 +5,10 @@ import { LAMBDA_ERRORS } from "../utils/errors.js";
 dotenv.config();
 
 export const env = {
-  AWS_REGION: process.env.AWS_REGION || "us-east-1",
-  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "",
-  SENDER_EMAIL: process.env.SENDER_EMAIL || "",
+  AWS_REGION: process.env.AWS_REGION,
+  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+  SENDER_EMAIL: process.env.SENDER_EMAIL,
+  DEFAULT_LANGUAGE: process.env.DEFAULT_LANGUAGE,
 };
 
 export function validateEnv() {
@@ -15,6 +16,10 @@ export function validateEnv() {
   if (!env.S3_BUCKET_NAME || !env.SENDER_EMAIL) {
     console.error(`[env.js] validateEnv - Error: Variáveis ausentes`);
     throw LAMBDA_ERRORS.MISSING_ENV_VARS;
+  }
+  if (env.DEFAULT_LANGUAGE !== "pt-BR" && env.DEFAULT_LANGUAGE !== "en") {
+    console.warn(`[env.js] validateEnv - Warning: DEFAULT_LANGUAGE inválido (${env.DEFAULT_LANGUAGE}), usando pt-BR como fallback.`);
+    env.DEFAULT_LANGUAGE = "pt-BR";
   }
   console.log(`[env.js] validateEnv - Success`);
 }

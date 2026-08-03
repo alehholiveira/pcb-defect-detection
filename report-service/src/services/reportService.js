@@ -3,6 +3,8 @@ import { processImageBuffer } from "../utils/imageUtils.js";
 import { PptxGenerator } from "../utils/pptxGenerator.js";
 import { sendReportEmail } from "../aws/sesHelper.js";
 import { LAMBDA_ERRORS } from "../utils/errors.js";
+import { formatDateRange, emailTranslations } from "../utils/i18n.js";
+import { env } from "../config/env.js";
 
 /**
  * Generates an automated report (daily/weekly/monthly).
@@ -61,19 +63,17 @@ export async function generateReport(targetDates, reportType) {
       console.log(`[reportService.js] generateReport - Info (No inferences found. Generating empty report.)`);
     }
 
-    // Format date from YYYY-MM-DD to DD/MM/YYYY
-    const formatPtBr = (dateStr) => {
-      const [y, m, d] = dateStr.split('-');
-      return `${d}/${m}/${y}`;
-    };
+    const lang = env.DEFAULT_LANGUAGE;
+    const t = emailTranslations[lang];
 
     const oldest = targetDates[0];
     const newest = targetDates[targetDates.length - 1];
 
-    const reportTitle = reportType === 'daily' ? 'Relatório Diário' : 'Relatório Semanal';
-    const periodLabel = reportType === 'daily' 
-      ? formatPtBr(oldest) 
-      : `${formatPtBr(oldest)} até ${formatPtBr(newest)}`;
+    let reportTitle = t.weeklyReport;
+    if (reportType === 'daily') reportTitle = t.dailyReport;
+    else if (reportType === 'monthly') reportTitle = t.monthlyReport;
+
+    const periodLabel = formatDateRange(oldest, newest, lang);
 
     const pptxGen = new PptxGenerator(`${reportTitle} - ${periodLabel}`);
     
@@ -126,7 +126,7 @@ export async function generateReport(targetDates, reportType) {
     await uploadJsonToS3(jsonKey, metadata);
     console.log(`[reportService.js] generateReport - Metadados JSON salvos no S3: ${jsonKey}`);
 
-    await sendReportEmail(periodLabel, reportUrl, { totalInferences, totalImages, totalDefects }, reportTitle);
+    await sendReportEmail(periodLabel, reportUrl, { totalInferences, totalImages, totalDefects }, reportTitle, defectSummary, lang);
 
     console.log(`[reportService.js] generateReport - Success`);
     return "Relatório processado com sucesso";
@@ -243,8 +243,9 @@ export async function generateManualReport(inferences, reportName, requestedBy) 
     await uploadJsonToS3(jsonKey, metadata);
     console.log(`[reportService.js] generateManualReport - Metadados JSON salvos no S3: ${jsonKey}`);
 
-    const periodLabel = oldestDate === newestDate ? oldestDate : `${oldestDate} até ${newestDate}`;
-    await sendReportEmail(periodLabel, reportUrl, { totalInferences, totalImages, totalDefects }, reportName);
+    const lang = env.DEFAULT_LANGUAGE;
+    const periodLabel = formatDateRange(oldestDate, newestDate, lang);
+    await sendReportEmail(periodLabel, reportUrl, { totalInferences, totalImages, totalDefects }, reportName, defectSummary, lang);
 
     console.log(`[reportService.js] generateManualReport - Success`);
     return "Relatório manual processado com sucesso";
