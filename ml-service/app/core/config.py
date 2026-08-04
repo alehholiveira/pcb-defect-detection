@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET_NAME: str
     AWS_REGION: str = "us-east-1"
 
+    APP_TIMEZONE: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

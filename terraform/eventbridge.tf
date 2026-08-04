@@ -2,11 +2,11 @@
 # EventBridge — Disparo diário e semanal dos relatórios
 # ──────────────────────────────────────────────────────────────────────
 
-# 1. Regra Diária
+# 1. Regra Diária - Executa as 03:00 UTC (Meia-noite de Brasília)
 resource "aws_cloudwatch_event_rule" "daily_report_schedule" {
   name                = "${var.project_name}-daily-report-rule"
   description         = "Disparo diário para geração automática de relatórios (D-1)"
-  schedule_expression = "cron(0 0 * * ? *)"
+  schedule_expression = "cron(0 3 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_daily_target" {
@@ -28,13 +28,12 @@ resource "aws_lambda_permission" "allow_eventbridge_daily" {
   source_arn    = aws_cloudwatch_event_rule.daily_report_schedule.arn
 }
 
-# 2. Regra Semanal (Segunda-feira)
+# 2. Regra Semanal (Segunda-feira) - Dispara toda segunda-feira (2) às 03:00 UTC (Meia-noite de Brasília)
 resource "aws_cloudwatch_event_rule" "weekly_report_schedule" {
   name                = "${var.project_name}-weekly-report-rule"
   description         = "Disparo semanal (toda segunda-feira) para relatórios (últimos 7 dias)"
   # Cron AWS: Minutes Hours Day-of-month Month Day-of-week Year
-  # Dispara toda segunda-feira (2) à meia-noite UTC (ou seja, pega a semana passada inteira)
-  schedule_expression = "cron(0 0 ? * 2 *)"
+  schedule_expression = "cron(0 3 ? * 2 *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_weekly_target" {
@@ -56,11 +55,11 @@ resource "aws_lambda_permission" "allow_eventbridge_weekly" {
   source_arn    = aws_cloudwatch_event_rule.weekly_report_schedule.arn
 }
 
-# 3. Regra Mensal (1º dia do mês)
+# 3. Regra Mensal (1º dia do mês) - Dispara dia 1º de cada mês às 03:00 UTC (Meia-noite de Brasília)
 resource "aws_cloudwatch_event_rule" "monthly_report_schedule" {
   name                = "${var.project_name}-monthly-report-rule"
   description         = "Disparo mensal (1º dia do mês) para relatórios"
-  schedule_expression = "cron(0 0 1 * ? *)"
+  schedule_expression = "cron(0 3 1 * ? *)"
   state               = "ENABLED"
 }
 

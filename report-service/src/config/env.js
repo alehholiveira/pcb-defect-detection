@@ -9,6 +9,7 @@ export const env = {
   S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
   SENDER_EMAIL: process.env.SENDER_EMAIL,
   DEFAULT_LANGUAGE: process.env.DEFAULT_LANGUAGE,
+  APP_TIMEZONE: process.env.APP_TIMEZONE
 };
 
 export function validateEnv() {
@@ -20,6 +21,10 @@ export function validateEnv() {
   if (env.DEFAULT_LANGUAGE !== "pt-BR" && env.DEFAULT_LANGUAGE !== "en") {
     console.warn(`[env.js] validateEnv - Warning: DEFAULT_LANGUAGE inválido (${env.DEFAULT_LANGUAGE}), usando pt-BR como fallback.`);
     env.DEFAULT_LANGUAGE = "pt-BR";
+  }
+  if (!env.APP_TIMEZONE) {
+    console.warn(`[env.js] validateEnv - Warning: APP_TIMEZONE inválido (${env.APP_TIMEZONE}), usando "America/Sao_Paulo" como fallback.`);
+    env.APP_TIMEZONE = "America/Sao_Paulo";
   }
   console.log(`[env.js] validateEnv - Success`);
 }

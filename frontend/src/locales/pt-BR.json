@@ -262,15 +262,15 @@
       "save": "Salvar Configurações",
       "daily": {
         "label": "Relatório Diário",
-        "description": "Gerado automaticamente todos os dias às 00:00 UTC"
+        "description": "Gerado automaticamente todos os dias às 03:00 UTC"
       },
       "weekly": {
         "label": "Relatório Semanal",
-        "description": "Gerado automaticamente toda segunda-feira às 00:00 UTC"
+        "description": "Gerado automaticamente toda segunda-feira às 03:00 UTC"
       },
       "monthly": {
         "label": "Relatório Mensal",
-        "description": "Gerado automaticamente no primeiro dia de cada mês às 00:00 UTC"
+        "description": "Gerado automaticamente no primeiro dia de cada mês às 03:00 UTC"
       },
       "toast": {
         "saved": "Agendamentos atualizados com sucesso.",

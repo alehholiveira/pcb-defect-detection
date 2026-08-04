@@ -1,12 +1,30 @@
-import { validateEnv } from "./config/env.js";
+import { env, validateEnv } from "./config/env.js";
 import { generateReport, generateManualReport } from "./services/reportService.js";
 import { LAMBDA_ERRORS } from "./utils/errors.js";
+
+/** Helper to get date string in local timezone */
+function getLocalDateStr(dateObj) {
+  const tz = env.APP_TIMEZONE;
+  try {
+    // Format to YYYY-MM-DD in the target timezone
+    const formatter = new Intl.DateTimeFormat('en-CA', { 
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return formatter.format(dateObj);
+  } catch (e) {
+    console.warn(`Invalid timezone ${tz}, falling back to UTC`);
+    return dateObj.toISOString().split("T")[0];
+  }
+}
 
 /** Returns yesterday's date formatted as YYYY-MM-DD */
 function getYesterdayStr() {
   const date = new Date();
   date.setDate(date.getDate() - 1);
-  return date.toISOString().split("T")[0];
+  return getLocalDateStr(date);
 }
 
 /** Returns an array of dates for the last 7 days formatted as YYYY-MM-DD */
@@ -17,7 +35,7 @@ function getLastWeekDaysStrs() {
   for (let i = 7; i >= 1; i--) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    dates.push(date.toISOString().split("T")[0]);
+    dates.push(getLocalDateStr(date));
   }
   return dates;
 }
@@ -26,15 +44,21 @@ function getLastWeekDaysStrs() {
 function getLastMonthDaysStrs() {
   const dates = [];
   const today = new Date();
-  const year = today.getMonth() === 0 ? today.getFullYear() - 1 : today.getFullYear();
-  // If January (0), roll back to December (11) of the previous year
-  const month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+  
+  // Create a date corresponding to the 15th of the previous month to safely get all days 
+  // without month-end wrapping issues (e.g., if today is March 31, going back 1 month natively could skip Feb).
+  const prevMonthDate = new Date(today);
+  prevMonthDate.setDate(15); 
+  prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+  
+  const year = prevMonthDate.getFullYear();
+  const month = prevMonthDate.getMonth();
   
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
   
   for (let day = 1; day <= lastDayOfMonth; day++) {
-    const d = new Date(year, month, day);
-    dates.push(d.toISOString().split("T")[0]);
+    const d = new Date(year, month, day, 12, 0, 0);
+    dates.push(getLocalDateStr(d));
   }
   return dates;
 }

@@ -6,6 +6,27 @@ import { LAMBDA_ERRORS } from "../utils/errors.js";
 import { formatDateRange, emailTranslations } from "../utils/i18n.js";
 import { env } from "../config/env.js";
 
+/** Helper to get timestamp formatted for filenames in local timezone */
+function getLocalTimestampStr(dateObj = new Date()) {
+  const tz = env.APP_TIMEZONE;
+  try {
+    const formatter = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    // sv-SE locale outputs "YYYY-MM-DD HH:mm:ss", replace spaces and colons with underscores
+    return formatter.format(dateObj).replace(/[: ]/g, '_');
+  } catch (e) {
+    return dateObj.toISOString().replace(/[:.]/g, '-');
+  }
+}
+
 /**
  * Generates an automated report (daily/weekly/monthly).
  * 
@@ -216,9 +237,8 @@ export async function generateManualReport(inferences, reportName, requestedBy) 
 
     const pptxBuffer = await pptxGen.generateBuffer();
     
-    // Replace colons and periods with hyphens to ensure S3/filesystem cross-compatibility for filenames
-    const timestampIso = new Date().toISOString().replace(/[:.]/g, '-');
-    const filenameBase = `manual_${timestampIso}`;
+    const timestampStr = getLocalTimestampStr();
+    const filenameBase = `manual_${timestampStr}`;
     const reportKey = `reports/${filenameBase}.pptx`;
     const jsonKey = `reports/${filenameBase}.json`;
     

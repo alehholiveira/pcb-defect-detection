@@ -8,6 +8,7 @@ on:
       - 'ml-service'
       - 'report-service'
       - 'devops'
+      - 'bug-fix-timezone'
 
 jobs:
   test-ml-service:
@@ -51,6 +52,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "test"
           AWS_REGION: "us-east-1"
           AWS_S3_BUCKET_NAME: "test-bucket"
+          APP_TIMEZONE: "America/Sao_Paulo"
         run: |
           python -m pytest
 
@@ -75,6 +77,7 @@ jobs:
       - name: Run Backend Tests
         working-directory: backend
         env:
+          DB_HOST: "127.0.0.1"
           NODE_ENV: "test"
           S3_BUCKET_NAME: "test-bucket"
           SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/123456789012/test-queue"
@@ -85,6 +88,7 @@ jobs:
           EVENTBRIDGE_DAILY_RULE_NAME: "test-daily-rule"
           EVENTBRIDGE_WEEKLY_RULE_NAME: "test-weekly-rule"
           EVENTBRIDGE_MONTHLY_RULE_NAME: "test-monthly-rule"
+          APP_TIMEZONE: "America/Sao_Paulo"
         run: npm test
 
   test-report-service:
@@ -114,6 +118,7 @@ jobs:
           AWS_ACCESS_KEY_ID: "test"
           AWS_SECRET_ACCESS_KEY: "test"
           DEFAULT_LANGUAGE: "pt-BR"
+          APP_TIMEZONE: "America/Sao_Paulo"
         run: npm test
 
   test-frontend:

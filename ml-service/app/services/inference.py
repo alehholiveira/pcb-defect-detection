@@ -13,9 +13,11 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import torch
 from PIL import Image
+from app.core.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from torchvision.transforms import functional as TF
 
@@ -177,7 +179,19 @@ def _build_s3_prefix(inference_date: datetime, inference_id: int) -> str:
     Format: YYYY-MM-DD/<inference_id>/
     Example: 2026-06-16/42/
     """
-    date_str = inference_date.strftime("%Y-%m-%d")
+    settings = get_settings()
+    tz_name = settings.APP_TIMEZONE
+    try:
+        tz = ZoneInfo(tz_name)
+    except Exception:
+        tz = ZoneInfo("UTC")
+        
+    # Ensure datetime from DB is explicitly marked as UTC before converting
+    if inference_date.tzinfo is None:
+        inference_date = inference_date.replace(tzinfo=ZoneInfo("UTC"))
+        
+    local_date = inference_date.astimezone(tz)
+    date_str = local_date.strftime("%Y-%m-%d")
     return f"{date_str}/{inference_id}"
 
 
