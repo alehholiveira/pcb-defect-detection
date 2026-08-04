@@ -60,13 +60,19 @@ export function SendReportEmailModal({ isOpen, onClose, filename, addToast }: Se
   const handleSend = () => {
     if (!filename || selectedEmails.size === 0) return;
     
-    onClose();
-    addToast(t('reports.sendEmailSuccess'), 'success');
-    
-    sendReportEmail(filename, Array.from(selectedEmails), i18n.language).catch((error) => {
-      console.error('Error sending report email:', error);
-      addToast(t('reports.sendEmailError'), 'error');
-    });
+    setSending(true);
+    sendReportEmail(filename, Array.from(selectedEmails), i18n.language)
+      .then(() => {
+        addToast(t('reports.sendEmailSuccess'), 'success');
+        onClose();
+      })
+      .catch((error) => {
+        console.error('Error sending report email:', error);
+        addToast(t('reports.sendEmailError'), 'error');
+      })
+      .finally(() => {
+        setSending(false);
+      });
   };
 
   return (

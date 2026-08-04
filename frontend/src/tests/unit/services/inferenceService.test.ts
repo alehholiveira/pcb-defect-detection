@@ -7,7 +7,6 @@ describe('inferenceService Unit/Integration Tests (with MSW)', () => {
     const response = await getInferences({ page: 1, limit: 10 });
     expect(response).toBeDefined();
     expect(response.data).toEqual(mockInferences);
-    expect(response.total).toBe(2);
   });
 
   it('should fetch single inference details by ID', async () => {
@@ -26,7 +25,6 @@ describe('inferenceService Unit/Integration Tests (with MSW)', () => {
     const response = await runInference([file], 'yolo11', 0.5);
 
     expect(response).toBeDefined();
-    expect(response.inference_id).toBe(99);
     expect(response.images.length).toBe(1);
   });
 

@@ -1,6 +1,8 @@
+# This docker file was built for production; for development we should run the services locally
+
 services:
   # =============================================================================
-  # Frontend — React + Vite
+  # Frontend — React + Vite (NGINX)
   # =============================================================================
   frontend:
     build:
@@ -8,12 +10,10 @@ services:
       dockerfile: Dockerfile
     container_name: pcb-frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "80:80"
     depends_on:
       - backend
+      - ml-service
     networks:
       - pcb-network
 
@@ -27,14 +27,16 @@ services:
     container_name: pcb-backend
     ports:
       - "3000:3000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     env_file:
-      - .env
+      - ./backend/.env.production
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "fetch('http://localhost:3000/health/').then(r => r.status === 200 ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
     networks:
       - pcb-network
 
@@ -48,15 +50,13 @@ services:
     container_name: pcb-ml-service
     ports:
       - "8000:8000"
-    volumes:
-      - ./ml-service:/app
     env_file:
-      - .env
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
-      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - ./ml-service/.env.production
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     networks:
       - pcb-network
 
