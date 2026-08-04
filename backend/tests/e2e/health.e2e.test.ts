@@ -22,7 +22,7 @@ describe('Health API (E2E)', () => {
       url: '/health',
     });
 
-    // statusCode can be 200 (healthy) or 503 (if ML service mock is unreachable)
+    // statusCode can be 200 (healthy) or 503 (unhealth)
     expect([200, 503]).toContain(response.statusCode);
     const body = JSON.parse(response.body);
     expect(body).toHaveProperty('status');

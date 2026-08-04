@@ -14,10 +14,6 @@ const HealthResponseSchema = z.object({
       status: z.enum(['connected', 'disconnected']),
       latency: z.number().optional(),
     }),
-    mlService: z.object({
-      status: z.enum(['reachable', 'unreachable']),
-      url: z.string(),
-    }),
   }),
 });
 

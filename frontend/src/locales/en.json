@@ -262,15 +262,15 @@
       "save": "Save Settings",
       "daily": {
         "label": "Daily Report",
-        "description": "Automatically generated every day at 00:00 UTC"
+        "description": "Automatically generated every day at 03:00 UTC"
       },
       "weekly": {
         "label": "Weekly Report",
-        "description": "Automatically generated every Monday at 00:00 UTC"
+        "description": "Automatically generated every Monday at 03:00 UTC"
       },
       "monthly": {
         "label": "Monthly Report",
-        "description": "Automatically generated on the first day of each month at 00:00 UTC"
+        "description": "Automatically generated on the first day of each month at 03:00 UTC"
       },
       "toast": {
         "saved": "Schedules updated successfully.",

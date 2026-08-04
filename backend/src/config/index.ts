@@ -8,14 +8,11 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   // Database
-  DB_HOST: z.string().default('db'),
+  DB_HOST: z.string(),
   DB_PORT: z.coerce.number().default(3306),
   DB_NAME: z.string().default('pcb_defect_db'),
   DB_USER: z.string().default('pcb_user'),
   DB_PASSWORD: z.string().default('pcb_password'),
-
-  // ML Service
-  ML_SERVICE_URL: z.string().default('http://ml-service:8000'),
 
   // AWS
   AWS_REGION: z.string().default('us-east-1'),
@@ -28,6 +25,9 @@ const envSchema = z.object({
 
   // CORS
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+
+  // Timezone
+  APP_TIMEZONE: z.string().default('America/Sao_Paulo'),
 });
 
 const parsed = envSchema.safeParse(process.env);

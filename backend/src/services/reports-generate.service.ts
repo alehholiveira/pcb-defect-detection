@@ -4,6 +4,7 @@ import { Inference, InferenceImage, Detection } from '../models/index.js';
 import { sendReportRequest, type ReportQueuePayload, type InferenceReference } from '../aws/sqs.helper.js';
 import { API_ERRORS } from '../utils/errors.js';
 import type { GenerateReportBody } from '../controllers/reports.controller.js';
+import { env } from '../config/index.js';
 
 /**
  * Generates a manual report by dispatching a request to AWS SQS.
@@ -110,11 +111,18 @@ export async function generateReportService(body: GenerateReportBody, logger: Fa
   }
 
   const inferenceIdsSet = new Set(inferenceIdsToProcess);
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: env.APP_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
   const inferencesRef: InferenceReference[] = allFilteredInferences
     .filter(inf => inferenceIdsSet.has(inf.id))
     .map(inf => ({
       id: inf.id,
-      date: inf.created_at.toISOString().split('T')[0],
+      date: formatter.format(inf.created_at),
     }));
 
   // Construct SQS payload

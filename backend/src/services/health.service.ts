@@ -12,10 +12,6 @@ interface HealthStatus {
       status: 'connected' | 'disconnected';
       latency?: number;
     };
-    mlService: {
-      status: 'reachable' | 'unreachable';
-      url: string;
-    };
   };
 }
 
@@ -37,22 +33,6 @@ export async function getHealthStatus(logger: FastifyBaseLogger): Promise<Health
     dbStatus = 'disconnected';
   }
 
-  // Check ML service reachability
-  let mlStatus: 'reachable' | 'unreachable' = 'unreachable';
-  try {
-    const response = await fetch(`${env.ML_SERVICE_URL}/ml-service/health`, {
-      signal: AbortSignal.timeout(3000),
-    });
-    if (response.ok) {
-      mlStatus = 'reachable';
-    } else {
-      logger.warn(`[health.service.ts] getHealthStatus - ML Service returned status ${response.status}`);
-    }
-  } catch (error) {
-    logger.error({ error }, '[health.service.ts] getHealthStatus - ML Service fetch failed');
-    mlStatus = 'unreachable';
-  }
-
   const isHealthy = dbStatus === 'connected';
   
   const result: HealthStatus = {
@@ -64,10 +44,6 @@ export async function getHealthStatus(logger: FastifyBaseLogger): Promise<Health
       database: {
         status: dbStatus,
         latency: dbLatency,
-      },
-      mlService: {
-        status: mlStatus,
-        url: env.ML_SERVICE_URL,
       },
     },
   };

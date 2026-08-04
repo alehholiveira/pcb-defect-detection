@@ -13,6 +13,10 @@ export function formatDateTime(iso: string): string {
 }
 
 export function formatDateOnly(iso: string): string {
+  if (!iso) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    return formatDateString(iso);
+  }
   const date = new Date(iso);
   const lang = i18n.language.startsWith('pt') ? 'pt-BR' : 'en-US';
   return date.toLocaleDateString(lang);
