@@ -4,9 +4,7 @@
     "reports": "Relatórios",
     "metrics": "Métricas",
     "models": "Modelos",
-    "settings": "Configurações",
-    "help": "Ajuda",
-    "notifications": "Notificações"
+    "settings": "Configurações"
   },
   "reports": {
     "title": "Relatórios",
@@ -105,17 +103,8 @@
     }
   },
   "common": {
-    "loading": "Carregando...",
-    "error": "Erro",
-    "retry": "Tentar novamente",
     "cancel": "Cancelar",
-    "save": "Salvar",
-    "delete": "Excluir",
-    "view": "Visualizar",
-    "download": "Baixar",
-    "close": "Fechar",
-    "language": "Idioma",
-    "comingSoon": "Funcionalidade em breve!"
+    "close": "Fechar"
   },
   "inference": {
     "page": {
@@ -185,7 +174,6 @@
         "completed": "Concluído"
       },
       "view": "Visualizar",
-      "download": "Baixar",
       "delete": "Excluir",
       "empty": "Nenhuma inferência encontrada",
       "emptyDesc": "Execute uma inferência para ver os resultados aqui.",
@@ -211,7 +199,6 @@
     "errors": {
       "noImagesSelected": "Selecione pelo menos uma imagem para análise.",
       "maxFilesExceeded": "O limite máximo é de {{max}} imagens por análise.",
-      "executionFailed": "Erro ao executar inferência.",
       "historyLoadFailed": "Erro ao carregar inferência do histórico."
     }
   },
