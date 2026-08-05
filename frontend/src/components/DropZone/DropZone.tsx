@@ -7,8 +7,8 @@ interface DropZoneProps {
   onFilesSelected: (files: File[]) => void;
   accept?: string;
   multiple?: boolean;
-  maxSize?: number;
-  maxFiles?: number;
+  maxSize: number;
+  maxFiles: number;
   disabled?: boolean;
   className?: string;
 }
@@ -17,7 +17,7 @@ export function DropZone({
   onFilesSelected,
   accept = 'image/jpeg,image/png',
   multiple = true,
-  maxSize = 10 * 1024 * 1024,
+  maxSize,
   maxFiles,
   disabled = false,
   className = '',

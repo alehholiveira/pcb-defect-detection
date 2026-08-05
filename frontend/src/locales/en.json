@@ -209,7 +209,8 @@
       }
     },
     "errors": {
-      "noImagesSelected": "Select at least one image for analysis.",
+      "noImagesSelected": "Please select at least one image for analysis.",
+      "maxFilesExceeded": "The maximum limit is {{max}} images per analysis.",
       "executionFailed": "Error running inference.",
       "historyLoadFailed": "Error loading inference from history."
     }

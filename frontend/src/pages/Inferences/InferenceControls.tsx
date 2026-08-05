@@ -4,6 +4,7 @@ import { Card } from '../../components/Card'
 import { Select } from '../../components/Select'
 import { DropZone } from '../../components/DropZone'
 import { AVAILABLE_MODELS } from '../../types/inference'
+import { MAX_IMAGES_PER_INFERENCE, MAX_IMAGE_SIZE_BYTES } from '../../config/constants'
 import './InferenceControls.css'
 
 interface InferenceControlsProps {
@@ -51,8 +52,8 @@ export function InferenceControls({
             onFilesSelected={onFilesSelected}
             accept="image/jpeg,image/png,image/bmp"
             multiple
-            maxSize={10 * 1024 * 1024}
-            maxFiles={20}
+            maxSize={MAX_IMAGE_SIZE_BYTES}
+            maxFiles={MAX_IMAGES_PER_INFERENCE}
           />
         </div>
 

@@ -210,6 +210,7 @@
     },
     "errors": {
       "noImagesSelected": "Selecione pelo menos uma imagem para análise.",
+      "maxFilesExceeded": "O limite máximo é de {{max}} imagens por análise.",
       "executionFailed": "Erro ao executar inferência.",
       "historyLoadFailed": "Erro ao carregar inferência do histórico."
     }

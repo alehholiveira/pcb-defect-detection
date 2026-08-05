@@ -8,6 +8,7 @@ import type {
   PaginatedResponse,
 } from '../types/inference'
 import { parseApiError } from '../utils/apiError'
+import { MAX_IMAGES_PER_INFERENCE } from '../config/constants'
 
 export interface FilePreview {
   file: File | null
@@ -102,18 +103,42 @@ export function useInference(): UseInferenceReturn {
     setSelectedModel(model)
   }, [])
 
-  const addFiles = useCallback((files: File[]) => {
-    setSelectedFiles((prev) => [...prev, ...files])
-    setError(null)
-  }, [])
+  const addFiles = useCallback(
+    (files: File[]) => {
+      setSelectedFiles((prev) => {
+        const combined = [...prev, ...files]
+        if (combined.length > MAX_IMAGES_PER_INFERENCE) {
+          setError(
+            t('inference.errors.maxFilesExceeded', {
+              max: MAX_IMAGES_PER_INFERENCE,
+            })
+          )
+          return combined.slice(0, MAX_IMAGES_PER_INFERENCE)
+        }
+        setError(null)
+        return combined
+      })
+    },
+    [t]
+  )
 
   const removeFile = useCallback((index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+    setError(null)
   }, [])
 
   const runInferenceAction = useCallback(async () => {
     if (selectedFiles.length === 0) {
       setError(t('inference.errors.noImagesSelected'))
+      return
+    }
+
+    if (selectedFiles.length > MAX_IMAGES_PER_INFERENCE) {
+      setError(
+        t('inference.errors.maxFilesExceeded', {
+          max: MAX_IMAGES_PER_INFERENCE,
+        })
+      )
       return
     }
 
