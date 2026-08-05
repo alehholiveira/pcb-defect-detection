@@ -4,9 +4,7 @@
     "reports": "Reports",
     "metrics": "Metrics",
     "models": "Models",
-    "settings": "Settings",
-    "help": "Help",
-    "notifications": "Notifications"
+    "settings": "Settings"
   },
   "reports": {
     "title": "Reports",
@@ -105,17 +103,8 @@
     }
   },
   "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "retry": "Retry",
     "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "view": "View",
-    "download": "Download",
-    "close": "Close",
-    "language": "Language",
-    "comingSoon": "Feature coming soon!"
+    "close": "Close"
   },
   "inference": {
     "page": {
@@ -185,7 +174,6 @@
         "completed": "Completed"
       },
       "view": "View",
-      "download": "Download",
       "delete": "Delete",
       "empty": "No inferences found",
       "emptyDesc": "Run an inference to see results here.",
@@ -211,7 +199,6 @@
     "errors": {
       "noImagesSelected": "Please select at least one image for analysis.",
       "maxFilesExceeded": "The maximum limit is {{max}} images per analysis.",
-      "executionFailed": "Error running inference.",
       "historyLoadFailed": "Error loading inference from history."
     }
   },
