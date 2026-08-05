@@ -46,7 +46,7 @@ export interface UseInferenceReturn {
   setModel: (model: string) => void
   addFiles: (files: File[]) => void
   removeFile: (index: number) => void
-  runInferenceAction: () => Promise<void>
+  runInferenceAction: () => Promise<PredictionResponse | null>
   loadInferenceAction: (id: number) => Promise<void>
   clearResults: () => void
   clearFiles: () => void
@@ -127,10 +127,48 @@ export function useInference(): UseInferenceReturn {
     setError(null)
   }, [])
 
-  const runInferenceAction = useCallback(async () => {
+  const setHistoryFilters = useCallback(
+    (filters: Partial<InferenceFilters>) => {
+      setHistoryFiltersState((prev) => ({ ...prev, ...filters }))
+    },
+    []
+  )
+
+  const fetchHistory = useCallback(async (signal?: AbortSignal) => {
+    setHistoryLoading(true)
+    try {
+      // AbortController is passed here to cancel requests on unmount
+      const data = await getInferences(historyFilters, { signal })
+      setHistoryData(data)
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'CanceledError') {
+        return
+      }
+      console.error('Failed to fetch inference history:', err)
+      const apiMsg = parseApiError(err)
+      setError(apiMsg === 'An unexpected error occurred' ? t('inference.errors.historyLoadFailed') : apiMsg)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }, [historyFilters, t])
+
+  const refreshHistory = useCallback(async () => {
+    await fetchHistory()
+  }, [fetchHistory])
+
+  // Fetch history on mount and when filters change
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchHistory(controller.signal)
+    return () => {
+      controller.abort()
+    }
+  }, [fetchHistory])
+
+  const runInferenceAction = useCallback(async (): Promise<PredictionResponse | null> => {
     if (selectedFiles.length === 0) {
       setError(t('inference.errors.noImagesSelected'))
-      return
+      return null
     }
 
     if (selectedFiles.length > MAX_IMAGES_PER_INFERENCE) {
@@ -139,7 +177,7 @@ export function useInference(): UseInferenceReturn {
           max: MAX_IMAGES_PER_INFERENCE,
         })
       )
-      return
+      return null
     }
 
     setIsLoading(true)
@@ -161,14 +199,18 @@ export function useInference(): UseInferenceReturn {
           name: file.name,
         }))
       )
+
+      // Refresh history table so the newly performed inference appears immediately
+      await refreshHistory()
+
+      return result
     } catch (err: unknown) {
-      const apiMsg = parseApiError(err)
-      const message = apiMsg === 'An unexpected error occurred' ? t('inference.errors.executionFailed') : apiMsg
-      setError(message)
+
+      return null
     } finally {
       setIsLoading(false)
     }
-  }, [selectedFiles, selectedModel, t])
+  }, [selectedFiles, selectedModel, t, refreshHistory])
 
   const loadInferenceAction = useCallback(async (id: number) => {
     setIsLoading(true)
@@ -219,44 +261,6 @@ export function useInference(): UseInferenceReturn {
   const clearFiles = useCallback(() => {
     setSelectedFiles([])
   }, [])
-
-  const setHistoryFilters = useCallback(
-    (filters: Partial<InferenceFilters>) => {
-      setHistoryFiltersState((prev) => ({ ...prev, ...filters }))
-    },
-    []
-  )
-
-  const fetchHistory = useCallback(async (signal?: AbortSignal) => {
-    setHistoryLoading(true)
-    try {
-      // AbortController is passed here to cancel requests on unmount
-      const data = await getInferences(historyFilters, { signal })
-      setHistoryData(data)
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'CanceledError') {
-        return
-      }
-      console.error('Failed to fetch inference history:', err)
-      const apiMsg = parseApiError(err)
-      setError(apiMsg === 'An unexpected error occurred' ? t('inference.errors.historyLoadFailed') : apiMsg)
-    } finally {
-      setHistoryLoading(false)
-    }
-  }, [historyFilters, t])
-
-  // Fetch history on mount and when filters change
-  useEffect(() => {
-    const controller = new AbortController()
-    fetchHistory(controller.signal)
-    return () => {
-      controller.abort()
-    }
-  }, [fetchHistory])
-
-  const refreshHistory = useCallback(async () => {
-    await fetchHistory()
-  }, [fetchHistory])
 
   return {
     selectedModel,

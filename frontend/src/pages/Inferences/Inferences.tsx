@@ -1,6 +1,9 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle } from 'lucide-react'
 import { useInference } from '../../hooks/useInference'
+import { useToast } from '../../hooks/useToast'
+import { ToastContainer } from '../../components/Toast'
 import { InferenceControls } from './InferenceControls'
 import { ImagePreview } from './ImagePreview'
 import { InferenceLoading } from './InferenceLoading'
@@ -11,6 +14,8 @@ import './Inferences.css'
 
 export function Inferences() {
   const { t } = useTranslation()
+  const { toasts, addToast, removeToast } = useToast()
+
   const {
     selectedModel,
     selectedFiles,
@@ -34,6 +39,18 @@ export function Inferences() {
     fetchHistory,
     setCurrentResultIndex,
   } = useInference()
+
+  const handleRunInference = useCallback(async () => {
+    const result = await runInferenceAction()
+    if (result) {
+      addToast(
+        t('toast.inferenceSuccess', { detections: result.total_detections }),
+        'success'
+      )
+    } else {
+      addToast(t('toast.inferenceFailed'), 'error')
+    }
+  }, [runInferenceAction, addToast, t])
 
   return (
     <div className="inferences-page">
@@ -59,7 +76,7 @@ export function Inferences() {
         selectedModel={selectedModel}
         onModelChange={setModel}
         onFilesSelected={addFiles}
-        onRunInference={runInferenceAction}
+        onRunInference={handleRunInference}
         onClearFiles={clearFiles}
         fileCount={selectedFiles.length}
         isLoading={isLoading}
@@ -96,6 +113,8 @@ export function Inferences() {
         onFetchHistory={fetchHistory}
         onReplayInference={loadInferenceAction}
       />
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }

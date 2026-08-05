@@ -220,7 +220,9 @@
     "reportRequestFailed": "Falha ao solicitar a geração do relatório. Tente novamente.",
     "reportNameRequired": "Por favor, forneça um nome para o relatório.",
     "inferenceDeleted": "Inferência excluída com sucesso!",
-    "inferenceDeleteFailed": "Falha ao excluir a inferência. Tente novamente."
+    "inferenceDeleteFailed": "Falha ao excluir a inferência. Tente novamente.",
+    "inferenceSuccess": "Inferência executada com sucesso! {{detections}} defeito(s) detectado(s).",
+    "inferenceFailed": "Falha ao executar a inferência. Tente novamente."
   },
   "settings": {
     "page": {
