@@ -63,9 +63,20 @@ async def predict(
             detail=f"Model '{model_name.value}' is not loaded. Available models: {available}",
         )
 
+    # Validate maximum allowed images in batch
+    if len(files) > settings.MAX_IMAGES_PER_BATCH:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Too many files uploaded ({len(files)}). "
+                f"Maximum allowed per batch is {settings.MAX_IMAGES_PER_BATCH}."
+            ),
+        )
+
     # Validate and read all images
     images: list[tuple[str, Image.Image]] = []
     total_size = 0
+    max_bytes = settings.MAX_FILE_SIZE * 1024 * 1024
 
     for file in files:
         # Validate file type
@@ -84,11 +95,10 @@ async def predict(
             total_size += len(contents)
 
             # Validate total upload size
-            if total_size > settings.MAX_FILE_SIZE:
-                max_mb = settings.MAX_FILE_SIZE / (1024 * 1024)
+            if total_size > max_bytes:
                 raise HTTPException(
                     status_code=413,
-                    detail=f"Total upload size exceeds the limit of {max_mb:.0f}MB.",
+                    detail=f"Total upload size exceeds the limit of {settings.MAX_FILE_SIZE}MB.",
                 )
 
             image = Image.open(BytesIO(contents)).convert("RGB")
