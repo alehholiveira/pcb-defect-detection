@@ -8,7 +8,8 @@ def test_settings_default_values(monkeypatch):
     """Test default values of Settings class."""
     monkeypatch.setenv("CORS_ORIGIN", "http://localhost:3000")
     monkeypatch.setenv("MODELS_DIR", "app/models")
-    monkeypatch.setenv("MAX_FILE_SIZE", "10485760")
+    monkeypatch.setenv("MAX_FILE_SIZE", "350")
+    monkeypatch.setenv("MAX_IMAGES_PER_BATCH", "35")
     monkeypatch.setenv("CONFIDENCE_THRESHOLD", "0.25")
     monkeypatch.setenv("DB_HOST", "localhost")
     monkeypatch.setenv("DB_PORT", "3306")

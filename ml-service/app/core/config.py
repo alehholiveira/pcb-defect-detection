@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     # Models directory (where trained weights are stored)
     MODELS_DIR: str
 
-    # Max upload file size (bytes)
+    # Max upload file size for total batch (in Megabytes, MB)
     MAX_FILE_SIZE: int
+
+    # Max allowed images in a single batch request
+    MAX_IMAGES_PER_BATCH: int
 
     # Default confidence threshold for detections
     CONFIDENCE_THRESHOLD: float
