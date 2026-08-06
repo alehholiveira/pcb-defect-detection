@@ -23,6 +23,7 @@ export async function setupTestDatabase() {
     .withUsername('test_user')
     .withUserPassword('test_password')
     .withRootPassword('root_password')
+    .withTmpFs({ '/var/lib/mysql': 'rw' })
     .start();
 
   process.env.DB_HOST = container.getHost();
