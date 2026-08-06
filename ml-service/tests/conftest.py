@@ -28,8 +28,10 @@ from app.models.loader import ModelName, LoadedModel
 
 @pytest.fixture(scope="session")
 def mysql_container() -> Generator[MySqlContainer, None, None]:
-    """Spin up a MySQL 8.0 container using Testcontainers."""
-    with MySqlContainer("mysql:8.0") as mysql:
+    """Spin up a MySQL 8.0 container using Testcontainers with tmpfs in RAM."""
+    container = MySqlContainer("mysql:8.0")
+    container.tmpfs = {"/var/lib/mysql": "rw"}
+    with container as mysql:
         yield mysql
 
 
