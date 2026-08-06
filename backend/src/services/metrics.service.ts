@@ -107,12 +107,21 @@ async function getTimeSeriesMetricsService(filters: GetMetricsFilters, logger: F
   logger.info({ filters }, '[metrics.service.ts] getTimeSeriesMetricsService - Init');
   const where = buildInferenceWhere(filters);
   const granularity = filters.granularity || 'daily';
-  
-  let dateFormatExpr = 'DATE(Inference.created_at)';
+
+  /* TECHNICAL DECISION / TIMEZONE NOTE:
+  The database stores created_at in UTC (+00:00). To group inferences and detections by the service's
+  local day (America/Sao_Paulo, UTC-3), we use MySQL's CONVERT_TZ(..., '+00:00', '-03:00') before
+  DATE / DATE_FORMAT functions. We use a fixed offset of '-03:00' because Brazil currently does not observe
+  Daylight Saving Time (DST). This aligns timeline charts with the user's expectations. Probably in the future this
+  approach can be changed for a most efficient and scalable.
+  */
+  const tzExpr = (field: string) => `CONVERT_TZ(${field}, '+00:00', '-03:00')`;
+
+  let dateFormatExpr = `DATE(${tzExpr('Inference.created_at')})`;
   if (granularity === 'weekly') {
-    dateFormatExpr = `DATE_FORMAT(DATE_SUB(Inference.created_at, INTERVAL WEEKDAY(Inference.created_at) DAY), '%Y-%m-%d')`;
+    dateFormatExpr = `DATE_FORMAT(DATE_SUB(${tzExpr('Inference.created_at')}, INTERVAL WEEKDAY(${tzExpr('Inference.created_at')}) DAY), '%Y-%m-%d')`;
   } else if (granularity === 'monthly') {
-    dateFormatExpr = `DATE_FORMAT(Inference.created_at, '%Y-%m-01')`;
+    dateFormatExpr = `DATE_FORMAT(${tzExpr('Inference.created_at')}, '%Y-%m-01')`;
   }
 
   const inferencesOverTime = await Inference.findAll({
@@ -127,11 +136,12 @@ async function getTimeSeriesMetricsService(filters: GetMetricsFilters, logger: F
   }) as any[];
 
   // Fix: backtick escape the alias to avoid MySQL interpreting -> as a JSON operator
-  let detectionDateFormatExpr = 'DATE(`inferenceImage->inference`.`created_at`)';
+  const detCreatedAtField = '`inferenceImage->inference`.`created_at`';
+  let detectionDateFormatExpr = `DATE(${tzExpr(detCreatedAtField)})`;
   if (granularity === 'weekly') {
-    detectionDateFormatExpr = `DATE_FORMAT(DATE_SUB(\`inferenceImage->inference\`.\`created_at\`, INTERVAL WEEKDAY(\`inferenceImage->inference\`.\`created_at\`) DAY), '%Y-%m-%d')`;
+    detectionDateFormatExpr = `DATE_FORMAT(DATE_SUB(${tzExpr(detCreatedAtField)}, INTERVAL WEEKDAY(${tzExpr(detCreatedAtField)}) DAY), '%Y-%m-%d')`;
   } else if (granularity === 'monthly') {
-    detectionDateFormatExpr = `DATE_FORMAT(\`inferenceImage->inference\`.\`created_at\`, '%Y-%m-01')`;
+    detectionDateFormatExpr = `DATE_FORMAT(${tzExpr(detCreatedAtField)}, '%Y-%m-01')`;
   }
 
   const defectsAndConfidenceOverTime = await Detection.findAll({
