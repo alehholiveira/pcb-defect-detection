@@ -19,9 +19,13 @@ from torchvision.transforms import v2
 
 
 INPUT_SIZE = 640
-MAX_DETECTIONS = 300
+# O resumo padrão do COCOeval (evaluator.stats) é definido para maxDets=100.
+# Manter este valor separado do limite de geração evita métricas AP inválidas.
+COCO_MAX_DETECTIONS = 100
+PREDICTION_MAX_DETECTIONS = 300
 SCORE_THRESHOLD = 0.25
 MATCH_IOU_THRESHOLD = 0.50
+EVALUATION_PROTOCOL_VERSION = "coco-bbox-v2"
 
 
 def build_shared_train_transforms() -> v2.Compose:
@@ -85,6 +89,7 @@ def _fixed_threshold_metrics(
     predictions: Sequence[dict],
     score_threshold: float,
     match_iou_threshold: float,
+    max_detections: int,
 ) -> tuple[list[dict], float, float, float]:
     categories = _defect_categories(coco_gt)
     category_ids = {int(category["id"]) for category in categories}
@@ -117,7 +122,7 @@ def _fixed_threshold_metrics(
             predictions_by_key.get((image_id, category_id), []),
             key=lambda item: item["score"],
             reverse=True,
-        )
+        )[:max_detections]
         matched_ground_truth: set[int] = set()
 
         for prediction in predicted:
@@ -170,9 +175,22 @@ def evaluate_coco_predictions(
     *,
     score_threshold: float = SCORE_THRESHOLD,
     match_iou_threshold: float = MATCH_IOU_THRESHOLD,
-    max_detections: int = MAX_DETECTIONS,
+    max_detections: int = COCO_MAX_DETECTIONS,
 ) -> dict:
-    """Avalia predições pelo COCOeval e por métricas pontuais comuns."""
+    """Avalia predições pelo protocolo COCO padrão e por métricas pontuais.
+
+    O ``COCOeval.summarize()`` usado para preencher ``evaluator.stats`` calcula
+    AP e AP50 com ``maxDets=100``. Outro valor tornaria essas posições inválidas
+    ou não comparáveis ao protocolo COCO convencional.
+    """
+
+    max_detections = int(max_detections)
+    if max_detections != COCO_MAX_DETECTIONS:
+        raise ValueError(
+            "As métricas COCO oficiais exigem max_detections=100. "
+            "Calcule limites alternativos como métricas adicionais, sem "
+            "substituir mAP@50:95 e mAP@50."
+        )
 
     coco_gt = COCO(str(annotation_path))
     categories = _defect_categories(coco_gt)
@@ -192,7 +210,7 @@ def evaluate_coco_predictions(
     evaluator = COCOeval(coco_gt, coco_dt, iouType="bbox")
     evaluator.params.imgIds = sorted(coco_gt.getImgIds())
     evaluator.params.catIds = category_ids
-    evaluator.params.maxDets = [1, 10, int(max_detections)]
+    evaluator.params.maxDets = [1, 10, COCO_MAX_DETECTIONS]
     evaluator.evaluate()
     evaluator.accumulate()
     evaluator.summarize()
@@ -202,6 +220,7 @@ def evaluate_coco_predictions(
         predictions,
         score_threshold,
         match_iou_threshold,
+        max_detections,
     )
 
     return {
@@ -212,9 +231,32 @@ def evaluate_coco_predictions(
         "f1_macro": macro_f1,
         "score_threshold": float(score_threshold),
         "match_iou_threshold": float(match_iou_threshold),
-        "max_detections": int(max_detections),
+        "max_detections": max_detections,
+        "evaluation_protocol": "COCO bbox (maxDets=100)",
+        "evaluation_protocol_version": EVALUATION_PROTOCOL_VERSION,
         "per_class": per_class,
     }
+
+
+def evaluate_coco_prediction_file(
+    annotation_path: str | Path,
+    prediction_path: str | Path,
+    *,
+    score_threshold: float = SCORE_THRESHOLD,
+    match_iou_threshold: float = MATCH_IOU_THRESHOLD,
+) -> dict:
+    """Reavalia um JSON de predições existente sem executar o modelo."""
+
+    predictions = json.loads(Path(prediction_path).read_text(encoding="utf-8"))
+    if not isinstance(predictions, list):
+        raise ValueError("O arquivo de predições COCO deve conter uma lista JSON.")
+
+    return evaluate_coco_predictions(
+        annotation_path,
+        predictions,
+        score_threshold=score_threshold,
+        match_iou_threshold=match_iou_threshold,
+    )
 
 
 def evaluate_torchvision_coco(
@@ -307,7 +349,7 @@ def evaluate_ultralytics_coco(
         stream=True,
         imgsz=int(input_size),
         conf=0.001,
-        max_det=MAX_DETECTIONS,
+        max_det=PREDICTION_MAX_DETECTIONS,
         device=device,
         verbose=False,
         save=False,
