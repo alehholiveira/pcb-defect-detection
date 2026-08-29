@@ -1,0 +1,83 @@
+{
+  "map50_95": 0.5251482399054435,
+  "map50": 0.9844643939815079,
+  "precision_macro": 0.8945685895500612,
+  "recall_macro": 0.9876643854818291,
+  "f1_macro": 0.9381490515327958,
+  "score_threshold": 0.25,
+  "match_iou_threshold": 0.5,
+  "max_detections": 100,
+  "evaluation_protocol": "COCO bbox (maxDets=100)",
+  "evaluation_protocol_version": "coco-bbox-v2",
+  "per_class": [
+    {
+      "category_id": 1,
+      "class_name": "mouse_bite",
+      "precision": 0.9338842975206612,
+      "recall": 0.9912280701754386,
+      "f1": 0.9617021276595745,
+      "true_positives": 113,
+      "false_positives": 8,
+      "false_negatives": 1,
+      "support": 114
+    },
+    {
+      "category_id": 2,
+      "class_name": "spur",
+      "precision": 0.810126582278481,
+      "recall": 0.9846153846153847,
+      "f1": 0.888888888888889,
+      "true_positives": 128,
+      "false_positives": 30,
+      "false_negatives": 2,
+      "support": 130
+    },
+    {
+      "category_id": 3,
+      "class_name": "missing_hole",
+      "precision": 0.8881578947368421,
+      "recall": 0.9926470588235294,
+      "f1": 0.9375000000000001,
+      "true_positives": 135,
+      "false_positives": 17,
+      "false_negatives": 1,
+      "support": 136
+    },
+    {
+      "category_id": 4,
+      "class_name": "short",
+      "precision": 0.9078014184397163,
+      "recall": 0.9846153846153847,
+      "f1": 0.9446494464944649,
+      "true_positives": 128,
+      "false_positives": 13,
+      "false_negatives": 2,
+      "support": 130
+    },
+    {
+      "category_id": 5,
+      "class_name": "open_circuit",
+      "precision": 0.9539473684210527,
+      "recall": 0.9797297297297297,
+      "f1": 0.9666666666666666,
+      "true_positives": 145,
+      "false_positives": 7,
+      "false_negatives": 3,
+      "support": 148
+    },
+    {
+      "category_id": 6,
+      "class_name": "spurious_copper",
+      "precision": 0.8734939759036144,
+      "recall": 0.9931506849315068,
+      "f1": 0.9294871794871794,
+      "true_positives": 145,
+      "false_positives": 21,
+      "false_negatives": 1,
+      "support": 146
+    }
+  ],
+  "run_dir": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/rtdetr/20260830_2138_rtdetr-l_img640_e100_bs4_seed42_standardized_protocol",
+  "checkpoint": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/rtdetr/20260830_2138_rtdetr-l_img640_e100_bs4_seed42_standardized_protocol/weights/best.pt",
+  "evaluation_backend": "pycocotools.COCOeval"
+}
