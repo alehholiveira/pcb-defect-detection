@@ -1,8 +1,0 @@
-{
-  "map50": 0.9656777394103438,
-  "map50_95": 0.5057447168206538,
-  "precision": 0.9324448607354684,
-  "recall": 0.9527894401751832,
-  "f1_max": 0.9689932619207954,
-  "run_dir": "/home/alexandre-oliveira/Projetos/pcb-defect-detection/neural-links-pcb-defect-detection/runs/detect/tcc_pcb_defect_detection/rtdetr/20260506_0006_rtdetr-l_img640_e50_bs4_seed42_baseline"
-}
