@@ -6,3 +6,8 @@ __pycache__
 *.md
 weights/
 .venv/
+venv/
+.pytest_cache/
+**/__pycache__/
+outputs/
+.DS_Store
