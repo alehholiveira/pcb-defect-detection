@@ -293,25 +293,23 @@
         "architecture": "Arquitetura",
         "structure": "Estrutura Base",
         "map": "mAP @50",
-        "f1": "F1 Máximo",
-        "precision": "Precision",
-        "recall": "Recall"
+        "f1": "F1 macro",
+        "precision": "Precisão macro",
+        "recall": "Recall macro"
       },
       "badges": {
         "best": "Melhor",
-        "bestSpeed": "Melhor Velocidade & mAP",
-        "bestRecall": "Melhor Recall",
-        "bestBackground": "Melhor Supressão de Fundo",
-        "bestInnovation": "Inovação Real-Time"
+        "bestPrecisionF1": "Maior Precisão e F1",
+        "bestMapRecall": "Maior mAP@50 e Recall"
       },
       "helpAriaLabel": "Explicar métrica"
     },
     "conclusions": {
       "title": "Conclusões Práticas para a Indústria",
-      "yolo": "O YOLOv11 obteve a melhor relação global de precisão e velocidade, sendo recomendado para implantação imediata nas linhas de produção.",
-      "fasterrcnn": "O Faster R-CNN obteve o maior Recall (97.65%), servindo como uma excelente opção para triagens rígidas onde nenhum defeito pode passar.",
-      "retinanet": "O RetinaNet validou o uso da Focal Loss ao manter falsos positivos do fundo sob controle absoluto mesmo em cenários complexos.",
-      "rtdetr": "O RT-DETR provou que Transformers híbridos operam em tempo real e simplificam o hardware de borda por não precisarem de NMS."
+      "yolo": "O YOLO11 obteve a maior precisão macro (0,9635) e o maior F1 macro (0,9734) entre os quatro modelos avaliados.",
+      "fasterrcnn": "O Faster R-CNN obteve o maior mAP@50 (0,9864) e recall macro (99,24%), com precisão macro de 0,8303.",
+      "retinanet": "O RetinaNet apresentou mAP@50 de 0,8690 e precisão macro de 0,5632. Os falsos positivos indicam a necessidade de ajustes antes do uso em inspeção.",
+      "rtdetr": "O RT-DETR apresentou mAP@50 de 0,9845 e F1 macro de 0,9381. Estes resultados de detecção não medem a velocidade de inferência."
     },
     "card": {
       "howItWorks": "Como Funciona",
@@ -326,34 +324,34 @@
     "architectures": {
       "yolo": {
         "category": "Estágio Único (Single-stage) & Anchor-free",
-        "highlight": "Melhor mAP & Velocidade",
-        "howItWorks": "O YOLOv11 processa a imagem inteira em uma única passagem de rede convolucional (Single-stage). Ele prevê diretamente as caixas delimitadoras e as classes sem a necessidade de âncoras predefinidas, eliminando complexidades computacionais.",
+        "highlight": "Maior Precisão e F1 macro",
+        "howItWorks": "O YOLO11 processa a imagem inteira em uma única passagem de rede convolucional (Single-stage). Ele prevê diretamente as caixas delimitadoras e as classes sem a necessidade de âncoras predefinidas, eliminando complexidades computacionais.",
         "pcbContext": "A grande vantagem na indústria é a sua velocidade absurda (FPS alto). Graças ao PANet Neck, ele funde características em diferentes escalas, impedindo que pequenos defeitos passem despercebidos na esteira.",
-        "expectative": "Esperava-se excelente tempo de resposta e boa precisão. O resultado prático foi excepcional: mAP@50 de 0.9836 e F1-Score Máximo de 0.9884, consagrando-se a melhor performance global.",
-        "name": "YOLOv11"
+        "expectative": "Na avaliação mais recente, obteve mAP@50 de 0,9845, F1 macro de 0,9734, precisão macro de 0,9635 e recall macro de 0,9838.",
+        "name": "YOLO11"
       },
       "fasterrcnn": {
         "category": "Dois Estágios (Two-stage) / ResNet-50-FPN V2",
-        "highlight": "Maior Recall (Recuperação)",
+        "highlight": "Maior mAP@50 e Recall",
         "howItWorks": "Utiliza um módulo dedicado chamado RPN (Region Proposal Network) para rastrear primeiro possíveis regiões candidatas a conter defeitos (Estágio 1). Depois, um classificador profundo analisa minuciosamente essas regiões para enquadrar a falha (Estágio 2).",
         "pcbContext": "Funciona essencialmente como uma lupa digital na placa. Ao adotarmos o backbone profundo ResNet-50-FPN V2 no lugar de modelos mais leves, a capacidade de identificar pequenas quebras de trilhas ou furos ausentes saltou drasticamente.",
-        "expectative": "Esperava-se precisão cirúrgica ao custo de processamento mais lento. Obteve o maior Recall do estudo (97.65%), consolidando sua eficácia absoluta contra falsos negativos (escape de defeitos).",
+        "expectative": "Na avaliação mais recente, obteve mAP@50 de 0,9864, F1 macro de 0,9034, precisão macro de 0,8303 e recall macro de 0,9924.",
         "name": "Faster R-CNN"
       },
       "retinanet": {
         "category": "Estágio Único Baseado em Âncoras / ResNet-50-FPN",
-        "highlight": "Combate a Falsos Positivos",
+        "highlight": "Precisão macro a Melhorar",
         "howItWorks": "Embora seja um detector de estágio único rápido, ele implementa a função Focal Loss. Essa matemática penaliza drasticamente o erro nas classes difíceis de defeitos e ignora a perda gerada pelas grandes áreas normais (placa vazia).",
         "pcbContext": "Numa PCB onde 99% da imagem representa fundo sem falhas, as milhares de âncoras da rede gerariam falsos positivos contínuos. A Focal Loss força a atenção da rede a focar puramente nas irregularidades do cobre e furos.",
-        "expectative": "Esperava-se precisão comparável ao Faster R-CNN com velocidade superior. Obteve mAP@50 de 0.9745 e excelente supressão de falsos positivos no fundo da placa, validando o backbone ResNet50.",
+        "expectative": "Na avaliação mais recente, obteve mAP@50 de 0,8690, F1 macro de 0,6902, precisão macro de 0,5632 e recall macro de 0,9319.",
         "name": "RetinaNet"
       },
       "rtdetr": {
         "category": "Detector Baseado em Vision Transformers (VIT)",
-        "highlight": "Velocidade Constante",
+        "highlight": "F1 macro de 0,9381",
         "howItWorks": "Usa CNNs apenas para a extração inicial e repassa as imagens a um Transformer Encoder-Decoder. Os mecanismos de Self-Attention observam o contexto da placa inteira de uma só vez, eliminando o algoritmo NMS de pós-processamento.",
         "pcbContext": "Defeitos como trilhas abertas têm pistas visuais espalhadas pela placa. A atenção global conecta essas regiões distantes. Além disso, a ausência de NMS garante que o tempo de análise não suba caso a placa tenha muitas falhas.",
-        "expectative": "Esperava-se inovação de ponta, porém com treinamento difícil. Entregou mAP@50 de 0.9657 e F1 de 0.9690, mostrando que Transformers podem sim rodar em tempo real na indústria.",
+        "expectative": "Na avaliação mais recente, obteve mAP@50 de 0,9845, F1 macro de 0,9381, precisão macro de 0,8946 e recall macro de 0,9877.",
         "name": "RT-DETR"
       }
     },
@@ -368,8 +366,8 @@
           "desc": "Métrica global de precisão do detector. Mede quão bem o modelo localiza e classifica o defeito simultaneamente (com pelo menos 50% de sobreposição com a falha real). Quanto mais próximo de 1.0000 (100%), melhor."
         },
         "f1": {
-          "title": "F1-Score Máximo",
-          "desc": "O equilíbrio ideal (média harmônica) entre Precisão e Recall. Serve para resumir a eficácia prática do modelo em um único valor estável, balanceando alarmes falsos e defeitos não detectados."
+          "title": "F1 macro",
+          "desc": "Média aritmética do F1 calculado separadamente para cada classe. Cada F1 combina precisão e recall pela média harmônica."
         },
         "precision": {
           "title": "Precision (Precisão)",
@@ -381,7 +379,7 @@
         },
         "singlestage": {
           "title": "Single-stage (Estágio Único)",
-          "desc": "Modelos que detectam a localização e a classe do defeito em uma única passagem pela rede convolucional (ex: YOLOv11 e RetinaNet). São extremamente rápidos, ideais para esteiras de produção velozes."
+          "desc": "Modelos que detectam a localização e a classe do defeito em uma única passagem pela rede convolucional (ex: YOLO11 e RetinaNet). São extremamente rápidos, ideais para esteiras de produção velozes."
         },
         "twostage": {
           "title": "Two-stage (Dois Estágios)",
