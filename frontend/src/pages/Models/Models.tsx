@@ -157,7 +157,7 @@ export function Models() {
                           {row.architecture}
                         </span>
                         {badgeText && (
-                          <Badge variant={row.badgeKey === 'bestSpeed' ? 'success' : row.badgeKey === 'bestRecall' ? 'info' : 'neutral'}>
+                          <Badge variant={row.badgeKey === 'bestPrecisionF1' ? 'success' : row.badgeKey === 'bestMapRecall' ? 'info' : 'neutral'}>
                             {badgeText}
                           </Badge>
                         )}
@@ -175,12 +175,12 @@ export function Models() {
                     </td>
                     <td
                       className={
-                        row.isBest?.f1Max
+                        row.isBest?.f1Macro
                           ? 'models-metrics__highlight-cell'
                           : ''
                       }
                     >
-                      {row.f1Max.toFixed(4)}
+                      {row.f1Macro.toFixed(4)}
                     </td>
                     <td
                       className={

@@ -288,30 +288,28 @@
     },
     "metrics": {
       "title": "Performance Comparison",
-      "subtitle": "Results obtained on the consolidated test subset.",
+      "subtitle": "Results obtained on the consolidated test set.",
       "columns": {
         "architecture": "Architecture",
         "structure": "Base Structure",
         "map": "mAP @50",
-        "f1": "Max F1",
-        "precision": "Precision",
-        "recall": "Recall"
+        "f1": "Macro F1",
+        "precision": "Macro precision",
+        "recall": "Macro recall"
       },
       "badges": {
         "best": "Best",
-        "bestSpeed": "Best Speed & mAP",
-        "bestRecall": "Best Recall",
-        "bestBackground": "Best Background Suppression",
-        "bestInnovation": "Real-Time Innovation"
+        "bestPrecisionF1": "Highest Precision & F1",
+        "bestMapRecall": "Highest mAP@50 & Recall"
       },
       "helpAriaLabel": "Explain metric"
     },
     "conclusions": {
       "title": "Practical Industrial Conclusions",
-      "yolo": "YOLOv11 achieved the best global trade-off of accuracy and speed, recommended for immediate deployment on assembly lines.",
-      "fasterrcnn": "Faster R-CNN achieved the highest Recall (97.65%), serving as a solid option for strict sorting where no defects can escape.",
-      "retinanet": "RetinaNet validated the use of Focal Loss by keeping background false positives under absolute control even in complex scenes.",
-      "rtdetr": "RT-DETR proved that hybrid Transformers can operate in real-time and simplify edge hardware by not requiring NMS."
+      "yolo": "YOLO11 achieved the highest macro precision (0.9635) and macro F1 (0.9734) among the four evaluated models.",
+      "fasterrcnn": "Faster R-CNN achieved the highest mAP@50 (0.9864) and macro recall (99.24%), with macro precision of 0.8303.",
+      "retinanet": "RetinaNet achieved mAP@50 of 0.8690 and macro precision of 0.5632. False positives indicate a need for adjustments before inspection use.",
+      "rtdetr": "RT-DETR achieved mAP@50 of 0.9845 and macro F1 of 0.9381. These detection results do not measure inference speed."
     },
     "card": {
       "howItWorks": "How It Works",
@@ -326,34 +324,34 @@
     "architectures": {
       "yolo": {
         "category": "Single-stage & Anchor-free",
-        "highlight": "Best mAP & Speed",
-        "howItWorks": "YOLOv11 processes the entire image in a single neural network pass (Single-stage). It predicts bounding boxes and class probabilities directly without using pre-defined anchors, reducing computing complexity.",
+        "highlight": "Highest Macro Precision & F1",
+        "howItWorks": "YOLO11 processes the entire image in a single neural network pass (Single-stage). It predicts bounding boxes and class probabilities directly without using pre-defined anchors, reducing computing complexity.",
         "pcbContext": "The main benefit in production is its incredible processing speed (high FPS). With the PANet Neck, it fuses features across scales, preventing tiny defects from slipping through on the conveyor belt.",
-        "expectative": "Expected high throughput and decent accuracy. The actual results were exceptional: mAP@50 of 0.9836 and maximum F1-Score of 0.9884, achieving the best overall performance.",
-        "name": "YOLOv11"
+        "expectative": "The latest evaluation achieved mAP@50 of 0.9845, macro F1 of 0.9734, macro precision of 0.9635 and macro recall of 0.9838.",
+        "name": "YOLO11"
       },
       "fasterrcnn": {
         "category": "Two-stage / ResNet-50-FPN V2",
-        "highlight": "Highest Recall (Recovery)",
+        "highlight": "Highest mAP@50 & Recall",
         "howItWorks": "Uses a dedicated module called RPN (Region Proposal Network) to first propose potential regions likely to contain defects (Stage 1). Then, a deep classifier meticulously inspects these proposals to frame the final defect (Stage 2).",
         "pcbContext": "Acts essentially like a digital magnifying glass on the board. By adopting the deep ResNet-50-FPN V2 backbone instead of lighter networks, the ability to find microscopic track breaks or missing holes jumped drastically.",
-        "expectative": "Expected high precision at the expense of slower processing. Achieved the highest Recall of the study (97.65%), proving its absolute robustness against false negatives (escaped defects).",
+        "expectative": "The latest evaluation achieved mAP@50 of 0.9864, macro F1 of 0.9034, macro precision of 0.8303 and macro recall of 0.9924.",
         "name": "Faster R-CNN"
       },
       "retinanet": {
         "category": "Single-stage Anchor-based / ResNet-50-FPN",
-        "highlight": "False Positive Control",
+        "highlight": "Macro Precision Needs Improvement",
         "howItWorks": "Although a fast single-stage detector, it implements the Focal Loss function. This math penalizes network errors heavily on hard defect classes and downweights the loss generated by normal board regions (background).",
         "pcbContext": "On a PCB where 99% of the image represents defect-free background, standard anchors would generate continuous false positives. Focal Loss forces the network's attention purely onto track anomalies and missing holes.",
-        "expectative": "Expected precision close to Faster R-CNN with higher speed. Achieved a mAP@50 of 0.9745 and excellent background suppression, validating the ResNet50 baseline.",
+        "expectative": "The latest evaluation achieved mAP@50 of 0.8690, macro F1 of 0.6902, macro precision of 0.5632 and macro recall of 0.9319.",
         "name": "RetinaNet"
       },
       "rtdetr": {
         "category": "Vision Transformer (VIT) Based Detector",
-        "highlight": "Constant Inference Time",
+        "highlight": "Macro F1 of 0.9381",
         "howItWorks": "Uses CNNs only for initial feature extraction and passes them to a Transformer Encoder-Decoder. Self-Attention mechanisms analyze the entire board context at once, predicting boxes directly and eliminating NMS post-processing.",
         "pcbContext": "Defects like open circuits have visual cues spread across the tracks. Global attention connects these distant regions. Also, the absence of NMS ensures inference time remains constant regardless of how many defects are on the board.",
-        "expectative": "Expected state-of-the-art transformer capabilities but hard to train. It successfully delivered a mAP@50 of 0.9657 and F1 of 0.9690, proving Transformers can run in real-time in industrial setups.",
+        "expectative": "The latest evaluation achieved mAP@50 of 0.9845, macro F1 of 0.9381, macro precision of 0.8946 and macro recall of 0.9877.",
         "name": "RT-DETR"
       }
     },
@@ -368,8 +366,8 @@
           "desc": "Global accuracy metric of the detector. Measures how well the model localizes and classifies the defect simultaneously (with at least 50% overlap with the ground truth). The closer to 1.0000 (100%), the better."
         },
         "f1": {
-          "title": "Max F1-Score",
-          "desc": "The optimal balance (harmonic mean) between Precision and Recall. It summarizes the model's practical efficacy in a single stable value, balancing false alarms and undetected defects."
+          "title": "Macro F1-Score",
+          "desc": "Arithmetic mean of the F1 scores calculated separately for each class. Each F1 combines precision and recall using their harmonic mean."
         },
         "precision": {
           "title": "Precision",
@@ -381,7 +379,7 @@
         },
         "singlestage": {
           "title": "Single-stage",
-          "desc": "Models that detect defect location and class in a single pass through the convolutional network (e.g., YOLOv11 and RetinaNet). They are extremely fast, ideal for high-speed conveyor belts."
+          "desc": "Models that detect defect location and class in a single pass through the convolutional network (e.g., YOLO11 and RetinaNet). They are extremely fast, ideal for high-speed conveyor belts."
         },
         "twostage": {
           "title": "Two-stage",
